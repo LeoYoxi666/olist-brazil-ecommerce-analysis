@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Olist Operations Dashboard</title>
+<style>
+body { margin: 0; background: #f4f6fa; color: #172033; font-family: Arial, sans-serif; }
+.wrap { max-width: 1220px; margin: 0 auto; padding: 32px; }
+h1 { margin: 0 0 6px; font-size: 30px; }
+.subtitle { color: #596579; margin-bottom: 24px; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.card, .panel { background: #fff; border-radius: 10px; padding: 18px;
+box-shadow: 0 2px 10px rgba(23,32,51,.06); }
+.label { color: #596579; font-size: 13px; }
+.value { font-size: 24px; font-weight: 700; margin-top: 8px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.panel h2 { font-size: 18px; margin: 0 0 14px; }
+.chart { width: 100%; height: 360px; border: 0; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th, .data-table td { padding: 8px 6px; border-bottom: 1px solid #e7eaf0;
+text-align: left; }
+.data-table th { color: #596579; font-weight: 600; }
+@media (max-width: 800px) { .cards, .grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .cards, .grid { grid-template-columns: 1fr; } .wrap { padding: 18px; } }
+</style></head>
+<body><main class="wrap">
+<h1>Olist Brazil E-commerce Operations Dashboard</h1>
+<div class="subtitle">Delivered-order baseline; trend window through 2018-08</div>
+<section class="cards"><div class="card"><div class="label">Completed orders</div><div class="value">96,478</div></div><div class="card"><div class="label">Merchandise GMV</div><div class="value">13,221,498.11</div></div><div class="card"><div class="label">Active buyers</div><div class="value">93,358</div></div><div class="card"><div class="label">Average order value</div><div class="value">137.04</div></div><div class="card"><div class="label">Repeat buyer rate</div><div class="value">3.00%</div></div><div class="card"><div class="label">Late delivery rate</div><div class="value">8.11%</div></div><div class="card"><div class="label">Average delivery days</div><div class="value">12.13</div></div><div class="card"><div class="label">Average review score</div><div class="value">4.16 / 5</div></div></section>
+<section class="grid">
+<div class="panel"><h2>Monthly merchandise GMV</h2>
+<img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>
+<div class="panel"><h2>Monthly completed orders</h2>
+<img class="chart" src="analysis/monthly_orders.svg" alt="Monthly completed orders"></div>
+<div class="panel"><h2>Top categories by GMV</h2>
+<img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
+<div class="panel"><h2>Late delivery rate by state</h2>
+<img class="chart" src="analysis/state_late_delivery.svg" alt="Late delivery rate by state"></div>
+<div class="panel"><h2>Top categories</h2>
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Category Name</th>
+      <th>Completed Orders</th>
+      <th>Merchandise Gmv</th>
+      <th>Average Review Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>health_beauty</td>
+      <td>8647</td>
+      <td>1233131.72</td>
+      <td>4.189729</td>
+    </tr>
+    <tr>
+      <td>watches_gifts</td>
+      <td>5495</td>
+      <td>1166176.98</td>
+      <td>4.071711</td>
+    </tr>
+    <tr>
+      <td>bed_bath_table</td>
+      <td>9272</td>
+      <td>1023434.76</td>
+      <td>3.923968</td>
+    </tr>
+    <tr>
+      <td>sports_leisure</td>
+      <td>7530</td>
+      <td>954852.55</td>
+      <td>4.165493</td>
+    </tr>
+    <tr>
+      <td>computers_accessories</td>
+      <td>6530</td>
+      <td>888724.61</td>
+      <td>3.986462</td>
+    </tr>
+    <tr>
+      <td>furniture_decor</td>
+      <td>6307</td>
+      <td>711927.69</td>
+      <td>3.953775</td>
+    </tr>
+    <tr>
+      <td>housewares</td>
+      <td>5743</td>
+      <td>615628.69</td>
+      <td>4.107904</td>
+    </tr>
+    <tr>
+      <td>cool_stuff</td>
+      <td>3559</td>
+      <td>610204.10</td>
+      <td>4.194904</td>
+    </tr>
+    <tr>
+      <td>auto</td>
+      <td>3810</td>
+      <td>578966.65</td>
+      <td>4.116004</td>
+    </tr>
+    <tr>
+      <td>toys</td>
+      <td>3804</td>
+      <td>471286.48</td>
+      <td>4.208927</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>State service risk</h2>
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Customer State</th>
+      <th>Completed Orders</th>
+      <th>Late Delivery Rate</th>
+      <th>Average Delivery Days</th>
+      <th>Average Review Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AL</td>
+      <td>397</td>
+      <td>0.239295</td>
+      <td>24.055106</td>
+      <td>3.852792</td>
+    </tr>
+    <tr>
+      <td>MA</td>
+      <td>717</td>
+      <td>0.196653</td>
+      <td>21.006708</td>
+      <td>3.833567</td>
+    </tr>
+    <tr>
+      <td>PI</td>
+      <td>476</td>
+      <td>0.159664</td>
+      <td>19.036627</td>
+      <td>3.993631</td>
+    </tr>
+    <tr>
+      <td>CE</td>
+      <td>1279</td>
+      <td>0.153245</td>
+      <td>20.798412</td>
+      <td>3.941870</td>
+    </tr>
+    <tr>
+      <td>SE</td>
+      <td>335</td>
+      <td>0.152239</td>
+      <td>21.099002</td>
+      <td>3.907186</td>
+    </tr>
+    <tr>
+      <td>BA</td>
+      <td>3256</td>
+      <td>0.140356</td>
+      <td>18.849081</td>
+      <td>3.930009</td>
+    </tr>
+    <tr>
+      <td>RJ</td>
+      <td>12350</td>
+      <td>0.134737</td>
+      <td>14.924251</td>
+      <td>3.965141</td>
+    </tr>
+    <tr>
+      <td>TO</td>
+      <td>274</td>
+      <td>0.127737</td>
+      <td>17.115206</td>
+      <td>4.153846</td>
+    </tr>
+    <tr>
+      <td>PA</td>
+      <td>946</td>
+      <td>0.123679</td>
+      <td>23.262768</td>
+      <td>3.909968</td>
+    </tr>
+    <tr>
+      <td>ES</td>
+      <td>1995</td>
+      <td>0.122306</td>
+      <td>15.347737</td>
+      <td>4.079736</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>Recent monthly performance</h2>
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Order Month</th>
+      <th>Completed Orders</th>
+      <th>Merchandise Gmv</th>
+      <th>Active Buyers</th>
+      <th>Average Order Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-08</td>
+      <td>6351</td>
+      <td>838576.64</td>
+      <td>6310</td>
+      <td>132.038520</td>
+    </tr>
+    <tr>
+      <td>2018-07</td>
+      <td>6159</td>
+      <td>867953.46</td>
+      <td>6100</td>
+      <td>140.924413</td>
+    </tr>
+    <tr>
+      <td>2018-06</td>
+      <td>6099</td>
+      <td>856077.86</td>
+      <td>6061</td>
+      <td>140.363643</td>
+    </tr>
+    <tr>
+      <td>2018-05</td>
+      <td>6749</td>
+      <td>977544.69</td>
+      <td>6693</td>
+      <td>144.842894</td>
+    </tr>
+    <tr>
+      <td>2018-04</td>
+      <td>6798</td>
+      <td>973534.09</td>
+      <td>6744</td>
+      <td>143.208898</td>
+    </tr>
+    <tr>
+      <td>2018-03</td>
+      <td>7003</td>
+      <td>953356.25</td>
+      <td>6914</td>
+      <td>136.135406</td>
+    </tr>
+    <tr>
+      <td>2018-02</td>
+      <td>6555</td>
+      <td>826437.13</td>
+      <td>6400</td>
+      <td>126.077365</td>
+    </tr>
+    <tr>
+      <td>2018-01</td>
+      <td>7069</td>
+      <td>924645.00</td>
+      <td>6974</td>
+      <td>130.802801</td>
+    </tr>
+    <tr>
+      <td>2017-12</td>
+      <td>5513</td>
+      <td>726033.19</td>
+      <td>5450</td>
+      <td>131.694756</td>
+    </tr>
+    <tr>
+      <td>2017-11</td>
+      <td>7289</td>
+      <td>987765.37</td>
+      <td>7183</td>
+      <td>135.514525</td>
+    </tr>
+    <tr>
+      <td>2017-10</td>
+      <td>4478</td>
+      <td>648247.65</td>
+      <td>4417</td>
+      <td>144.762762</td>
+    </tr>
+    <tr>
+      <td>2017-09</td>
+      <td>4150</td>
+      <td>607399.67</td>
+      <td>4083</td>
+      <td>146.361366</td>
+    </tr>
+  </tbody>
+</table></div>
+</section></main></body></html>

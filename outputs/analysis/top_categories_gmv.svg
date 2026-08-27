@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
+ viewBox="0 0 1200 680">
+<rect width="1200" height="680" fill="#ffffff"/>
+<text x="70" y="58" font-family="Arial" font-size="26" font-weight="700"
+ fill="#172033">Top categories by merchandise GMV</text>
+<line x1="250" y1="450" x2="1030" y2="450" stroke="#9aa5b1"/>
+<rect x="250" y="90.0" width="298.1" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="107.5" text-anchor="end" font-family="Arial" font-size="13">toys</text>
+<text x="556.1" y="107.5" font-family="Arial" font-size="12">471,286</text>
+<rect x="250" y="126.0" width="366.2" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="143.6" text-anchor="end" font-family="Arial" font-size="13">auto</text>
+<text x="624.2" y="143.6" font-family="Arial" font-size="12">578,967</text>
+<rect x="250" y="162.0" width="386.0" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="179.6" text-anchor="end" font-family="Arial" font-size="13">cool_stuff</text>
+<text x="644.0" y="179.6" font-family="Arial" font-size="12">610,204</text>
+<rect x="250" y="198.0" width="389.4" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="215.6" text-anchor="end" font-family="Arial" font-size="13">housewares</text>
+<text x="647.4" y="215.6" font-family="Arial" font-size="12">615,629</text>
+<rect x="250" y="234.0" width="450.3" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="251.6" text-anchor="end" font-family="Arial" font-size="13">furniture_decor</text>
+<text x="708.3" y="251.6" font-family="Arial" font-size="12">711,928</text>
+<rect x="250" y="270.0" width="562.2" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="287.6" text-anchor="end" font-family="Arial" font-size="13">computers_accessories</text>
+<text x="820.2" y="287.6" font-family="Arial" font-size="12">888,725</text>
+<rect x="250" y="306.0" width="604.0" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="323.6" text-anchor="end" font-family="Arial" font-size="13">sports_leisure</text>
+<text x="862.0" y="323.6" font-family="Arial" font-size="12">954,853</text>
+<rect x="250" y="342.0" width="647.4" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="359.6" text-anchor="end" font-family="Arial" font-size="13">bed_bath_table</text>
+<text x="905.4" y="359.6" font-family="Arial" font-size="12">1,023,435</text>
+<rect x="250" y="378.0" width="737.6" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="395.6" text-anchor="end" font-family="Arial" font-size="13">watches_gifts</text>
+<text x="995.6" y="395.6" font-family="Arial" font-size="12">1,166,177</text>
+<rect x="250" y="414.0" width="780.0" height="23.4" rx="3" fill="#2f6fed"/>
+<text x="240" y="431.6" text-anchor="end" font-family="Arial" font-size="13">health_beauty</text>
+<text x="1038.0" y="431.6" font-family="Arial" font-size="12">1,233,132</text>
+</svg>

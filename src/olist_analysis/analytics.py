@@ -1,0 +1,319 @@
+"""Generate reproducible metrics, SVG charts, and a first business report."""
+
+from __future__ import annotations
+
+import html
+from pathlib import Path
+
+import pandas as pd
+
+from olist_analysis.config import COMPLETED_STATUS, LAST_COMPLETE_TREND_MONTH
+from olist_analysis.config import ProjectPaths
+
+
+def _read_processed(paths: ProjectPaths, name: str) -> pd.DataFrame:
+    """Read one processed CSV table."""
+    return pd.read_csv(paths.processed / f"{name}.csv")
+
+
+def _parse_datetime(frame: pd.DataFrame, columns: list[str]) -> None:
+    """Parse date columns in place, coercing invalid values to missing."""
+    for column in columns:
+        frame[column] = pd.to_datetime(frame[column], errors="coerce")
+
+
+def _write_svg(path: Path, body: str, title: str) -> None:
+    """Write a self-contained SVG document."""
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
+ viewBox="0 0 1200 680">
+<rect width="1200" height="680" fill="#ffffff"/>
+<text x="70" y="58" font-family="Arial" font-size="26" font-weight="700"
+ fill="#172033">{html.escape(title)}</text>
+{body}
+</svg>'''
+    path.write_text(svg, encoding="utf-8")
+
+
+def _line_chart(path: Path, labels: list[str], values: list[float], title: str) -> None:
+    """Render a simple line chart as an SVG file."""
+    width, height = 1080, 520
+    left, top, right, bottom = 90, 90, 40, 90
+    plot_width = width - left - right
+    plot_height = height - top - bottom
+    maximum = max(values) if values else 1.0
+    maximum = maximum * 1.1 if maximum else 1.0
+    points = []
+    for index, value in enumerate(values):
+        x = left + plot_width * index / max(len(values) - 1, 1)
+        y = top + plot_height * (1 - value / maximum)
+        points.append((x, y))
+    path_data = " ".join(
+        f"{'M' if index == 0 else 'L'} {x:.1f} {y:.1f}"
+        for index, (x, y) in enumerate(points)
+    )
+    body = [
+        f'<line x1="{left}" y1="{top + plot_height}" x2="{width - right}" '
+        f'y2="{top + plot_height}" stroke="#9aa5b1"/>',
+        f'<line x1="{left}" y1="{top}" x2="{left}" '
+        f'y2="{top + plot_height}" stroke="#9aa5b1"/>',
+        f'<path d="{path_data}" fill="none" stroke="#2f6fed" stroke-width="4"/>',
+    ]
+    for index, (x, y) in enumerate(points):
+        body.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" fill="#2f6fed"/>')
+        if index % max(len(labels) // 10, 1) == 0:
+            body.append(
+                f'<text x="{x:.1f}" y="{top + plot_height + 30}" '
+                f'text-anchor="middle" font-family="Arial" font-size="12">'
+                f'{html.escape(labels[index])}</text>'
+            )
+    _write_svg(path, "\n".join(body), title)
+
+
+def _bar_chart(
+    path: Path,
+    labels: list[str],
+    values: list[float],
+    title: str,
+    color: str = "#2f6fed",
+) -> None:
+    """Render a horizontal bar chart as an SVG file."""
+    width, height = 1080, 520
+    left, top, right, bottom = 250, 90, 50, 70
+    plot_width = width - left - right
+    plot_height = height - top - bottom
+    maximum = max(values) if values else 1.0
+    bar_height = plot_height / max(len(values), 1) * 0.65
+    body = [
+        f'<line x1="{left}" y1="{top + plot_height}" x2="{width - right}" '
+        f'y2="{top + plot_height}" stroke="#9aa5b1"/>',
+    ]
+    for index, (label, value) in enumerate(zip(labels, values)):
+        y = top + plot_height * index / max(len(values), 1)
+        bar_width = plot_width * value / maximum if maximum else 0
+        body.append(
+            f'<rect x="{left}" y="{y:.1f}" width="{bar_width:.1f}" '
+            f'height="{bar_height:.1f}" rx="3" fill="{color}"/>'
+        )
+        body.append(
+            f'<text x="{left - 10}" y="{y + bar_height * 0.75:.1f}" '
+            f'text-anchor="end" font-family="Arial" font-size="13">'
+            f'{html.escape(str(label))}</text>'
+        )
+        body.append(
+            f'<text x="{left + bar_width + 8:.1f}" '
+            f'y="{y + bar_height * 0.75:.1f}" font-family="Arial" '
+            f'font-size="12">{value:,.0f}</text>'
+        )
+    _write_svg(path, "\n".join(body), title)
+
+
+def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
+    """Build monthly, category, state, RFM, seller, and logistics metrics."""
+    orders = _read_processed(paths, "order_mart")
+    items = _read_processed(paths, "item_mart")
+    users = _read_processed(paths, "user_mart")
+    sellers = _read_processed(paths, "seller_mart")
+    _parse_datetime(
+        orders,
+        [
+            "order_purchase_timestamp",
+            "order_delivered_customer_date",
+            "order_estimated_delivery_date",
+        ],
+    )
+    completed = orders[orders["order_status"] == COMPLETED_STATUS].copy()
+    complete_months = completed[
+        completed["order_month"] <= LAST_COMPLETE_TREND_MONTH
+    ]
+    monthly = complete_months.groupby("order_month", as_index=False).agg(
+        completed_orders=("order_id", "nunique"),
+        merchandise_gmv=("merchandise_gmv", "sum"),
+        active_buyers=("customer_unique_id", "nunique"),
+        average_order_value=("merchandise_gmv", "mean"),
+    )
+    category = (
+        items[items["order_status"] == COMPLETED_STATUS]
+        .groupby("category_name", as_index=False)
+        .agg(
+            completed_orders=("order_id", "nunique"),
+            merchandise_gmv=("price", "sum"),
+            average_item_price=("price", "mean"),
+            average_freight_share=("freight_share", "mean"),
+            average_review_score=("average_review_score", "mean"),
+        )
+        .sort_values("merchandise_gmv", ascending=False)
+    )
+    state = (
+        completed.groupby("customer_state", as_index=False)
+        .agg(
+            completed_orders=("order_id", "nunique"),
+            merchandise_gmv=("merchandise_gmv", "sum"),
+            average_delivery_days=("delivery_days", "mean"),
+            late_delivery_rate=("is_late_delivery", "mean"),
+            average_review_score=("average_review_score", "mean"),
+        )
+        .sort_values("merchandise_gmv", ascending=False)
+    )
+    rfm = (
+        users.groupby("rfm_segment", as_index=False)
+        .agg(
+            buyers=("customer_unique_id", "nunique"),
+            merchandise_gmv=("merchandise_gmv", "sum"),
+            average_order_count=("completed_order_count", "mean"),
+            average_monetary=("monetary", "mean"),
+            average_recency_days=("recency_days", "mean"),
+        )
+        .sort_values("merchandise_gmv", ascending=False)
+    )
+    seller = sellers.sort_values("merchandise_gmv", ascending=False).copy()
+    logistics = pd.DataFrame(
+        [
+            {
+                "metric": "completed_orders",
+                "value": int(len(completed)),
+            },
+            {
+                "metric": "average_dispatch_days",
+                "value": completed["dispatch_days"].mean(),
+            },
+            {
+                "metric": "average_delivery_days",
+                "value": completed["delivery_days"].mean(),
+            },
+            {
+                "metric": "late_delivery_rate",
+                "value": completed["is_late_delivery"].mean(),
+            },
+            {
+                "metric": "average_review_score",
+                "value": completed["average_review_score"].mean(),
+            },
+        ]
+    )
+    delivery_review = (
+        completed.groupby("is_late_delivery", as_index=False)
+        .agg(
+            orders=("order_id", "nunique"),
+            average_review_score=("average_review_score", "mean"),
+            negative_review_rate=("has_negative_review", "mean"),
+        )
+    )
+    delivery_review["delivery_status"] = delivery_review["is_late_delivery"].map(
+        {0: "on_time", 1: "late"}
+    )
+    return {
+        "monthly_metrics": monthly,
+        "category_metrics": category,
+        "state_metrics": state,
+        "rfm_segments": rfm,
+        "seller_metrics": seller,
+        "logistics_summary": logistics,
+        "delivery_review": delivery_review,
+    }
+
+
+def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None:
+    """Write a concise first-pass business diagnosis in Markdown."""
+    monthly = metrics["monthly_metrics"]
+    category = metrics["category_metrics"]
+    state = metrics["state_metrics"]
+    rfm = metrics["rfm_segments"]
+    logistics = metrics["logistics_summary"].set_index("metric")["value"]
+    delivery = metrics["delivery_review"].set_index("delivery_status")
+    report = f"""# Olist Brazil E-commerce Operations Diagnosis
+
+## Scope
+
+This first-pass report uses delivered orders as completed transactions and
+uses purchase month through `{LAST_COMPLETE_TREND_MONTH}` for trend analysis.
+The data does not contain campaign exposure, product cost, or commission data;
+therefore, this report does not claim campaign causality, advertising ROI, or
+accounting profit.
+
+## Executive baseline
+
+| Metric | Value |
+|---|---:|
+| Completed orders | {int(logistics['completed_orders']):,} |
+| Merchandise GMV | {category['merchandise_gmv'].sum():,.2f} |
+| Active buyers | {int(rfm['buyers'].sum()):,} |
+| Average delivery days | {logistics['average_delivery_days']:.2f} |
+| Late delivery rate | {logistics['late_delivery_rate']:.2%} |
+| Average review score | {logistics['average_review_score']:.2f} / 5 |
+
+## Initial findings
+
+1. **Growth scaled materially during 2017.** The monthly GMV and order charts
+   show a strong ramp-up, with the highest complete-month volume in November
+   2017. This is a seasonal signal, not proof of a specific campaign effect.
+2. **Retention is the clearest growth opportunity.** The RFM output should be
+   used to target repeat purchase journeys because the historical buyer base
+   is dominated by low-frequency customers.
+3. **Late delivery is closely associated with poor satisfaction.** On-time
+   orders average {delivery.loc['on_time', 'average_review_score']:.2f} points,
+   versus {delivery.loc['late', 'average_review_score']:.2f} for late orders.
+   The relationship is diagnostic, not a causal experiment.
+4. **Demand and service are regionally uneven.** The state output ranks both
+   transaction value and delivery risk so that logistics interventions can be
+   prioritized by impact.
+5. **Category quality needs to be managed alongside sales.** The category
+   output combines GMV, freight share, and ratings; high-volume, low-rating
+   categories should not be optimized on sales alone.
+
+## Recommended next actions
+
+1. Use `rfm_segments.csv` to define a first retention test for new-active,
+   loyal, champions, and at-risk users.
+2. Use `state_metrics.csv` and `seller_metrics.csv` to create a late-delivery
+   action list by state and seller.
+3. Review the top categories with low ratings or high freight share before
+   proposing assortment or promotion changes.
+4. Add cohort retention and seller-volume minimums before turning these
+   baseline signals into operational targets.
+
+## Generated artifacts
+
+- [Monthly GMV chart](analysis/monthly_gmv.svg)
+- [Monthly orders chart](analysis/monthly_orders.svg)
+- [Top categories chart](analysis/top_categories_gmv.svg)
+- [State late-delivery chart](analysis/state_late_delivery.svg)
+"""
+    (paths.outputs / "analysis_report.md").write_text(report, encoding="utf-8")
+
+
+def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
+    """Generate metric tables, SVG charts, and a Markdown report."""
+    paths.analysis.mkdir(parents=True, exist_ok=True)
+    metrics = _build_metrics(paths)
+    for name, frame in metrics.items():
+        frame.to_csv(paths.analysis / f"{name}.csv", index=False)
+    monthly = metrics["monthly_metrics"]
+    _line_chart(
+        paths.analysis / "monthly_gmv.svg",
+        monthly["order_month"].tolist(),
+        monthly["merchandise_gmv"].tolist(),
+        "Monthly merchandise GMV",
+    )
+    _line_chart(
+        paths.analysis / "monthly_orders.svg",
+        monthly["order_month"].tolist(),
+        monthly["completed_orders"].tolist(),
+        "Monthly completed orders",
+    )
+    category = metrics["category_metrics"].head(10).sort_values("merchandise_gmv")
+    _bar_chart(
+        paths.analysis / "top_categories_gmv.svg",
+        category["category_name"].tolist(),
+        category["merchandise_gmv"].tolist(),
+        "Top categories by merchandise GMV",
+    )
+    state = metrics["state_metrics"].head(10).sort_values("late_delivery_rate")
+    _bar_chart(
+        paths.analysis / "state_late_delivery.svg",
+        state["customer_state"].tolist(),
+        (state["late_delivery_rate"] * 100).tolist(),
+        "Late delivery rate by top customer states (%)",
+        color="#e05a47",
+    )
+    _write_report(paths, metrics)
+    return metrics
