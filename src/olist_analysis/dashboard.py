@@ -48,6 +48,7 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     state = _read(paths, "state_metrics")
     monthly = _read(paths, "monthly_metrics")
     cohort = _read(paths, "cohort_retention")
+    seller_state_actions = _read(paths, "seller_state_delivery_actions")
     completed = order_mart[order_mart["order_status"] == COMPLETED_STATUS]
     gmv = completed["merchandise_gmv"].sum()
     aov = completed["merchandise_gmv"].mean()
@@ -71,7 +72,15 @@ def build_dashboard(paths: ProjectPaths) -> Path:
         for label, value in cards
     )
     category_view = category.sort_values("merchandise_gmv", ascending=False)
-    state_view = state.sort_values("late_delivery_rate", ascending=False)
+    state_view = state[state["risk_ranking_eligible"]].sort_values("risk_priority_rank")
+    state_view["late_delivery_rate"] = state_view["late_delivery_rate"].map(
+        lambda value: f"{value:.2%}"
+    )
+    action_view = seller_state_actions.head(15).copy()
+    action_view["late_delivery_rate"] = action_view["late_delivery_rate"].map(
+        lambda value: f"{value:.2%}"
+    )
+    action_view["average_dispatch_days"] = action_view["average_dispatch_days"].round(2)
     recent_months = monthly.tail(12).sort_values("order_month", ascending=False)
     cohort_view = _cohort_summary(cohort)
     category_table = _table_html(
@@ -87,13 +96,30 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     state_table = _table_html(
         state_view,
         [
+            "risk_priority_rank",
             "customer_state",
             "completed_orders",
+            "late_orders",
             "late_delivery_rate",
             "average_delivery_days",
             "average_review_score",
         ],
         10,
+    )
+    action_table = _table_html(
+        action_view,
+        [
+            "priority_rank",
+            "seller_id",
+            "seller_state",
+            "customer_state",
+            "completed_orders",
+            "late_orders",
+            "late_delivery_rate",
+            "average_dispatch_days",
+            "recommended_action",
+        ],
+        15,
     )
     monthly_table = _table_html(
         recent_months,
@@ -141,6 +167,8 @@ box-shadow: 0 2px 10px rgba(23,32,51,.06); }}
 .data-table th, .data-table td {{ padding: 8px 6px; border-bottom: 1px solid #e7eaf0;
 text-align: left; }}
 .data-table th {{ color: #596579; font-weight: 600; }}
+.table-scroll {{ overflow-x: auto; }}
+.action-table {{ min-width: 1120px; }}
 @media (max-width: 800px) {{ .cards, .grid {{ grid-template-columns: 1fr 1fr; }} }}
 @media (max-width: 520px) {{ .cards, .grid {{ grid-template-columns: 1fr; }} .wrap {{ padding: 18px; }} }}
 </style></head>
@@ -168,6 +196,8 @@ text-align: left; }}
 {monthly_table}</div>
 <div class="panel wide"><h2>Cohort retention summary</h2>
 {cohort_table}</div>
+<div class="panel wide"><h2>Seller-state late-delivery action list</h2>
+<div class="table-scroll action-table">{action_table}</div></div>
 </section></main></body></html>"""
     output = paths.outputs / "dashboard.html"
     output.write_text(dashboard, encoding="utf-8")

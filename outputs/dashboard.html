@@ -22,6 +22,8 @@ box-shadow: 0 2px 10px rgba(23,32,51,.06); }
 .data-table th, .data-table td { padding: 8px 6px; border-bottom: 1px solid #e7eaf0;
 text-align: left; }
 .data-table th { color: #596579; font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+.action-table { min-width: 1120px; }
 @media (max-width: 800px) { .cards, .grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 520px) { .cards, .grid { grid-template-columns: 1fr; } .wrap { padding: 18px; } }
 </style></head>
@@ -118,8 +120,10 @@ text-align: left; }
 <table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
+      <th>Risk Priority Rank</th>
       <th>Customer State</th>
       <th>Completed Orders</th>
+      <th>Late Orders</th>
       <th>Late Delivery Rate</th>
       <th>Average Delivery Days</th>
       <th>Average Review Score</th>
@@ -127,74 +131,94 @@ text-align: left; }
   </thead>
   <tbody>
     <tr>
-      <td>AL</td>
-      <td>397</td>
-      <td>0.239295</td>
-      <td>24.055106</td>
-      <td>3.852792</td>
+      <td>1.0</td>
+      <td>SP</td>
+      <td>40501</td>
+      <td>2387</td>
+      <td>5.89%</td>
+      <td>8.355034</td>
+      <td>4.246551</td>
     </tr>
     <tr>
-      <td>MA</td>
-      <td>717</td>
-      <td>0.196653</td>
-      <td>21.006708</td>
-      <td>3.833567</td>
-    </tr>
-    <tr>
-      <td>PI</td>
-      <td>476</td>
-      <td>0.159664</td>
-      <td>19.036627</td>
-      <td>3.993631</td>
-    </tr>
-    <tr>
-      <td>CE</td>
-      <td>1279</td>
-      <td>0.153245</td>
-      <td>20.798412</td>
-      <td>3.941870</td>
-    </tr>
-    <tr>
-      <td>SE</td>
-      <td>335</td>
-      <td>0.152239</td>
-      <td>21.099002</td>
-      <td>3.907186</td>
-    </tr>
-    <tr>
-      <td>BA</td>
-      <td>3256</td>
-      <td>0.140356</td>
-      <td>18.849081</td>
-      <td>3.930009</td>
-    </tr>
-    <tr>
+      <td>2.0</td>
       <td>RJ</td>
       <td>12350</td>
-      <td>0.134737</td>
+      <td>1664</td>
+      <td>13.47%</td>
       <td>14.924251</td>
       <td>3.965141</td>
     </tr>
     <tr>
-      <td>TO</td>
-      <td>274</td>
-      <td>0.127737</td>
-      <td>17.115206</td>
-      <td>4.153846</td>
+      <td>3.0</td>
+      <td>MG</td>
+      <td>11354</td>
+      <td>637</td>
+      <td>5.61%</td>
+      <td>11.592874</td>
+      <td>4.192468</td>
     </tr>
     <tr>
-      <td>PA</td>
-      <td>946</td>
-      <td>0.123679</td>
-      <td>23.262768</td>
-      <td>3.909968</td>
+      <td>4.0</td>
+      <td>BA</td>
+      <td>3256</td>
+      <td>457</td>
+      <td>14.04%</td>
+      <td>18.849081</td>
+      <td>3.930009</td>
     </tr>
     <tr>
+      <td>5.0</td>
+      <td>RS</td>
+      <td>5345</td>
+      <td>382</td>
+      <td>7.15%</td>
+      <td>14.814043</td>
+      <td>4.185752</td>
+    </tr>
+    <tr>
+      <td>6.0</td>
+      <td>SC</td>
+      <td>3546</td>
+      <td>346</td>
+      <td>9.76%</td>
+      <td>14.487330</td>
+      <td>4.133276</td>
+    </tr>
+    <tr>
+      <td>7.0</td>
+      <td>PR</td>
+      <td>4923</td>
+      <td>246</td>
+      <td>5.00%</td>
+      <td>11.538130</td>
+      <td>4.239592</td>
+    </tr>
+    <tr>
+      <td>8.0</td>
       <td>ES</td>
       <td>1995</td>
-      <td>0.122306</td>
+      <td>244</td>
+      <td>12.23%</td>
       <td>15.347737</td>
       <td>4.079736</td>
+    </tr>
+    <tr>
+      <td>9.0</td>
+      <td>CE</td>
+      <td>1279</td>
+      <td>196</td>
+      <td>15.32%</td>
+      <td>20.798412</td>
+      <td>3.941870</td>
+    </tr>
+    <tr>
+      <td>10.0</td>
+      <td>PE</td>
+      <td>1593</td>
+      <td>172</td>
+      <td>10.80%</td>
+      <td>18.002683</td>
+      <td>4.082964</td>
     </tr>
   </tbody>
 </table></div>
@@ -394,4 +418,187 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
+<div class="panel wide"><h2>Seller-state late-delivery action list</h2>
+<div class="table-scroll action-table"><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Priority Rank</th>
+      <th>Seller Id</th>
+      <th>Seller State</th>
+      <th>Customer State</th>
+      <th>Completed Orders</th>
+      <th>Late Orders</th>
+      <th>Late Delivery Rate</th>
+      <th>Average Dispatch Days</th>
+      <th>Recommended Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>4a3ca9315b744ce9f8e9374361493884</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>800</td>
+      <td>58</td>
+      <td>7.25%</td>
+      <td>2.28</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1f50f920176fa81dab994f9023523100</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>219</td>
+      <td>55</td>
+      <td>25.11%</td>
+      <td>3.81</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4a3ca9315b744ce9f8e9374361493884</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>267</td>
+      <td>51</td>
+      <td>19.10%</td>
+      <td>2.26</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>6560211a19b47992c3666cc44a7e94c0</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>799</td>
+      <td>43</td>
+      <td>5.38%</td>
+      <td>1.18</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>4869f7a5dfa277a7dca6462dcf3b52b2</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>201</td>
+      <td>40</td>
+      <td>19.90%</td>
+      <td>2.47</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>7c67e1448b00f6e969d365cea6b010ab</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>389</td>
+      <td>36</td>
+      <td>9.25%</td>
+      <td>11.57</td>
+      <td>seller_dispatch_sla_review</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>620c87c171fb2a6dd6e8bb4dec959fc6</td>
+      <td>RJ</td>
+      <td>SP</td>
+      <td>244</td>
+      <td>35</td>
+      <td>14.34%</td>
+      <td>2.45</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>8b321bb669392f5163d04c59e235e066</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>134</td>
+      <td>34</td>
+      <td>25.37%</td>
+      <td>1.99</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>1025f0e2d44d7041d6cf58b6550e0bfa</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>321</td>
+      <td>32</td>
+      <td>9.97%</td>
+      <td>3.86</td>
+      <td>seller_dispatch_sla_review</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>06a2c3af7b3aee5d69171b0e14f0ee87</td>
+      <td>MA</td>
+      <td>SP</td>
+      <td>124</td>
+      <td>31</td>
+      <td>25.00%</td>
+      <td>4.89</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>da8622b14eb17ae2831f4ac5b9dab84a</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>167</td>
+      <td>31</td>
+      <td>18.56%</td>
+      <td>2.44</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>4869f7a5dfa277a7dca6462dcf3b52b2</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>444</td>
+      <td>29</td>
+      <td>6.53%</td>
+      <td>2.39</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>7c67e1448b00f6e969d365cea6b010ab</td>
+      <td>SP</td>
+      <td>RJ</td>
+      <td>175</td>
+      <td>27</td>
+      <td>15.43%</td>
+      <td>11.69</td>
+      <td>seller_dispatch_sla_review</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>955fee9216a65b617aa5c0531780ce60</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>633</td>
+      <td>27</td>
+      <td>4.27%</td>
+      <td>1.70</td>
+      <td>carrier_lane_capacity_review</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>ea8482cd71df3c1969d7b9473ff13abc</td>
+      <td>SP</td>
+      <td>SP</td>
+      <td>415</td>
+      <td>26</td>
+      <td>6.27%</td>
+      <td>2.95</td>
+      <td>seller_dispatch_sla_review</td>
+    </tr>
+  </tbody>
+</table></div></div>
 </section></main></body></html>

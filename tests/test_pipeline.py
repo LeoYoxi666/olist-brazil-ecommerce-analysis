@@ -9,7 +9,11 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from olist_analysis.analytics import _build_cohort_retention
+from olist_analysis.analytics import (
+    _apply_risk_ranking,
+    _build_cohort_retention,
+    _build_seller_state_actions,
+)
 from olist_analysis.pipeline import _build_order_mart, _score_series
 
 
@@ -127,3 +131,62 @@ def test_cohort_retention_uses_first_completed_purchase_month() -> None:
     assert result.loc[("2018-01", 2), "retention_rate"] == 0.5
     assert result.loc[("2018-02", 0), "cohort_size"] == 1
     assert "2018-09" not in result.index.get_level_values("cohort_month")
+
+
+def test_risk_ranking_excludes_small_samples_and_ranks_late_volume() -> None:
+    """Risk ranks should apply the denominator guard before sorting impact."""
+    metrics = pd.DataFrame(
+        {
+            "name": ["small", "large", "medium"],
+            "completed_orders": [10, 100, 30],
+            "merchandise_gmv": [100.0, 1000.0, 500.0],
+            "late_delivery_rate": [0.5, 0.1, 0.2],
+        }
+    )
+
+    result = _apply_risk_ranking(metrics, "completed_orders", 20).set_index("name")
+
+    assert not bool(result.loc["small", "risk_ranking_eligible"])
+    assert pd.isna(result.loc["small", "risk_priority_rank"])
+    assert result.loc["large", "risk_priority_rank"] == 1
+    assert result.loc["medium", "risk_priority_rank"] == 2
+
+
+def test_seller_state_actions_deduplicate_items_and_apply_threshold() -> None:
+    """Lane actions should count seller orders rather than individual items."""
+    orders = pd.DataFrame(
+        {
+            "order_id": ["o1", "o2", "o3", "o4"],
+            "order_status": ["delivered", "delivered", "delivered", "canceled"],
+            "customer_state": ["RJ", "RJ", "MG", "RJ"],
+            "dispatch_days": [5.0, 5.0, 1.0, 1.0],
+            "delivery_days": [10.0, 10.0, 8.0, 8.0],
+            "is_late_delivery": [1, 1, 0, 1],
+            "average_review_score": [2.0, 3.0, 5.0, 1.0],
+            "has_negative_review": [1, 0, 0, 1],
+        }
+    )
+    items = pd.DataFrame(
+        {
+            "order_id": ["o1", "o1", "o2", "o3", "o4"],
+            "seller_id": ["s1", "s1", "s1", "s2", "s1"],
+            "seller_state": ["SP", "SP", "SP", "ES", "SP"],
+            "price": [10.0, 5.0, 20.0, 30.0, 50.0],
+            "order_status": [
+                "delivered",
+                "delivered",
+                "delivered",
+                "delivered",
+                "canceled",
+            ],
+        }
+    )
+
+    result = _build_seller_state_actions(orders, items, minimum_orders=2)
+
+    assert len(result) == 1
+    assert result.loc[0, "seller_id"] == "s1"
+    assert result.loc[0, "completed_orders"] == 2
+    assert result.loc[0, "late_orders"] == 2
+    assert result.loc[0, "merchandise_gmv"] == 35.0
+    assert result.loc[0, "recommended_action"] == "seller_dispatch_sla_review"

@@ -13,14 +13,15 @@ seller, category, logistics, and growth actions.
 
 The end-to-end project is operational. The environment, processing pipeline,
 analytical outputs, automated tests, report, dashboard, documentation, Git
-repository, and GitHub remote are configured. Monthly customer cohort retention
-is now integrated into the analysis layer, report, dashboard, methodology docs,
-tests, and GitHub preview. The analysis generates eight metric tables and five
-SVG charts, and all configured quality checks pass.
+repository, and GitHub remote are configured. Customer cohort retention and
+volume-qualified delivery-risk prioritization are integrated into the analysis
+layer, report, dashboard, methodology docs, tests, and GitHub presentation. The
+analysis generates nine metric tables and five SVG charts, and all configured
+quality checks pass.
 
-The cohort-retention feature is committed locally. GitHub synchronization is
-pending because the latest HTTPS push could not connect to `github.com:443`.
-The local commit and generated artifacts are safe.
+The delivery-risk phase is committed locally and the branch is one commit ahead
+of `origin/main`. GitHub synchronization is pending because the latest HTTPS
+push could not connect to `github.com:443`; no local work was lost.
 
 ## Completed
 
@@ -33,7 +34,7 @@ The local commit and generated artifacts are safe.
 - Added 12 pipeline data-quality checks.
 - Implemented monthly GMV/orders, category, customer RFM, state, seller,
   delivery, and review analyses.
-- Generated eight analysis tables and five version-controlled SVG charts.
+- Generated nine analysis tables and five version-controlled SVG charts.
 - Generated `outputs/analysis_report.md` and the standalone
   `outputs/dashboard.html` dashboard.
 - Established the delivered-order baseline and complete trend window through
@@ -44,7 +45,17 @@ The local commit and generated artifacts are safe.
   3, and 0.23% for month 6.
 - Added a focused cohort methodology document covering population, definitions,
   censoring, and interpretation.
-- Verified the automated test suite: 3 tests pass.
+- Added minimum completed-order guards of 100 for state risk, 20 for seller
+  risk, and 10 for seller-state action lanes.
+- Added impact-first delivery-risk ranking by late-order volume, then late rate
+  and merchandise GMV.
+- Generated 1,886 qualified seller-state action lanes; 24 states and 804
+  sellers meet their ranking thresholds. The leading lane is seller
+  `4a3ca9315b744ce9f8e9374361493884`, SP to SP, with 58 late orders across 800
+  completed orders.
+- Added dispatch-SLA versus carrier-lane triage and a dedicated delivery-risk
+  methodology document.
+- Verified the automated test suite: 5 tests pass.
 - Added working Flake8 and mypy configuration and verified isort, Black,
   Flake8, mypy, tests, analysis generation, and dashboard generation.
 - Initialized Git on `main`, configured the GitHub remote, and pushed the first
@@ -56,8 +67,8 @@ The local commit and generated artifacts are safe.
 
 ## Current Task
 
-Add minimum-volume thresholds to seller and state risk rankings, then generate
-a prioritized seller-state late-delivery action table.
+Combine acquisition cohort and RFM segment so retention opportunities can be
+prioritized by customer value, lifecycle stage, and observable follow-up time.
 
 ## Important Files
 
@@ -79,11 +90,15 @@ a prioritized seller-state late-delivery action table.
 - `docs/data_cleaning_rules.md`: cleaning and metric rules.
 - `docs/cohort_retention_methodology.md`: cohort population, month index,
   retention formula, censoring, and interpretation.
+- `docs/delivery_risk_methodology.md`: volume guards, ranking order, triage
+  rules, and interpretation limits for delivery-risk actions.
 - `outputs/analysis_report.md`: current business diagnosis.
 - `outputs/dashboard.html`: generated operations dashboard.
 - `outputs/analysis/cohort_retention.svg`: tracked cohort-retention heatmap.
 - `outputs/analysis/cohort_retention.csv`: generated tidy cohort metrics; the
   CSV is reproducible and intentionally untracked.
+- `outputs/analysis/seller_state_delivery_actions.csv`: generated qualified
+  seller-to-customer-state delivery action queue; reproducible and untracked.
 - `docs/assets/dashboard_preview.png`: README dashboard preview.
 - `.flake8`: executable Flake8 configuration.
 - `.gitignore`: prevents raw data, processed data, environments, databases, and
@@ -102,6 +117,13 @@ a prioritized seller-state late-delivery action table.
   retention is active buyers divided by the initial cohort size.
 - Missing future cells for recent cohorts are censored observations, not zero
   retention. Month 1, 3, and 6 are exact-month rates, not cumulative survival.
+- State and seller delivery-risk rankings exclude small samples using explicit
+  order-volume guards. Qualified rows rank by late orders, late rate, then GMV.
+- Seller-state actions count each seller-order once after aggregating multiple
+  items. Dispatch share of at least 35% suggests a seller SLA review; otherwise
+  the first review is carrier lane capacity and routing.
+- Delivery action labels are investigation starting points, not causal blame or
+  statistical-significance claims.
 - The analysis reports associations rather than unsupported causal claims.
 - Raw CSVs remain immutable and untracked; processed datasets and SQLite are
   reproducible and untracked.
@@ -115,8 +137,8 @@ a prioritized seller-state late-delivery action table.
 ## Known Issues
 
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
-  connection-reset errors. A push can finish writing objects but lose the final
-  server acknowledgement. Confirm remote state on GitHub before retrying.
+  connection-reset errors. The current branch is one local delivery-risk commit
+  ahead of `origin/main`. Confirm remote state on GitHub before retrying.
 - The repository is currently private; it must be made public later if it is to
   serve as an externally visible portfolio project.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
@@ -127,10 +149,9 @@ a prioritized seller-state late-delivery action table.
 
 ## Next Steps
 
-1. Add minimum-volume thresholds to seller and state risk rankings so small
-   samples do not dominate operational priorities.
-2. Create a prioritized seller-state late-delivery action table.
-3. Combine acquisition cohort and RFM segment for more actionable retention
+1. Combine acquisition cohort and RFM segment for more actionable retention
    targeting.
-4. Decide when to make the repository public and whether to publish the static
+2. Add a small executive summary view that connects retention opportunity,
+   delivery risk, and commercial value without implying causality.
+3. Decide when to make the repository public and whether to publish the static
    dashboard through GitHub Pages or another static host.

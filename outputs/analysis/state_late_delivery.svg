@@ -2,36 +2,36 @@
  viewBox="0 0 1200 680">
 <rect width="1200" height="680" fill="#ffffff"/>
 <text x="70" y="58" font-family="Arial" font-size="26" font-weight="700"
- fill="#172033">Late delivery rate by top customer states (%)</text>
+ fill="#172033">Late delivery rate for priority customer states (%)</text>
 <line x1="250" y1="450" x2="1030" y2="450" stroke="#9aa5b1"/>
-<rect x="250" y="90.0" width="277.7" height="23.4" rx="3" fill="#e05a47"/>
+<rect x="250" y="90.0" width="254.3" height="23.4" rx="3" fill="#e05a47"/>
 <text x="240" y="107.5" text-anchor="end" font-family="Arial" font-size="13">PR</text>
-<text x="535.7" y="107.5" font-family="Arial" font-size="12">5</text>
-<rect x="250" y="126.0" width="311.8" height="23.4" rx="3" fill="#e05a47"/>
+<text x="512.3" y="107.5" font-family="Arial" font-size="12">5</text>
+<rect x="250" y="126.0" width="285.6" height="23.4" rx="3" fill="#e05a47"/>
 <text x="240" y="143.6" text-anchor="end" font-family="Arial" font-size="13">MG</text>
-<text x="569.8" y="143.6" font-family="Arial" font-size="12">6</text>
-<rect x="250" y="162.0" width="327.5" height="23.4" rx="3" fill="#e05a47"/>
+<text x="543.6" y="143.6" font-family="Arial" font-size="12">6</text>
+<rect x="250" y="162.0" width="300.0" height="23.4" rx="3" fill="#e05a47"/>
 <text x="240" y="179.6" text-anchor="end" font-family="Arial" font-size="13">SP</text>
-<text x="585.5" y="179.6" font-family="Arial" font-size="12">6</text>
-<rect x="250" y="198.0" width="392.8" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="215.6" text-anchor="end" font-family="Arial" font-size="13">DF</text>
-<text x="650.8" y="215.6" font-family="Arial" font-size="12">7</text>
-<rect x="250" y="234.0" width="397.2" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="251.6" text-anchor="end" font-family="Arial" font-size="13">RS</text>
-<text x="655.2" y="251.6" font-family="Arial" font-size="12">7</text>
-<rect x="250" y="270.0" width="454.4" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="287.6" text-anchor="end" font-family="Arial" font-size="13">GO</text>
-<text x="712.4" y="287.6" font-family="Arial" font-size="12">8</text>
-<rect x="250" y="306.0" width="542.3" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="323.6" text-anchor="end" font-family="Arial" font-size="13">SC</text>
-<text x="800.3" y="323.6" font-family="Arial" font-size="12">10</text>
-<rect x="250" y="342.0" width="679.7" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="359.6" text-anchor="end" font-family="Arial" font-size="13">ES</text>
-<text x="937.7" y="359.6" font-family="Arial" font-size="12">12</text>
-<rect x="250" y="378.0" width="748.8" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="395.6" text-anchor="end" font-family="Arial" font-size="13">RJ</text>
-<text x="1006.8" y="395.6" font-family="Arial" font-size="12">13</text>
+<text x="558.0" y="179.6" font-family="Arial" font-size="12">6</text>
+<rect x="250" y="198.0" width="363.8" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="215.6" text-anchor="end" font-family="Arial" font-size="13">RS</text>
+<text x="621.8" y="215.6" font-family="Arial" font-size="12">7</text>
+<rect x="250" y="234.0" width="496.6" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="251.6" text-anchor="end" font-family="Arial" font-size="13">SC</text>
+<text x="754.6" y="251.6" font-family="Arial" font-size="12">10</text>
+<rect x="250" y="270.0" width="549.6" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="287.6" text-anchor="end" font-family="Arial" font-size="13">PE</text>
+<text x="807.6" y="287.6" font-family="Arial" font-size="12">11</text>
+<rect x="250" y="306.0" width="622.5" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="323.6" text-anchor="end" font-family="Arial" font-size="13">ES</text>
+<text x="880.5" y="323.6" font-family="Arial" font-size="12">12</text>
+<rect x="250" y="342.0" width="685.8" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="359.6" text-anchor="end" font-family="Arial" font-size="13">RJ</text>
+<text x="943.8" y="359.6" font-family="Arial" font-size="12">13</text>
+<rect x="250" y="378.0" width="714.4" height="23.4" rx="3" fill="#e05a47"/>
+<text x="240" y="395.6" text-anchor="end" font-family="Arial" font-size="13">BA</text>
+<text x="972.4" y="395.6" font-family="Arial" font-size="12">14</text>
 <rect x="250" y="414.0" width="780.0" height="23.4" rx="3" fill="#e05a47"/>
-<text x="240" y="431.6" text-anchor="end" font-family="Arial" font-size="13">BA</text>
-<text x="1038.0" y="431.6" font-family="Arial" font-size="12">14</text>
+<text x="240" y="431.6" text-anchor="end" font-family="Arial" font-size="13">CE</text>
+<text x="1038.0" y="431.6" font-family="Arial" font-size="12">15</text>
 </svg>
