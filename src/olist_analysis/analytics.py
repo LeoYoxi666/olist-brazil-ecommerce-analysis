@@ -8,8 +8,10 @@ from pathlib import Path
 import pandas as pd
 
 from olist_analysis.config import (
+    COHORT_RFM_EVALUATION_MONTHS,
     COMPLETED_STATUS,
     LAST_COMPLETE_TREND_MONTH,
+    MIN_COHORT_RFM_BUYERS,
     MIN_SELLER_RISK_ORDERS,
     MIN_SELLER_STATE_ACTION_ORDERS,
     MIN_STATE_RISK_ORDERS,
@@ -261,6 +263,146 @@ def _weighted_cohort_rate(retention: pd.DataFrame, month_number: int) -> float:
     return float(selected["active_buyers"].sum() / selected["cohort_size"].sum())
 
 
+def _build_cohort_rfm_targets(
+    users: pd.DataFrame,
+    minimum_buyers: int = MIN_COHORT_RFM_BUYERS,
+    evaluation_months: int = COHORT_RFM_EVALUATION_MONTHS,
+) -> pd.DataFrame:
+    """Combine acquisition cohorts and RFM segments into a targeting queue."""
+    required = {
+        "customer_unique_id",
+        "first_purchase_at",
+        "last_purchase_at",
+        "completed_order_count",
+        "merchandise_gmv",
+        "recency_days",
+        "average_review_score",
+        "rfm_segment",
+        "is_repeat_buyer",
+    }
+    missing = required.difference(users.columns)
+    if missing:
+        raise ValueError(f"Missing cohort-RFM columns: {sorted(missing)}")
+
+    columns = [
+        "priority_rank",
+        "cohort_month",
+        "rfm_segment",
+        "priority_tier",
+        "recommended_journey",
+        "buyers",
+        "target_customers",
+        "repeat_buyers",
+        "repeat_buyer_rate",
+        "completed_orders",
+        "merchandise_gmv",
+        "target_customer_gmv",
+        "average_customer_gmv",
+        "average_recency_days",
+        "average_review_score",
+        "cohort_buyer_share",
+        "cohort_gmv_share",
+        "observable_followup_months",
+        "targeting_eligible",
+        "evaluation_eligible",
+    ]
+    data = users.loc[:, sorted(required)].copy()
+    _parse_datetime(data, ["first_purchase_at", "last_purchase_at"])
+    data = data[
+        data["first_purchase_at"].notna()
+        & data["customer_unique_id"].notna()
+        & data["rfm_segment"].notna()
+    ].copy()
+    if data.empty:
+        return pd.DataFrame(columns=columns)
+
+    cutoff = pd.Period(LAST_COMPLETE_TREND_MONTH, freq="M")
+    data["cohort_period"] = data["first_purchase_at"].dt.to_period("M")
+    data = data[data["cohort_period"] <= cutoff].copy()
+    data["cohort_month"] = data["cohort_period"].astype(str)
+    data["observable_followup_months"] = cutoff.ordinal - data["cohort_period"].astype(
+        "int64"
+    )
+    data["one_time_buyer"] = 1 - data["is_repeat_buyer"].astype(int)
+    data["one_time_buyer_gmv"] = data["merchandise_gmv"].where(
+        data["one_time_buyer"] == 1, 0.0
+    )
+    targets = data.groupby(["cohort_month", "rfm_segment"], as_index=False).agg(
+        buyers=("customer_unique_id", "nunique"),
+        one_time_buyers=("one_time_buyer", "sum"),
+        repeat_buyers=("is_repeat_buyer", "sum"),
+        completed_orders=("completed_order_count", "sum"),
+        merchandise_gmv=("merchandise_gmv", "sum"),
+        one_time_buyer_gmv=("one_time_buyer_gmv", "sum"),
+        average_customer_gmv=("merchandise_gmv", "mean"),
+        average_recency_days=("recency_days", "mean"),
+        average_review_score=("average_review_score", "mean"),
+        observable_followup_months=("observable_followup_months", "first"),
+    )
+    one_time_segments = {"new_active", "high_value", "standard"}
+    targets["target_customers"] = targets["buyers"]
+    targets["target_customer_gmv"] = targets["merchandise_gmv"]
+    one_time_mask = targets["rfm_segment"].isin(one_time_segments)
+    targets.loc[one_time_mask, "target_customers"] = targets.loc[
+        one_time_mask, "one_time_buyers"
+    ]
+    targets.loc[one_time_mask, "target_customer_gmv"] = targets.loc[
+        one_time_mask, "one_time_buyer_gmv"
+    ]
+    targets["repeat_buyer_rate"] = targets["repeat_buyers"] / targets["buyers"]
+    targets["cohort_buyer_share"] = targets["buyers"] / targets.groupby("cohort_month")[
+        "buyers"
+    ].transform("sum")
+    targets["cohort_gmv_share"] = targets["merchandise_gmv"] / targets.groupby(
+        "cohort_month"
+    )["merchandise_gmv"].transform("sum")
+
+    tiers = {
+        "at_risk": 1,
+        "high_value": 1,
+        "new_active": 2,
+        "loyal": 2,
+        "champions": 3,
+        "standard": 3,
+    }
+    journeys = {
+        "at_risk": "win_back_service_recovery",
+        "high_value": "second_purchase_high_value_offer",
+        "new_active": "early_second_purchase_nudge",
+        "loyal": "loyalty_reinforcement",
+        "champions": "vip_advocacy",
+        "standard": "category_replenishment_nurture",
+    }
+    targets["priority_tier"] = targets["rfm_segment"].map(tiers).fillna(3).astype(int)
+    targets["recommended_journey"] = (
+        targets["rfm_segment"].map(journeys).fillna("manual_review")
+    )
+    targets["targeting_eligible"] = targets["buyers"] >= minimum_buyers
+    targets["evaluation_eligible"] = (
+        targets["observable_followup_months"] >= evaluation_months
+    )
+    targets["priority_rank"] = pd.Series(pd.NA, index=targets.index, dtype="Int64")
+    eligible_index = (
+        targets[
+            targets["targeting_eligible"]
+            & targets["evaluation_eligible"]
+            & (targets["target_customers"] > 0)
+        ]
+        .sort_values(
+            ["priority_tier", "target_customers", "target_customer_gmv"],
+            ascending=[True, False, False],
+        )
+        .index
+    )
+    targets.loc[eligible_index, "priority_rank"] = range(1, len(eligible_index) + 1)
+    return targets.loc[:, columns].sort_values(
+        ["priority_rank", "cohort_month", "rfm_segment"],
+        ascending=[True, False, True],
+        na_position="last",
+        ignore_index=True,
+    )
+
+
 def _apply_risk_ranking(
     frame: pd.DataFrame,
     completed_orders_column: str,
@@ -462,6 +604,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         {0: "on_time", 1: "late"}
     )
     cohort_retention = _build_cohort_retention(orders)
+    cohort_rfm_targets = _build_cohort_rfm_targets(users)
     seller_state_actions = _build_seller_state_actions(orders, items)
     return {
         "monthly_metrics": monthly,
@@ -472,6 +615,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         "logistics_summary": logistics,
         "delivery_review": delivery_review,
         "cohort_retention": cohort_retention,
+        "cohort_rfm_targets": cohort_rfm_targets,
         "seller_state_delivery_actions": seller_state_actions,
     }
 
@@ -481,6 +625,7 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
     category = metrics["category_metrics"]
     rfm = metrics["rfm_segments"]
     cohort = metrics["cohort_retention"]
+    cohort_rfm = metrics["cohort_rfm_targets"]
     state = metrics["state_metrics"]
     seller = metrics["seller_metrics"]
     actions = metrics["seller_state_delivery_actions"]
@@ -491,6 +636,17 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
     month_6_retention = _weighted_cohort_rate(cohort, 6)
     qualified_states = int(state["risk_ranking_eligible"].sum())
     qualified_sellers = int(seller["risk_ranking_eligible"].sum())
+    ranked_retention_groups = cohort_rfm[cohort_rfm["priority_rank"].notna()]
+    if ranked_retention_groups.empty:
+        top_retention_summary = "No cohort-RFM group meets the ranking guards."
+    else:
+        top_retention = ranked_retention_groups.iloc[0]
+        top_retention_summary = (
+            f"The top target is the {top_retention['cohort_month']} "
+            f"`{top_retention['rfm_segment']}` group, with "
+            f"{int(top_retention['target_customers']):,} target customers and "
+            f"{top_retention['target_customer_gmv']:,.2f} in merchandise GMV."
+        )
     if actions.empty:
         top_lane_summary = "No seller-state lane meets the action threshold."
     else:
@@ -533,8 +689,9 @@ sample guards, not statistical-significance claims.
    2017. This is a seasonal signal, not proof of a specific campaign effect.
 2. **Retention is the clearest growth opportunity.** Weighted cohort retention
    is {month_1_retention:.2%} in month 1, {month_3_retention:.2%} in month 3,
-   and {month_6_retention:.2%} in month 6. Use the cohort and RFM outputs
-   together to design repeat-purchase journeys.
+   and {month_6_retention:.2%} in month 6. {len(ranked_retention_groups)}
+   cohort-RFM groups meet the volume and follow-up guards.
+   {top_retention_summary}
 3. **Late delivery is closely associated with poor satisfaction.** On-time
    orders average {delivery.loc['on_time', 'average_review_score']:.2f} points,
    versus {delivery.loc['late', 'average_review_score']:.2f} for late orders.
@@ -548,9 +705,9 @@ sample guards, not statistical-significance claims.
 
 ## Recommended next actions
 
-1. Use `cohort_retention.csv` to select acquisition cohorts with enough
-   follow-up time, then use `rfm_segments.csv` to target new-active, loyal,
-   champions, and at-risk users within the retention test.
+1. Work through `cohort_rfm_targets.csv` in priority order. Use the recommended
+   journey as a test hypothesis, maintain a holdout group, and measure
+   incremental repeat purchase and GMV rather than raw post-campaign totals.
 2. Work through `seller_state_delivery_actions.csv` in priority order. Review
    seller dispatch SLA where dispatch consumes at least
    {SELLER_DISPATCH_SHARE_THRESHOLD:.0%} of delivery time; otherwise review
@@ -567,10 +724,13 @@ sample guards, not statistical-significance claims.
 - [Top categories chart](analysis/top_categories_gmv.svg)
 - [State late-delivery chart](analysis/state_late_delivery.svg)
 - [Customer cohort retention heatmap](analysis/cohort_retention.svg)
+- [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
+- `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
 - `seller_state_delivery_actions.csv`: qualified lane-level action list
 
-See `../docs/delivery_risk_methodology.md` for thresholds, ranking logic, and
-interpretation limits.
+See `../docs/cohort_rfm_targeting_methodology.md` and
+`../docs/delivery_risk_methodology.md` for ranking logic and interpretation
+limits.
 """
     (paths.outputs / "analysis_report.md").write_text(report, encoding="utf-8")
 
@@ -618,6 +778,24 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         paths.analysis / "cohort_retention.svg",
         metrics["cohort_retention"],
         "Monthly customer cohort retention",
+    )
+    cohort_rfm = (
+        metrics["cohort_rfm_targets"]
+        .loc[lambda frame: frame["priority_rank"].notna()]
+        .head(10)
+        .sort_values("target_customers")
+        .copy()
+    )
+    _bar_chart(
+        paths.analysis / "cohort_rfm_targets.svg",
+        (
+            cohort_rfm["cohort_month"]
+            + " | "
+            + cohort_rfm["rfm_segment"].str.replace("_", " ")
+        ).tolist(),
+        cohort_rfm["target_customers"].astype(float).tolist(),
+        "Top cohort-RFM retention target groups",
+        color="#7158e2",
     )
     _write_report(paths, metrics)
     return metrics

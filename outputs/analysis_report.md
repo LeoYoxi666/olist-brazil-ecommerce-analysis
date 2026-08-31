@@ -30,8 +30,9 @@ sample guards, not statistical-significance claims.
    2017. This is a seasonal signal, not proof of a specific campaign effect.
 2. **Retention is the clearest growth opportunity.** Weighted cohort retention
    is 0.48% in month 1, 0.26% in month 3,
-   and 0.23% in month 6. Use the cohort and RFM outputs
-   together to design repeat-purchase journeys.
+   and 0.23% in month 6. 41
+   cohort-RFM groups meet the volume and follow-up guards.
+   The top target is the 2017-11 `at_risk` group, with 2,702 target customers and 719,732.08 in merchandise GMV.
 3. **Late delivery is closely associated with poor satisfaction.** On-time
    orders average 4.29 points,
    versus 2.57 for late orders.
@@ -45,9 +46,9 @@ sample guards, not statistical-significance claims.
 
 ## Recommended next actions
 
-1. Use `cohort_retention.csv` to select acquisition cohorts with enough
-   follow-up time, then use `rfm_segments.csv` to target new-active, loyal,
-   champions, and at-risk users within the retention test.
+1. Work through `cohort_rfm_targets.csv` in priority order. Use the recommended
+   journey as a test hypothesis, maintain a holdout group, and measure
+   incremental repeat purchase and GMV rather than raw post-campaign totals.
 2. Work through `seller_state_delivery_actions.csv` in priority order. Review
    seller dispatch SLA where dispatch consumes at least
    35% of delivery time; otherwise review
@@ -64,7 +65,10 @@ sample guards, not statistical-significance claims.
 - [Top categories chart](analysis/top_categories_gmv.svg)
 - [State late-delivery chart](analysis/state_late_delivery.svg)
 - [Customer cohort retention heatmap](analysis/cohort_retention.svg)
+- [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
+- `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
 - `seller_state_delivery_actions.csv`: qualified lane-level action list
 
-See `../docs/delivery_risk_methodology.md` for thresholds, ranking logic, and
-interpretation limits.
+See `../docs/cohort_rfm_targeting_methodology.md` and
+`../docs/delivery_risk_methodology.md` for ranking logic and interpretation
+limits.

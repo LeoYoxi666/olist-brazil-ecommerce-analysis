@@ -39,6 +39,9 @@ text-align: left; }
 <div class="panel wide"><h2>Monthly customer cohort retention</h2>
 <img class="chart-wide" src="analysis/cohort_retention.svg"
  alt="Monthly customer cohort retention heatmap"></div>
+<div class="panel wide"><h2>Top cohort-RFM retention targets</h2>
+<img class="chart" src="analysis/cohort_rfm_targets.svg"
+ alt="Top cohort and RFM retention target groups"></div>
 <div class="panel"><h2>Top categories by GMV</h2>
 <img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
 <div class="panel"><h2>Late delivery rate by state</h2>
@@ -418,6 +421,173 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
+<div class="panel wide"><h2>Cohort-RFM retention action list</h2>
+<div class="table-scroll action-table"><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Priority Rank</th>
+      <th>Cohort Month</th>
+      <th>Rfm Segment</th>
+      <th>Target Customers</th>
+      <th>Target Customer Gmv</th>
+      <th>Repeat Buyer Rate</th>
+      <th>Observable Followup Months</th>
+      <th>Recommended Journey</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>2017-11</td>
+      <td>at_risk</td>
+      <td>2702</td>
+      <td>719732.08</td>
+      <td>3.85%</td>
+      <td>9</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>2.0</td>
+      <td>2018-03</td>
+      <td>high_value</td>
+      <td>2660</td>
+      <td>693554.82</td>
+      <td>0.00%</td>
+      <td>5</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>3.0</td>
+      <td>2018-04</td>
+      <td>high_value</td>
+      <td>2649</td>
+      <td>713443.72</td>
+      <td>0.00%</td>
+      <td>4</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>4.0</td>
+      <td>2018-05</td>
+      <td>high_value</td>
+      <td>2570</td>
+      <td>709258.24</td>
+      <td>0.00%</td>
+      <td>3</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>5.0</td>
+      <td>2018-01</td>
+      <td>high_value</td>
+      <td>2514</td>
+      <td>642241.56</td>
+      <td>0.00%</td>
+      <td>7</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>6.0</td>
+      <td>2018-02</td>
+      <td>high_value</td>
+      <td>2281</td>
+      <td>561321.97</td>
+      <td>0.00%</td>
+      <td>6</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>7.0</td>
+      <td>2017-12</td>
+      <td>high_value</td>
+      <td>1699</td>
+      <td>417997.72</td>
+      <td>0.00%</td>
+      <td>8</td>
+      <td>second_purchase_high_value_offer</td>
+    </tr>
+    <tr>
+      <td>8.0</td>
+      <td>2017-10</td>
+      <td>at_risk</td>
+      <td>1681</td>
+      <td>482291.79</td>
+      <td>4.82%</td>
+      <td>10</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>9.0</td>
+      <td>2017-09</td>
+      <td>at_risk</td>
+      <td>1574</td>
+      <td>459840.16</td>
+      <td>6.42%</td>
+      <td>11</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>10.0</td>
+      <td>2017-08</td>
+      <td>at_risk</td>
+      <td>1522</td>
+      <td>403988.75</td>
+      <td>7.23%</td>
+      <td>12</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>11.0</td>
+      <td>2017-07</td>
+      <td>at_risk</td>
+      <td>1431</td>
+      <td>345037.27</td>
+      <td>7.34%</td>
+      <td>13</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>12.0</td>
+      <td>2017-05</td>
+      <td>at_risk</td>
+      <td>1320</td>
+      <td>369128.55</td>
+      <td>9.39%</td>
+      <td>15</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>13.0</td>
+      <td>2017-06</td>
+      <td>at_risk</td>
+      <td>1112</td>
+      <td>312387.95</td>
+      <td>9.26%</td>
+      <td>14</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>14.0</td>
+      <td>2017-03</td>
+      <td>at_risk</td>
+      <td>964</td>
+      <td>277826.26</td>
+      <td>9.13%</td>
+      <td>17</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+    <tr>
+      <td>15.0</td>
+      <td>2017-04</td>
+      <td>at_risk</td>
+      <td>906</td>
+      <td>272270.95</td>
+      <td>8.28%</td>
+      <td>16</td>
+      <td>win_back_service_recovery</td>
+    </tr>
+  </tbody>
+</table></div></div>
 <div class="panel wide"><h2>Seller-state late-delivery action list</h2>
 <div class="table-scroll action-table"><table class="dataframe data-table">
   <thead>

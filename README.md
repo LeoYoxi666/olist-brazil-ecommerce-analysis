@@ -8,7 +8,7 @@ operations dashboard.
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-5%20passed-2E8B57)
+![Tests](https://img.shields.io/badge/tests-7%20passed-2E8B57)
 ![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## Dashboard preview
@@ -39,8 +39,10 @@ August 2018.
 
 1. **Retention is the largest growth opportunity.** Only 3.00% of buyers made
    repeat purchases in the observed period. Weighted exact-month cohort
-   retention is 0.48% in month 1, 0.26% in month 3, and 0.23% in month 6. Build
-   lifecycle journeys around acquisition cohort and RFM segment.
+   retention is 0.48% in month 1, 0.26% in month 3, and 0.23% in month 6. The
+   combined cohort-RFM queue contains 41 volume- and follow-up-qualified groups;
+   the first priority is the November 2017 `at_risk` group with 2,702 target
+   customers.
 2. **Late delivery is strongly associated with poor reviews.** On-time orders
    average 4.29 stars, compared with 2.57 for late orders. After minimum-volume
    guards, 24 states and 804 sellers qualify for risk ranking. The generated
@@ -126,8 +128,8 @@ Expected verification result:
 ```text
 Built 13 tables
 Quality checks: 12
-Generated 9 analysis tables
-5 passed
+Generated 10 analysis tables
+7 passed
 ```
 
 Open the dashboard on Windows:
@@ -147,6 +149,7 @@ olist-brazil-ecommerce-analysis/
 |-- docs/
 |   |-- assets/                 # README presentation assets
 |   |-- cohort_retention_methodology.md
+|   |-- cohort_rfm_targeting_methodology.md
 |   |-- delivery_risk_methodology.md
 |   |-- data_dictionary.md      # Dataset keys and relationships
 |   `-- data_cleaning_rules.md  # Cleaning and metric rules
@@ -174,6 +177,7 @@ olist-brazil-ecommerce-analysis/
 | `analysis/*.csv` | Monthly, cohort, category, state, seller, RFM, and logistics metrics |
 | `analysis/*.svg` | Version-controlled charts used by the dashboard |
 | `cohort_retention.csv` | Tidy monthly cohort size, active buyers, and retention rates |
+| `cohort_rfm_targets.csv` | Qualified cohort-segment retention planning queue |
 | `seller_state_delivery_actions.csv` | Volume-qualified seller-to-customer-state delivery review queue |
 
 ## Metric and quality controls
@@ -185,6 +189,10 @@ olist-brazil-ecommerce-analysis/
 - Duplicate primary keys, join coverage, missingness, and output row counts are
   checked by the pipeline.
 - Monetary metrics distinguish merchandise value, freight, and payments.
+- RFM scoring preserves ties; frequency uses actual completed order count capped
+  at 5 so one-time buyers cannot be arbitrarily scored as loyal.
+- Cohort-RFM priority groups require at least 100 buyers and three observable
+  follow-up months.
 - Delivery risk rankings require at least 100 completed orders per state, 20
   per seller, and 10 per seller-state lane; eligible rows are ranked by late
   orders, late rate, then merchandise GMV.
@@ -195,6 +203,8 @@ Detailed definitions are documented in
 [`docs/data_cleaning_rules.md`](docs/data_cleaning_rules.md). Cohort definitions
 are documented in
 [`docs/cohort_retention_methodology.md`](docs/cohort_retention_methodology.md).
+Cohort-RFM segmentation, eligibility, and journey rules are documented in
+[`docs/cohort_rfm_targeting_methodology.md`](docs/cohort_rfm_targeting_methodology.md).
 Delivery ranking thresholds and triage logic are documented in
 [`docs/delivery_risk_methodology.md`](docs/delivery_risk_methodology.md).
 

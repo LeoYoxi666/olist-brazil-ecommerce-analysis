@@ -37,6 +37,7 @@ def _cohort_summary(frame: pd.DataFrame) -> pd.DataFrame:
         summary[column] = summary[column].map(
             lambda value: "—" if pd.isna(value) else f"{value:.2%}"
         )
+        summary[column] = summary[column].replace("\ufffd\ufffd", "—")
     return summary.reset_index().sort_values("cohort_month", ascending=False)
 
 
@@ -48,6 +49,7 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     state = _read(paths, "state_metrics")
     monthly = _read(paths, "monthly_metrics")
     cohort = _read(paths, "cohort_retention")
+    cohort_rfm = _read(paths, "cohort_rfm_targets")
     seller_state_actions = _read(paths, "seller_state_delivery_actions")
     completed = order_mart[order_mart["order_status"] == COMPLETED_STATUS]
     gmv = completed["merchandise_gmv"].sum()
@@ -83,6 +85,18 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     action_view["average_dispatch_days"] = action_view["average_dispatch_days"].round(2)
     recent_months = monthly.tail(12).sort_values("order_month", ascending=False)
     cohort_view = _cohort_summary(cohort)
+    retention_target_view = (
+        cohort_rfm[cohort_rfm["priority_rank"].notna()]
+        .sort_values("priority_rank")
+        .head(15)
+        .copy()
+    )
+    retention_target_view["repeat_buyer_rate"] = retention_target_view[
+        "repeat_buyer_rate"
+    ].map(lambda value: f"{value:.2%}")
+    retention_target_view["target_customer_gmv"] = retention_target_view[
+        "target_customer_gmv"
+    ].round(2)
     category_table = _table_html(
         category_view,
         [
@@ -143,6 +157,20 @@ def build_dashboard(paths: ProjectPaths) -> Path:
         ],
         12,
     )
+    retention_target_table = _table_html(
+        retention_target_view,
+        [
+            "priority_rank",
+            "cohort_month",
+            "rfm_segment",
+            "target_customers",
+            "target_customer_gmv",
+            "repeat_buyer_rate",
+            "observable_followup_months",
+            "recommended_journey",
+        ],
+        15,
+    )
     dashboard = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -184,6 +212,9 @@ text-align: left; }}
 <div class="panel wide"><h2>Monthly customer cohort retention</h2>
 <img class="chart-wide" src="analysis/cohort_retention.svg"
  alt="Monthly customer cohort retention heatmap"></div>
+<div class="panel wide"><h2>Top cohort-RFM retention targets</h2>
+<img class="chart" src="analysis/cohort_rfm_targets.svg"
+ alt="Top cohort and RFM retention target groups"></div>
 <div class="panel"><h2>Top categories by GMV</h2>
 <img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
 <div class="panel"><h2>Late delivery rate by state</h2>
@@ -196,6 +227,8 @@ text-align: left; }}
 {monthly_table}</div>
 <div class="panel wide"><h2>Cohort retention summary</h2>
 {cohort_table}</div>
+<div class="panel wide"><h2>Cohort-RFM retention action list</h2>
+<div class="table-scroll action-table">{retention_target_table}</div></div>
 <div class="panel wide"><h2>Seller-state late-delivery action list</h2>
 <div class="table-scroll action-table">{action_table}</div></div>
 </section></main></body></html>"""

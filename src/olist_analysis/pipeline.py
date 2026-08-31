@@ -272,9 +272,18 @@ def _build_item_mart(
 
 
 def _score_series(series: pd.Series) -> pd.Series:
-    """Assign stable quintile scores from 1 to 5."""
-    ranked = series.rank(method="first")
-    return pd.qcut(ranked, 5, labels=False).astype(int).add(1)
+    """Assign tie-stable percentile scores from 1 to 5."""
+    percentile = series.rank(method="average", pct=True)
+    return (
+        pd.cut(
+            percentile,
+            bins=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+            labels=False,
+            include_lowest=True,
+        )
+        .astype(int)
+        .add(1)
+    )
 
 
 def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
@@ -296,7 +305,9 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
     user_mart["frequency"] = user_mart["completed_order_count"]
     user_mart["monetary"] = user_mart["merchandise_gmv"]
     user_mart["r_score"] = 6 - _score_series(user_mart["recency_days"])
-    user_mart["f_score"] = _score_series(user_mart["frequency"])
+    # Order frequency is extremely concentrated at one purchase. Scoring the
+    # actual count avoids splitting tied one-time buyers across quantile bands.
+    user_mart["f_score"] = user_mart["frequency"].clip(upper=5).astype(int)
     user_mart["m_score"] = _score_series(user_mart["monetary"])
     user_mart["rfm_score"] = (
         user_mart["r_score"].astype(str)
@@ -305,18 +316,19 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
     )
     conditions = [
         (user_mart["r_score"] >= 4)
-        & (user_mart["f_score"] >= 4)
+        & (user_mart["f_score"] >= 2)
         & (user_mart["m_score"] >= 4),
-        user_mart["f_score"] >= 4,
-        user_mart["m_score"] >= 4,
         (user_mart["r_score"] <= 2)
-        & ((user_mart["f_score"] >= 3) | (user_mart["m_score"] >= 3)),
-        (user_mart["r_score"] >= 4) & (user_mart["f_score"] <= 2),
+        & ((user_mart["f_score"] >= 2) | (user_mart["m_score"] >= 4)),
+        user_mart["f_score"] >= 2,
+        user_mart["m_score"] >= 4,
+        (user_mart["r_score"] >= 4) & (user_mart["frequency"] == 1),
     ]
-    labels = ["champions", "loyal", "high_value", "at_risk", "new_active"]
+    labels = ["champions", "at_risk", "loyal", "high_value", "new_active"]
     user_mart["rfm_segment"] = pd.Series(pd.NA, index=user_mart.index, dtype="string")
     for condition, label in zip(conditions, labels):
-        user_mart.loc[condition, "rfm_segment"] = label
+        unassigned = user_mart["rfm_segment"].isna()
+        user_mart.loc[condition & unassigned, "rfm_segment"] = label
     user_mart["rfm_segment"] = user_mart["rfm_segment"].fillna("standard")
     user_mart["is_repeat_buyer"] = (user_mart["completed_order_count"] >= 2).astype(int)
     return user_mart
