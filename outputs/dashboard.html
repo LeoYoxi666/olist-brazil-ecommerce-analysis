@@ -14,8 +14,10 @@ box-shadow: 0 2px 10px rgba(23,32,51,.06); }
 .label { color: #596579; font-size: 13px; }
 .value { font-size: 24px; font-weight: 700; margin-top: 8px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.wide { grid-column: 1 / -1; }
 .panel h2 { font-size: 18px; margin: 0 0 14px; }
 .chart { width: 100%; height: 360px; border: 0; }
+.chart-wide { width: 100%; height: auto; border: 0; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .data-table th, .data-table td { padding: 8px 6px; border-bottom: 1px solid #e7eaf0;
 text-align: left; }
@@ -32,6 +34,9 @@ text-align: left; }
 <img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>
 <div class="panel"><h2>Monthly completed orders</h2>
 <img class="chart" src="analysis/monthly_orders.svg" alt="Monthly completed orders"></div>
+<div class="panel wide"><h2>Monthly customer cohort retention</h2>
+<img class="chart-wide" src="analysis/cohort_retention.svg"
+ alt="Monthly customer cohort retention heatmap"></div>
 <div class="panel"><h2>Top categories by GMV</h2>
 <img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
 <div class="panel"><h2>Late delivery rate by state</h2>
@@ -288,6 +293,104 @@ text-align: left; }
       <td>607399.67</td>
       <td>4083</td>
       <td>146.361366</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel wide"><h2>Cohort retention summary</h2>
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Cohort Month</th>
+      <th>Cohort Size</th>
+      <th>Month 1 Retention</th>
+      <th>Month 3 Retention</th>
+      <th>Month 6 Retention</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-08</td>
+      <td>6144</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-07</td>
+      <td>5949</td>
+      <td>0.52%</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-06</td>
+      <td>5878</td>
+      <td>0.43%</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-05</td>
+      <td>6506</td>
+      <td>0.52%</td>
+      <td>0.18%</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-04</td>
+      <td>6582</td>
+      <td>0.59%</td>
+      <td>0.24%</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-03</td>
+      <td>6774</td>
+      <td>0.40%</td>
+      <td>0.30%</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2018-02</td>
+      <td>6288</td>
+      <td>0.35%</td>
+      <td>0.30%</td>
+      <td>0.21%</td>
+    </tr>
+    <tr>
+      <td>2018-01</td>
+      <td>6842</td>
+      <td>0.34%</td>
+      <td>0.29%</td>
+      <td>0.18%</td>
+    </tr>
+    <tr>
+      <td>2017-12</td>
+      <td>5338</td>
+      <td>0.21%</td>
+      <td>0.34%</td>
+      <td>0.17%</td>
+    </tr>
+    <tr>
+      <td>2017-11</td>
+      <td>7060</td>
+      <td>0.57%</td>
+      <td>0.17%</td>
+      <td>0.11%</td>
+    </tr>
+    <tr>
+      <td>2017-10</td>
+      <td>4328</td>
+      <td>0.72%</td>
+      <td>0.09%</td>
+      <td>0.21%</td>
+    </tr>
+    <tr>
+      <td>2017-09</td>
+      <td>4004</td>
+      <td>0.70%</td>
+      <td>0.27%</td>
+      <td>0.22%</td>
     </tr>
   </tbody>
 </table></div>

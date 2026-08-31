@@ -60,7 +60,7 @@ Optional quality checks:
 
 ```powershell
 python -m black --check src scripts tests
-python -m isort --check-only src scripts tests
+isort --check-only src scripts tests
 python -m flake8 src scripts tests
 python -m mypy src
 ```

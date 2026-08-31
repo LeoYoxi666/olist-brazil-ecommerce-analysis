@@ -19,7 +19,25 @@ def _table_html(frame: pd.DataFrame, columns: list[str], limit: int) -> str:
     """Render a selected DataFrame slice as an escaped HTML table."""
     view = frame.loc[:, columns].head(limit).copy()
     view.columns = [column.replace("_", " ").title() for column in view.columns]
-    return view.to_html(index=False, classes="data-table", border=0, justify="left")
+    return str(
+        view.to_html(index=False, classes="data-table", border=0, justify="left")
+    )
+
+
+def _cohort_summary(frame: pd.DataFrame) -> pd.DataFrame:
+    """Create a compact month 1, 3, and 6 cohort-retention table."""
+    sizes = frame.loc[:, ["cohort_month", "cohort_size"]].drop_duplicates()
+    rates = frame.pivot(
+        index="cohort_month", columns="month_number", values="retention_rate"
+    )
+    summary = sizes.set_index("cohort_month")
+    for month_number in (1, 3, 6):
+        column = f"month_{month_number}_retention"
+        summary[column] = rates.get(month_number)
+        summary[column] = summary[column].map(
+            lambda value: "—" if pd.isna(value) else f"{value:.2%}"
+        )
+    return summary.reset_index().sort_values("cohort_month", ascending=False)
 
 
 def build_dashboard(paths: ProjectPaths) -> Path:
@@ -29,6 +47,7 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     category = _read(paths, "category_metrics")
     state = _read(paths, "state_metrics")
     monthly = _read(paths, "monthly_metrics")
+    cohort = _read(paths, "cohort_retention")
     completed = order_mart[order_mart["order_status"] == COMPLETED_STATUS]
     gmv = completed["merchandise_gmv"].sum()
     aov = completed["merchandise_gmv"].mean()
@@ -54,6 +73,50 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     category_view = category.sort_values("merchandise_gmv", ascending=False)
     state_view = state.sort_values("late_delivery_rate", ascending=False)
     recent_months = monthly.tail(12).sort_values("order_month", ascending=False)
+    cohort_view = _cohort_summary(cohort)
+    category_table = _table_html(
+        category_view,
+        [
+            "category_name",
+            "completed_orders",
+            "merchandise_gmv",
+            "average_review_score",
+        ],
+        10,
+    )
+    state_table = _table_html(
+        state_view,
+        [
+            "customer_state",
+            "completed_orders",
+            "late_delivery_rate",
+            "average_delivery_days",
+            "average_review_score",
+        ],
+        10,
+    )
+    monthly_table = _table_html(
+        recent_months,
+        [
+            "order_month",
+            "completed_orders",
+            "merchandise_gmv",
+            "active_buyers",
+            "average_order_value",
+        ],
+        12,
+    )
+    cohort_table = _table_html(
+        cohort_view,
+        [
+            "cohort_month",
+            "cohort_size",
+            "month_1_retention",
+            "month_3_retention",
+            "month_6_retention",
+        ],
+        12,
+    )
     dashboard = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -70,8 +133,10 @@ box-shadow: 0 2px 10px rgba(23,32,51,.06); }}
 .label {{ color: #596579; font-size: 13px; }}
 .value {{ font-size: 24px; font-weight: 700; margin-top: 8px; }}
 .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }}
+.wide {{ grid-column: 1 / -1; }}
 .panel h2 {{ font-size: 18px; margin: 0 0 14px; }}
 .chart {{ width: 100%; height: 360px; border: 0; }}
+.chart-wide {{ width: 100%; height: auto; border: 0; }}
 .data-table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
 .data-table th, .data-table td {{ padding: 8px 6px; border-bottom: 1px solid #e7eaf0;
 text-align: left; }}
@@ -88,19 +153,21 @@ text-align: left; }}
 <img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>
 <div class="panel"><h2>Monthly completed orders</h2>
 <img class="chart" src="analysis/monthly_orders.svg" alt="Monthly completed orders"></div>
+<div class="panel wide"><h2>Monthly customer cohort retention</h2>
+<img class="chart-wide" src="analysis/cohort_retention.svg"
+ alt="Monthly customer cohort retention heatmap"></div>
 <div class="panel"><h2>Top categories by GMV</h2>
 <img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
 <div class="panel"><h2>Late delivery rate by state</h2>
 <img class="chart" src="analysis/state_late_delivery.svg" alt="Late delivery rate by state"></div>
 <div class="panel"><h2>Top categories</h2>
-{_table_html(category_view, ['category_name', 'completed_orders', 'merchandise_gmv',
- 'average_review_score'], 10)}</div>
+{category_table}</div>
 <div class="panel"><h2>State service risk</h2>
-{_table_html(state_view, ['customer_state', 'completed_orders', 'late_delivery_rate',
- 'average_delivery_days', 'average_review_score'], 10)}</div>
+{state_table}</div>
 <div class="panel"><h2>Recent monthly performance</h2>
-{_table_html(recent_months, ['order_month', 'completed_orders', 'merchandise_gmv',
- 'active_buyers', 'average_order_value'], 12)}</div>
+{monthly_table}</div>
+<div class="panel wide"><h2>Cohort retention summary</h2>
+{cohort_table}</div>
 </section></main></body></html>"""
     output = paths.outputs / "dashboard.html"
     output.write_text(dashboard, encoding="utf-8")

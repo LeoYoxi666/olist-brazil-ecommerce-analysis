@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -14,7 +13,6 @@ from olist_analysis.config import (
     NEGATIVE_REVIEW_MAX_SCORE,
     ProjectPaths,
 )
-
 
 FILE_NAMES = {
     "customers": "olist_customers_dataset.csv",
@@ -78,14 +76,10 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     ].str.zfill(5)
 
     sellers = data["sellers"]
-    sellers["seller_zip_code_prefix"] = sellers[
-        "seller_zip_code_prefix"
-    ].str.zfill(5)
+    sellers["seller_zip_code_prefix"] = sellers["seller_zip_code_prefix"].str.zfill(5)
 
     geo = data["geolocation"].drop_duplicates().copy()
-    geo["geolocation_zip_code_prefix"] = geo[
-        "geolocation_zip_code_prefix"
-    ].str.zfill(5)
+    geo["geolocation_zip_code_prefix"] = geo["geolocation_zip_code_prefix"].str.zfill(5)
     geo["geolocation_city"] = geo["geolocation_city"].str.strip().str.lower()
     geo["geolocation_state"] = geo["geolocation_state"].str.strip().str.upper()
     geo_clean = (
@@ -112,12 +106,12 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         ],
     )
     orders["order_status"] = orders["order_status"].str.strip().str.lower()
-    orders["is_completed_order"] = (
-        orders["order_status"] == COMPLETED_STATUS
-    ).astype(int)
-    orders["is_cancelled_or_unavailable"] = orders["order_status"].isin(
-        ["canceled", "unavailable"]
-    ).astype(int)
+    orders["is_completed_order"] = (orders["order_status"] == COMPLETED_STATUS).astype(
+        int
+    )
+    orders["is_cancelled_or_unavailable"] = (
+        orders["order_status"].isin(["canceled", "unavailable"]).astype(int)
+    )
 
     items = data["items"]
     _parse_dates(items, ["shipping_limit_date"])
@@ -139,9 +133,9 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     products = data["products"].merge(
         data["translations"], on="product_category_name", how="left"
     )
-    products["category_name"] = products[
-        "product_category_name_english"
-    ].fillna(products["product_category_name"])
+    products["category_name"] = products["product_category_name_english"].fillna(
+        products["product_category_name"]
+    )
     products["category_name"] = products["category_name"].fillna("uncategorized")
     products["category_translation_status"] = "translated"
     products.loc[
@@ -179,22 +173,30 @@ def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
         freight_amount=("freight_value", "sum"),
         total_order_value=("item_total", "sum"),
     )
-    payment_order = data["payments"].groupby("order_id", as_index=False).agg(
-        payment_count=("payment_sequential", "count"),
-        paid_amount=("payment_value", "sum"),
-        max_installments=("payment_installments", "max"),
-        primary_payment_type=("payment_type", _first_mode),
+    payment_order = (
+        data["payments"]
+        .groupby("order_id", as_index=False)
+        .agg(
+            payment_count=("payment_sequential", "count"),
+            paid_amount=("payment_value", "sum"),
+            max_installments=("payment_installments", "max"),
+            primary_payment_type=("payment_type", _first_mode),
+        )
     )
-    review_order = data["reviews"].groupby("order_id", as_index=False).agg(
-        review_count=("review_id", "count"),
-        average_review_score=("review_score", "mean"),
-        minimum_review_score=("review_score", "min"),
-        has_negative_review=(
-            "review_score",
-            lambda value: int((value <= NEGATIVE_REVIEW_MAX_SCORE).any()),
-        ),
-        has_review_comment=("has_review_comment", "max"),
-        latest_review_date=("review_creation_date", "max"),
+    review_order = (
+        data["reviews"]
+        .groupby("order_id", as_index=False)
+        .agg(
+            review_count=("review_id", "count"),
+            average_review_score=("review_score", "mean"),
+            minimum_review_score=("review_score", "min"),
+            has_negative_review=(
+                "review_score",
+                lambda value: int((value <= NEGATIVE_REVIEW_MAX_SCORE).any()),
+            ),
+            has_review_comment=("has_review_comment", "max"),
+            latest_review_date=("review_creation_date", "max"),
+        )
     )
     orders = (
         data["orders"]
@@ -241,7 +243,9 @@ def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
     return orders
 
 
-def _build_item_mart(data: dict[str, pd.DataFrame], orders: pd.DataFrame) -> pd.DataFrame:
+def _build_item_mart(
+    data: dict[str, pd.DataFrame], orders: pd.DataFrame
+) -> pd.DataFrame:
     """Create one row per order item with order, product, and seller attributes."""
     order_columns = [
         "order_id",
@@ -260,9 +264,7 @@ def _build_item_mart(data: dict[str, pd.DataFrame], orders: pd.DataFrame) -> pd.
         .merge(data["products"], on="product_id", how="left")
         .merge(data["sellers"], on="seller_id", how="left")
     )
-    item_mart["item_total"] = (
-        item_mart["price"] + item_mart["freight_value"]
-    )
+    item_mart["item_total"] = item_mart["price"] + item_mart["freight_value"]
     item_mart["freight_share"] = item_mart["freight_value"].div(
         item_mart["item_total"].replace(0, pd.NA)
     )
@@ -289,12 +291,8 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
         average_delivery_days=("delivery_days", "mean"),
         customer_state=("customer_state", _first_mode),
     )
-    reference_date = completed["order_purchase_timestamp"].max() + pd.Timedelta(
-        days=1
-    )
-    user_mart["recency_days"] = (
-        reference_date - user_mart["last_purchase_at"]
-    ).dt.days
+    reference_date = completed["order_purchase_timestamp"].max() + pd.Timedelta(days=1)
+    user_mart["recency_days"] = (reference_date - user_mart["last_purchase_at"]).dt.days
     user_mart["frequency"] = user_mart["completed_order_count"]
     user_mart["monetary"] = user_mart["merchandise_gmv"]
     user_mart["r_score"] = 6 - _score_series(user_mart["recency_days"])
@@ -316,22 +314,22 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
         (user_mart["r_score"] >= 4) & (user_mart["f_score"] <= 2),
     ]
     labels = ["champions", "loyal", "high_value", "at_risk", "new_active"]
-    user_mart["rfm_segment"] = pd.Series(
-        pd.NA, index=user_mart.index, dtype="string"
-    )
+    user_mart["rfm_segment"] = pd.Series(pd.NA, index=user_mart.index, dtype="string")
     for condition, label in zip(conditions, labels):
         user_mart.loc[condition, "rfm_segment"] = label
     user_mart["rfm_segment"] = user_mart["rfm_segment"].fillna("standard")
-    user_mart["is_repeat_buyer"] = (
-        user_mart["completed_order_count"] >= 2
-    ).astype(int)
+    user_mart["is_repeat_buyer"] = (user_mart["completed_order_count"] >= 2).astype(int)
     return user_mart
 
 
-def _build_seller_mart(data: dict[str, pd.DataFrame], items: pd.DataFrame) -> pd.DataFrame:
+def _build_seller_mart(
+    data: dict[str, pd.DataFrame], items: pd.DataFrame
+) -> pd.DataFrame:
     """Create one row per seller from delivered seller-order performance."""
     completed_items = items[items["order_status"] == COMPLETED_STATUS]
-    seller_order = completed_items.groupby(["seller_id", "order_id"], as_index=False).agg(
+    seller_order = completed_items.groupby(
+        ["seller_id", "order_id"], as_index=False
+    ).agg(
         merchandise_gmv=("price", "sum"),
         average_review_score=("average_review_score", "mean"),
         is_late_delivery=("is_late_delivery", "max"),
@@ -391,7 +389,9 @@ def _quality_report(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
             frame.duplicated(keys).sum()
         )
     report["checks"]["orders_without_customers"] = int(
-        (~tables["orders"]["customer_id"].isin(tables["customers"]["customer_id"])).sum()
+        (
+            ~tables["orders"]["customer_id"].isin(tables["customers"]["customer_id"])
+        ).sum()
     )
     report["checks"]["items_without_orders"] = int(
         (~tables["items"]["order_id"].isin(tables["orders"]["order_id"])).sum()
@@ -405,7 +405,9 @@ def _quality_report(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     return report
 
 
-def persist_tables(paths: ProjectPaths, tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
+def persist_tables(
+    paths: ProjectPaths, tables: dict[str, pd.DataFrame]
+) -> dict[str, Any]:
     """Write CSV marts, SQLite tables, and a JSON quality report."""
     paths.processed.mkdir(parents=True, exist_ok=True)
     paths.outputs.mkdir(parents=True, exist_ok=True)
@@ -417,8 +419,7 @@ def persist_tables(paths: ProjectPaths, tables: dict[str, pd.DataFrame]) -> dict
     with sqlite3.connect(database) as connection:
         for name, frame in tables.items():
             frame.to_sql(name, connection, if_exists="replace", index=False)
-        connection.executescript(
-            """
+        connection.executescript("""
             CREATE INDEX idx_orders_order_id ON orders(order_id);
             CREATE INDEX idx_orders_customer_id ON orders(customer_id);
             CREATE INDEX idx_items_order_id ON items(order_id);
@@ -430,8 +431,7 @@ def persist_tables(paths: ProjectPaths, tables: dict[str, pd.DataFrame]) -> dict
             CREATE INDEX idx_order_mart_customer ON order_mart(customer_unique_id);
             CREATE INDEX idx_item_mart_category ON item_mart(category_name);
             CREATE INDEX idx_item_mart_seller ON item_mart(seller_id);
-            """
-        )
+            """)
     report = _quality_report(tables)
     report["database"] = str(database)
     (paths.outputs / "data_quality_report.json").write_text(

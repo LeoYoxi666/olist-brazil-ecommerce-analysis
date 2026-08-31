@@ -24,9 +24,10 @@ accounting profit.
 1. **Growth scaled materially during 2017.** The monthly GMV and order charts
    show a strong ramp-up, with the highest complete-month volume in November
    2017. This is a seasonal signal, not proof of a specific campaign effect.
-2. **Retention is the clearest growth opportunity.** The RFM output should be
-   used to target repeat purchase journeys because the historical buyer base
-   is dominated by low-frequency customers.
+2. **Retention is the clearest growth opportunity.** Weighted cohort retention
+   is 0.48% in month 1, 0.26% in month 3,
+   and 0.23% in month 6. Use the cohort and RFM outputs
+   together to design repeat-purchase journeys.
 3. **Late delivery is closely associated with poor satisfaction.** On-time
    orders average 4.29 points,
    versus 2.57 for late orders.
@@ -40,14 +41,15 @@ accounting profit.
 
 ## Recommended next actions
 
-1. Use `rfm_segments.csv` to define a first retention test for new-active,
-   loyal, champions, and at-risk users.
+1. Use `cohort_retention.csv` to select acquisition cohorts with enough
+   follow-up time, then use `rfm_segments.csv` to target new-active, loyal,
+   champions, and at-risk users within the retention test.
 2. Use `state_metrics.csv` and `seller_metrics.csv` to create a late-delivery
    action list by state and seller.
 3. Review the top categories with low ratings or high freight share before
    proposing assortment or promotion changes.
-4. Add cohort retention and seller-volume minimums before turning these
-   baseline signals into operational targets.
+4. Add seller-volume minimums before turning risk rankings into operational
+   targets.
 
 ## Generated artifacts
 
@@ -55,3 +57,4 @@ accounting profit.
 - [Monthly orders chart](analysis/monthly_orders.svg)
 - [Top categories chart](analysis/top_categories_gmv.svg)
 - [State late-delivery chart](analysis/state_late_delivery.svg)
+- [Customer cohort retention heatmap](analysis/cohort_retention.svg)

@@ -8,8 +8,8 @@ operations dashboard.
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-2%20passed-2E8B57)
-![Status](https://img.shields.io/badge/status-complete-2F6FED)
+![Tests](https://img.shields.io/badge/tests-3%20passed-2E8B57)
+![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## Dashboard preview
 
@@ -38,9 +38,9 @@ August 2018.
 ## Key findings and recommendations
 
 1. **Retention is the largest growth opportunity.** Only 3.00% of buyers made
-   repeat purchases in the observed period. Build lifecycle journeys around
-   the generated RFM segments, beginning with new-active, loyal, champion, and
-   at-risk customers.
+   repeat purchases in the observed period. Weighted exact-month cohort
+   retention is 0.48% in month 1, 0.26% in month 3, and 0.23% in month 6. Build
+   lifecycle journeys around acquisition cohort and RFM segment.
 2. **Late delivery is strongly associated with poor reviews.** On-time orders
    average 4.29 stars, compared with 2.57 for late orders. Prioritize high-volume
    state and seller combinations with elevated delay rates.
@@ -124,8 +124,8 @@ Expected verification result:
 ```text
 Built 13 tables
 Quality checks: 12
-Generated 7 analysis tables
-2 passed
+Generated 8 analysis tables
+3 passed
 ```
 
 Open the dashboard on Windows:
@@ -144,6 +144,7 @@ olist-brazil-ecommerce-analysis/
 |   `-- processed/              # Clean tables, marts and SQLite (not tracked)
 |-- docs/
 |   |-- assets/                 # README presentation assets
+|   |-- cohort_retention_methodology.md
 |   |-- data_dictionary.md      # Dataset keys and relationships
 |   `-- data_cleaning_rules.md  # Cleaning and metric rules
 |-- outputs/
@@ -167,8 +168,9 @@ olist-brazil-ecommerce-analysis/
 | `seller_mart.csv` | Seller volume, GMV, freight, delivery, and satisfaction performance |
 | `olist_analysis.sqlite` | Thirteen cleaned and analytical tables for SQL exploration |
 | `data_quality_report.json` | Row counts, keys, missingness, and validation results |
-| `analysis/*.csv` | Monthly, category, state, seller, RFM, and logistics metrics |
+| `analysis/*.csv` | Monthly, cohort, category, state, seller, RFM, and logistics metrics |
 | `analysis/*.svg` | Version-controlled charts used by the dashboard |
+| `cohort_retention.csv` | Tidy monthly cohort size, active buyers, and retention rates |
 
 ## Metric and quality controls
 
@@ -183,7 +185,9 @@ olist-brazil-ecommerce-analysis/
 
 Detailed definitions are documented in
 [`docs/data_dictionary.md`](docs/data_dictionary.md) and
-[`docs/data_cleaning_rules.md`](docs/data_cleaning_rules.md).
+[`docs/data_cleaning_rules.md`](docs/data_cleaning_rules.md). Cohort definitions
+are documented in
+[`docs/cohort_retention_methodology.md`](docs/cohort_retention_methodology.md).
 
 ## Technology
 

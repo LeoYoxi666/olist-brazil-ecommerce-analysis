@@ -11,16 +11,16 @@ seller, category, logistics, and growth actions.
 
 ## Current Status
 
-The first complete end-to-end version is operational. The environment,
-processing pipeline, analytical outputs, automated tests, report, dashboard,
-documentation, Git repository, and GitHub remote are configured. The GitHub
-presentation has been upgraded locally with a detailed README and dashboard
-preview.
+The end-to-end project is operational. The environment, processing pipeline,
+analytical outputs, automated tests, report, dashboard, documentation, Git
+repository, and GitHub remote are configured. Monthly customer cohort retention
+is now integrated into the analysis layer, report, dashboard, methodology docs,
+tests, and GitHub preview. The analysis generates eight metric tables and five
+SVG charts, and all configured quality checks pass.
 
-After the context files are committed, the local Git tracking state will show
-`main` two commits ahead of `origin/main`: the GitHub presentation upgrade and
-the persistent project-context update. Previous push attempts ended with GitHub
-HTTPS connection timeouts/resets. The local commits are safe.
+The cohort-retention feature is committed locally. GitHub synchronization is
+pending because the latest HTTPS push could not connect to `github.com:443`.
+The local commit and generated artifacts are safe.
 
 ## Completed
 
@@ -33,12 +33,20 @@ HTTPS connection timeouts/resets. The local commits are safe.
 - Added 12 pipeline data-quality checks.
 - Implemented monthly GMV/orders, category, customer RFM, state, seller,
   delivery, and review analyses.
-- Generated seven analysis tables and four version-controlled SVG charts.
+- Generated eight analysis tables and five version-controlled SVG charts.
 - Generated `outputs/analysis_report.md` and the standalone
   `outputs/dashboard.html` dashboard.
 - Established the delivered-order baseline and complete trend window through
   August 2018.
-- Verified the pipeline tests: 2 tests pass.
+- Added tidy monthly cohort retention based on first completed purchase month,
+  plus an 18-cohort, 12-month SVG heatmap and dashboard summary table.
+- Measured weighted exact-month retention at 0.48% for month 1, 0.26% for month
+  3, and 0.23% for month 6.
+- Added a focused cohort methodology document covering population, definitions,
+  censoring, and interpretation.
+- Verified the automated test suite: 3 tests pass.
+- Added working Flake8 and mypy configuration and verified isort, Black,
+  Flake8, mypy, tests, analysis generation, and dashboard generation.
 - Initialized Git on `main`, configured the GitHub remote, and pushed the first
   project commit.
 - Expanded the GitHub README with KPIs, findings, recommendations, workflow,
@@ -48,8 +56,8 @@ HTTPS connection timeouts/resets. The local commits are safe.
 
 ## Current Task
 
-Maintain a durable project handoff for future Codex sessions, then synchronize
-the outstanding local commits to GitHub when the HTTPS connection is stable.
+Add minimum-volume thresholds to seller and state risk rankings, then generate
+a prioritized seller-state late-delivery action table.
 
 ## Important Files
 
@@ -69,9 +77,15 @@ the outstanding local commits to GitHub when the HTTPS connection is stable.
 - `tests/test_pipeline.py`: current automated tests.
 - `docs/data_dictionary.md`: dataset fields, keys, and relationships.
 - `docs/data_cleaning_rules.md`: cleaning and metric rules.
+- `docs/cohort_retention_methodology.md`: cohort population, month index,
+  retention formula, censoring, and interpretation.
 - `outputs/analysis_report.md`: current business diagnosis.
 - `outputs/dashboard.html`: generated operations dashboard.
+- `outputs/analysis/cohort_retention.svg`: tracked cohort-retention heatmap.
+- `outputs/analysis/cohort_retention.csv`: generated tidy cohort metrics; the
+  CSV is reproducible and intentionally untracked.
 - `docs/assets/dashboard_preview.png`: README dashboard preview.
+- `.flake8`: executable Flake8 configuration.
 - `.gitignore`: prevents raw data, processed data, environments, databases, and
   caches from entering Git.
 
@@ -83,6 +97,11 @@ the outstanding local commits to GitHub when the HTTPS connection is stable.
   and payment totals.
 - Customer identity for repeat behavior uses the stable customer identifier,
   not an individual order-level customer record.
+- A customer's cohort is the month of the first delivered order through
+  2018-08. Each customer is counted once per activity month, and exact-month
+  retention is active buyers divided by the initial cohort size.
+- Missing future cells for recent cohorts are censored observations, not zero
+  retention. Month 1, 3, and 6 are exact-month rates, not cumulative survival.
 - The analysis reports associations rather than unsupported causal claims.
 - Raw CSVs remain immutable and untracked; processed datasets and SQLite are
   reproducible and untracked.
@@ -108,13 +127,10 @@ the outstanding local commits to GitHub when the HTTPS connection is stable.
 
 ## Next Steps
 
-1. Confirm whether commit `4fbdbc4` reached GitHub; push outstanding commits
-   when the GitHub HTTPS connection is stable.
-2. Refresh the GitHub repository and verify the README image, Mermaid workflow,
-   internal links, and badges render correctly.
-3. Add cohort-retention analysis to complement the current RFM segmentation.
-4. Add minimum-volume thresholds to seller and state risk rankings so small
+1. Add minimum-volume thresholds to seller and state risk rankings so small
    samples do not dominate operational priorities.
-5. Create a prioritized seller-state late-delivery action table.
-6. Decide when to make the repository public and whether to publish the static
+2. Create a prioritized seller-state late-delivery action table.
+3. Combine acquisition cohort and RFM segment for more actionable retention
+   targeting.
+4. Decide when to make the repository public and whether to publish the static
    dashboard through GitHub Pages or another static host.

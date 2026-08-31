@@ -9,6 +9,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from olist_analysis.analytics import _build_cohort_retention
 from olist_analysis.pipeline import _build_order_mart, _score_series
 
 
@@ -87,3 +88,42 @@ def test_order_mart_aggregates_items_and_payments_once() -> None:
     assert len(result) == 1
     assert result.loc[0, "merchandise_gmv"] == 30.0
     assert result.loc[0, "paid_amount"] == 35.0
+
+
+def test_cohort_retention_uses_first_completed_purchase_month() -> None:
+    """Cohorts should use unique monthly buyers and exclude trailing months."""
+    orders = pd.DataFrame(
+        {
+            "order_id": ["o1", "o2", "o3", "o4", "o5", "o6", "o7"],
+            "order_status": [
+                "delivered",
+                "delivered",
+                "delivered",
+                "delivered",
+                "delivered",
+                "canceled",
+                "delivered",
+            ],
+            "order_purchase_timestamp": pd.to_datetime(
+                [
+                    "2018-01-05",
+                    "2018-02-08",
+                    "2018-03-12",
+                    "2018-01-20",
+                    "2018-02-03",
+                    "2018-03-01",
+                    "2018-09-01",
+                ]
+            ),
+            "customer_unique_id": ["u1", "u1", "u1", "u2", "u3", "u3", "u4"],
+        }
+    )
+
+    result = _build_cohort_retention(orders).set_index(["cohort_month", "month_number"])
+
+    assert result.loc[("2018-01", 0), "cohort_size"] == 2
+    assert result.loc[("2018-01", 1), "active_buyers"] == 1
+    assert result.loc[("2018-01", 1), "retention_rate"] == 0.5
+    assert result.loc[("2018-01", 2), "retention_rate"] == 0.5
+    assert result.loc[("2018-02", 0), "cohort_size"] == 1
+    assert "2018-09" not in result.index.get_level_values("cohort_month")

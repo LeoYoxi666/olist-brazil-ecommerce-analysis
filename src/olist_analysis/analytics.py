@@ -7,8 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from olist_analysis.config import COMPLETED_STATUS, LAST_COMPLETE_TREND_MONTH
-from olist_analysis.config import ProjectPaths
+from olist_analysis.config import (
+    COMPLETED_STATUS,
+    LAST_COMPLETE_TREND_MONTH,
+    ProjectPaths,
+)
 
 
 def _read_processed(paths: ProjectPaths, name: str) -> pd.DataFrame:
@@ -24,13 +27,13 @@ def _parse_datetime(frame: pd.DataFrame, columns: list[str]) -> None:
 
 def _write_svg(path: Path, body: str, title: str) -> None:
     """Write a self-contained SVG document."""
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
  viewBox="0 0 1200 680">
 <rect width="1200" height="680" fill="#ffffff"/>
 <text x="70" y="58" font-family="Arial" font-size="26" font-weight="700"
  fill="#172033">{html.escape(title)}</text>
 {body}
-</svg>'''
+</svg>"""
     path.write_text(svg, encoding="utf-8")
 
 
@@ -64,7 +67,7 @@ def _line_chart(path: Path, labels: list[str], values: list[float], title: str) 
             body.append(
                 f'<text x="{x:.1f}" y="{top + plot_height + 30}" '
                 f'text-anchor="middle" font-family="Arial" font-size="12">'
-                f'{html.escape(labels[index])}</text>'
+                f"{html.escape(labels[index])}</text>"
             )
     _write_svg(path, "\n".join(body), title)
 
@@ -97,7 +100,7 @@ def _bar_chart(
         body.append(
             f'<text x="{left - 10}" y="{y + bar_height * 0.75:.1f}" '
             f'text-anchor="end" font-family="Arial" font-size="13">'
-            f'{html.escape(str(label))}</text>'
+            f"{html.escape(str(label))}</text>"
         )
         body.append(
             f'<text x="{left + bar_width + 8:.1f}" '
@@ -107,8 +110,155 @@ def _bar_chart(
     _write_svg(path, "\n".join(body), title)
 
 
+def _build_cohort_retention(orders: pd.DataFrame) -> pd.DataFrame:
+    """Build tidy monthly customer-cohort retention metrics."""
+    required = {
+        "order_id",
+        "order_status",
+        "order_purchase_timestamp",
+        "customer_unique_id",
+    }
+    missing = required.difference(orders.columns)
+    if missing:
+        raise ValueError(f"Missing cohort columns: {sorted(missing)}")
+
+    activity = orders.loc[:, sorted(required)].copy()
+    _parse_datetime(activity, ["order_purchase_timestamp"])
+    activity = activity[
+        (activity["order_status"] == COMPLETED_STATUS)
+        & activity["order_purchase_timestamp"].notna()
+        & activity["customer_unique_id"].notna()
+    ].copy()
+    activity["activity_month"] = activity["order_purchase_timestamp"].dt.to_period("M")
+    cutoff = pd.Period(LAST_COMPLETE_TREND_MONTH, freq="M")
+    activity = activity[activity["activity_month"] <= cutoff]
+
+    columns = [
+        "cohort_month",
+        "cohort_size",
+        "month_number",
+        "active_buyers",
+        "retention_rate",
+    ]
+    if activity.empty:
+        return pd.DataFrame(columns=columns)
+
+    activity = activity.drop_duplicates(subset=["customer_unique_id", "activity_month"])
+    activity["cohort_month"] = activity.groupby("customer_unique_id")[
+        "activity_month"
+    ].transform("min")
+    activity["month_number"] = activity["activity_month"].astype("int64") - activity[
+        "cohort_month"
+    ].astype("int64")
+    cohort_sizes = (
+        activity[activity["month_number"] == 0]
+        .groupby("cohort_month")["customer_unique_id"]
+        .nunique()
+        .rename("cohort_size")
+    )
+    retention = (
+        activity.groupby(["cohort_month", "month_number"], as_index=False)
+        .agg(active_buyers=("customer_unique_id", "nunique"))
+        .merge(cohort_sizes, on="cohort_month", how="left", validate="many_to_one")
+    )
+    retention["retention_rate"] = retention["active_buyers"] / retention["cohort_size"]
+    retention["cohort_month"] = retention["cohort_month"].astype(str)
+    return retention.loc[:, columns].sort_values(
+        ["cohort_month", "month_number"], ignore_index=True
+    )
+
+
+def _retention_heatmap(
+    path: Path,
+    retention: pd.DataFrame,
+    title: str,
+    max_cohorts: int = 18,
+    max_months: int = 12,
+) -> None:
+    """Render recent monthly cohort retention as an SVG heatmap."""
+    if retention.empty:
+        _write_svg(
+            path,
+            '<text x="70" y="130" font-family="Arial" font-size="18">'
+            "No cohort data available</text>",
+            title,
+        )
+        return
+
+    matrix = retention.pivot(
+        index="cohort_month", columns="month_number", values="retention_rate"
+    ).sort_index()
+    matrix = matrix.tail(max_cohorts)
+    last_month = min(int(retention["month_number"].max()), max_months)
+    month_numbers = list(range(last_month + 1))
+    matrix = matrix.reindex(columns=month_numbers)
+
+    left, top, right = 150, 115, 45
+    plot_width = 1200 - left - right
+    cell_width = plot_width / max(len(month_numbers), 1)
+    cell_height = min(28.0, 490 / max(len(matrix), 1))
+    repeat_values = retention.loc[retention["month_number"] > 0, "retention_rate"]
+    scale_max = max(float(repeat_values.max()) if not repeat_values.empty else 0, 0.01)
+    start_color = (238, 243, 255)
+    end_color = (47, 111, 237)
+    body: list[str] = []
+
+    for column_index, month_number in enumerate(month_numbers):
+        x = left + column_index * cell_width + cell_width / 2
+        body.append(
+            f'<text x="{x:.1f}" y="98" text-anchor="middle" '
+            f'font-family="Arial" font-size="13" fill="#596579">'
+            f"M{month_number}</text>"
+        )
+
+    for row_index, (cohort_month, row) in enumerate(matrix.iterrows()):
+        y = top + row_index * cell_height
+        body.append(
+            f'<text x="{left - 12}" y="{y + cell_height * 0.7:.1f}" '
+            f'text-anchor="end" font-family="Arial" font-size="13" '
+            f'fill="#172033">{html.escape(str(cohort_month))}</text>'
+        )
+        for column_index, month_number in enumerate(month_numbers):
+            x = left + column_index * cell_width
+            value = row.get(month_number)
+            if pd.isna(value):
+                fill = "#f4f6fa"
+                label = ""
+                text_color = "#596579"
+            else:
+                ratio = min(float(value) / scale_max, 1.0)
+                fill_rgb = tuple(
+                    round(start + (end - start) * ratio)
+                    for start, end in zip(start_color, end_color)
+                )
+                fill = "#{:02x}{:02x}{:02x}".format(*fill_rgb)
+                label = f"{float(value):.1%}"
+                text_color = "#ffffff" if ratio >= 0.55 else "#172033"
+            body.append(
+                f'<rect x="{x + 1:.1f}" y="{y + 1:.1f}" '
+                f'width="{cell_width - 2:.1f}" height="{cell_height - 2:.1f}" '
+                f'rx="3" fill="{fill}"/>'
+            )
+            if label:
+                body.append(
+                    f'<text x="{x + cell_width / 2:.1f}" '
+                    f'y="{y + cell_height * 0.68:.1f}" text-anchor="middle" '
+                    f'font-family="Arial" font-size="11" fill="{text_color}">'
+                    f"{label}</text>"
+                )
+    _write_svg(path, "\n".join(body), title)
+
+
+def _weighted_cohort_rate(retention: pd.DataFrame, month_number: int) -> float:
+    """Return the cohort-size-weighted retention rate for one month number."""
+    selected = retention[retention["month_number"] == month_number]
+    if selected.empty or selected["cohort_size"].sum() == 0:
+        return float("nan")
+    return float(selected["active_buyers"].sum() / selected["cohort_size"].sum())
+
+
 def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
-    """Build monthly, category, state, RFM, seller, and logistics metrics."""
+    """Build customer, commercial, seller, and logistics metrics."""
     orders = _read_processed(paths, "order_mart")
     items = _read_processed(paths, "item_mart")
     users = _read_processed(paths, "user_mart")
@@ -122,9 +272,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         ],
     )
     completed = orders[orders["order_status"] == COMPLETED_STATUS].copy()
-    complete_months = completed[
-        completed["order_month"] <= LAST_COMPLETE_TREND_MONTH
-    ]
+    complete_months = completed[completed["order_month"] <= LAST_COMPLETE_TREND_MONTH]
     monthly = complete_months.groupby("order_month", as_index=False).agg(
         completed_orders=("order_id", "nunique"),
         merchandise_gmv=("merchandise_gmv", "sum"),
@@ -190,17 +338,15 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
             },
         ]
     )
-    delivery_review = (
-        completed.groupby("is_late_delivery", as_index=False)
-        .agg(
-            orders=("order_id", "nunique"),
-            average_review_score=("average_review_score", "mean"),
-            negative_review_rate=("has_negative_review", "mean"),
-        )
+    delivery_review = completed.groupby("is_late_delivery", as_index=False).agg(
+        orders=("order_id", "nunique"),
+        average_review_score=("average_review_score", "mean"),
+        negative_review_rate=("has_negative_review", "mean"),
     )
     delivery_review["delivery_status"] = delivery_review["is_late_delivery"].map(
         {0: "on_time", 1: "late"}
     )
+    cohort_retention = _build_cohort_retention(orders)
     return {
         "monthly_metrics": monthly,
         "category_metrics": category,
@@ -209,17 +355,20 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         "seller_metrics": seller,
         "logistics_summary": logistics,
         "delivery_review": delivery_review,
+        "cohort_retention": cohort_retention,
     }
 
 
 def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None:
     """Write a concise first-pass business diagnosis in Markdown."""
-    monthly = metrics["monthly_metrics"]
     category = metrics["category_metrics"]
-    state = metrics["state_metrics"]
     rfm = metrics["rfm_segments"]
+    cohort = metrics["cohort_retention"]
     logistics = metrics["logistics_summary"].set_index("metric")["value"]
     delivery = metrics["delivery_review"].set_index("delivery_status")
+    month_1_retention = _weighted_cohort_rate(cohort, 1)
+    month_3_retention = _weighted_cohort_rate(cohort, 3)
+    month_6_retention = _weighted_cohort_rate(cohort, 6)
     report = f"""# Olist Brazil E-commerce Operations Diagnosis
 
 ## Scope
@@ -246,9 +395,10 @@ accounting profit.
 1. **Growth scaled materially during 2017.** The monthly GMV and order charts
    show a strong ramp-up, with the highest complete-month volume in November
    2017. This is a seasonal signal, not proof of a specific campaign effect.
-2. **Retention is the clearest growth opportunity.** The RFM output should be
-   used to target repeat purchase journeys because the historical buyer base
-   is dominated by low-frequency customers.
+2. **Retention is the clearest growth opportunity.** Weighted cohort retention
+   is {month_1_retention:.2%} in month 1, {month_3_retention:.2%} in month 3,
+   and {month_6_retention:.2%} in month 6. Use the cohort and RFM outputs
+   together to design repeat-purchase journeys.
 3. **Late delivery is closely associated with poor satisfaction.** On-time
    orders average {delivery.loc['on_time', 'average_review_score']:.2f} points,
    versus {delivery.loc['late', 'average_review_score']:.2f} for late orders.
@@ -262,14 +412,15 @@ accounting profit.
 
 ## Recommended next actions
 
-1. Use `rfm_segments.csv` to define a first retention test for new-active,
-   loyal, champions, and at-risk users.
+1. Use `cohort_retention.csv` to select acquisition cohorts with enough
+   follow-up time, then use `rfm_segments.csv` to target new-active, loyal,
+   champions, and at-risk users within the retention test.
 2. Use `state_metrics.csv` and `seller_metrics.csv` to create a late-delivery
    action list by state and seller.
 3. Review the top categories with low ratings or high freight share before
    proposing assortment or promotion changes.
-4. Add cohort retention and seller-volume minimums before turning these
-   baseline signals into operational targets.
+4. Add seller-volume minimums before turning risk rankings into operational
+   targets.
 
 ## Generated artifacts
 
@@ -277,6 +428,7 @@ accounting profit.
 - [Monthly orders chart](analysis/monthly_orders.svg)
 - [Top categories chart](analysis/top_categories_gmv.svg)
 - [State late-delivery chart](analysis/state_late_delivery.svg)
+- [Customer cohort retention heatmap](analysis/cohort_retention.svg)
 """
     (paths.outputs / "analysis_report.md").write_text(report, encoding="utf-8")
 
@@ -314,6 +466,11 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         (state["late_delivery_rate"] * 100).tolist(),
         "Late delivery rate by top customer states (%)",
         color="#e05a47",
+    )
+    _retention_heatmap(
+        paths.analysis / "cohort_retention.svg",
+        metrics["cohort_retention"],
+        "Monthly customer cohort retention",
     )
     _write_report(paths, metrics)
     return metrics
