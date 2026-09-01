@@ -24,7 +24,11 @@ quality checks pass, including nine automated tests. The repository is public
 and synchronized with `origin/main`. GitHub Pages is enabled with GitHub Actions
 as its publishing source. The public dashboard is live and verified, including
 all six SVG chart dependencies. The repository homepage points to the live
-dashboard and portfolio topics are configured.
+dashboard and portfolio topics are configured. GitHub Actions also runs the
+project's test and core code-quality suite in a clean Python 3.10 environment;
+the first CI run completed successfully. The final portfolio-summary update is
+committed locally and `main` is one commit ahead of `origin/main` because the
+latest GitHub HTTPS push timed out.
 
 ## Completed
 
@@ -102,11 +106,16 @@ dashboard and portfolio topics are configured.
   and GitHub Pages.
 - Confirmed that Git history contains no raw CSVs, processed CSVs, SQLite
   databases, virtual-environment files, Python caches, or compiled bytecode.
+- Added automated Python CI for relevant pushes and pull requests. The workflow
+  installs dependencies and runs isort, Black, Flake8, mypy, and all nine tests;
+  its first GitHub-hosted run passed.
+- Added concise Chinese and English resume bullets, interview pitches, an
+  evidence walkthrough, and interpretation boundaries for portfolio use.
 
 ## Current Task
 
-Verify the new automated Python CI workflow on GitHub, then prepare concise
-resume and interview descriptions of the completed project.
+Keep the published project healthy and add future analytical enhancements only
+when they improve a clear business decision or methodological reliability.
 
 ## Important Files
 
@@ -134,6 +143,8 @@ resume and interview descriptions of the completed project.
   rules, and interpretation limits for delivery-risk actions.
 - `docs/executive_summary_methodology.md`: executive-priority definitions,
   commercial-scope calculations, action rules, and interpretation limits.
+- `docs/portfolio_summary.md`: concise Chinese and English resume bullets,
+  interview pitches, evidence sequence, and interpretation boundaries.
 - `outputs/analysis_report.md`: current business diagnosis.
 - `outputs/dashboard.html`: generated operations dashboard.
 - `outputs/analysis/cohort_retention.svg`: tracked cohort-retention heatmap.
@@ -207,8 +218,8 @@ resume and interview descriptions of the completed project.
 ## Known Issues
 
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
-  connection-reset errors. The current executive-summary commit is pending
-  remote synchronization; confirm remote state after any interrupted push.
+  connection-reset errors. The final portfolio-summary commit is pending remote
+  synchronization; confirm remote state after any interrupted push.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
   exists in an incompatible state. Tests still pass; use
   `python -m pytest -q -p no:cacheprovider` if a clean, cache-free run is needed.
@@ -217,7 +228,7 @@ resume and interview descriptions of the completed project.
 
 ## Next Steps
 
-1. Add an automated CI workflow for tests and core code-quality checks.
-2. Prepare concise Chinese and English resume/interview project summaries.
-3. Continue future analytical enhancements only when they add a clear business
+1. Continue future analytical enhancements only when they add a clear business
    decision or improve methodological reliability.
+2. Keep README, dashboard, report, tests, CI, and project context synchronized
+   with any future metric or business-definition changes.

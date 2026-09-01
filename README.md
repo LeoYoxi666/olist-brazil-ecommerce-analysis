@@ -228,6 +228,8 @@ Executive scope and interpretation rules are documented in
 [`docs/executive_summary_methodology.md`](docs/executive_summary_methodology.md).
 Delivery ranking thresholds and triage logic are documented in
 [`docs/delivery_risk_methodology.md`](docs/delivery_risk_methodology.md).
+Ready-to-use Chinese and English resume and interview descriptions are in
+[`docs/portfolio_summary.md`](docs/portfolio_summary.md).
 
 ## Technology
 
