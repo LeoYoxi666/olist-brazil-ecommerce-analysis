@@ -22,8 +22,9 @@ decision summary and compact analysis validations are now integrated into the
 analysis layer, report, dashboard, README, and quality report. All configured
 quality checks pass, including nine automated tests. The repository is public
 and synchronized with `origin/main`. GitHub Pages is enabled with GitHub Actions
-as its publishing source; the deployment workflow and public dashboard link
-are being added in the current release task.
+as its publishing source. The public dashboard is live and verified, including
+all six SVG chart dependencies. The repository homepage points to the live
+dashboard and portfolio topics are configured.
 
 ## Completed
 
@@ -93,11 +94,19 @@ are being added in the current release task.
   with GitHub Actions as the publishing source.
 - Added a Pages deployment workflow that publishes only the standalone
   dashboard HTML and its six tracked SVG chart dependencies.
+- Successfully deployed and verified the public dashboard at
+  `https://leoyoxi666.github.io/olist-brazil-ecommerce-analysis/`; the page and
+  all six SVG assets return HTTP 200.
+- Set the repository homepage to the live dashboard and added relevant GitHub
+  topics for Python, pandas, analytics, visualization, RFM, cohorts, e-commerce,
+  and GitHub Pages.
+- Confirmed that Git history contains no raw CSVs, processed CSVs, SQLite
+  databases, virtual-environment files, Python caches, or compiled bytecode.
 
 ## Current Task
 
-Deploy and verify the public standalone dashboard through GitHub Pages, then
-complete the final portfolio review.
+Verify the new automated Python CI workflow on GitHub, then prepare concise
+resume and interview descriptions of the completed project.
 
 ## Important Files
 
@@ -143,6 +152,8 @@ complete the final portfolio review.
   caches from entering Git.
 - `.github/workflows/pages.yml`: packages the dashboard and tracked SVG charts
   and deploys them through GitHub Pages.
+- `.github/workflows/ci.yml`: runs isort, Black, Flake8, mypy, and pytest with
+  Python 3.10 for relevant pushes and pull requests.
 
 ## Important Decisions
 
@@ -198,8 +209,6 @@ complete the final portfolio review.
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
   connection-reset errors. The current executive-summary commit is pending
   remote synchronization; confirm remote state after any interrupted push.
-- The Pages workflow still requires a successful push and deployment run before
-  the public dashboard URL can be considered verified.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
   exists in an incompatible state. Tests still pass; use
   `python -m pytest -q -p no:cacheprovider` if a clean, cache-free run is needed.
@@ -208,6 +217,7 @@ complete the final portfolio review.
 
 ## Next Steps
 
-1. Push the Pages workflow and verify the live dashboard and all six SVG charts.
-2. Perform final public-repository portfolio QA.
-3. Prepare a concise resume/interview project summary.
+1. Add an automated CI workflow for tests and core code-quality checks.
+2. Prepare concise Chinese and English resume/interview project summaries.
+3. Continue future analytical enhancements only when they add a clear business
+   decision or improve methodological reliability.

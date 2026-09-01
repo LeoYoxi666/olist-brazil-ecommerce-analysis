@@ -9,6 +9,7 @@ operations dashboard.
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-9%20passed-2E8B57)
+[![Python CI](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## Dashboard preview
