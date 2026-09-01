@@ -27,8 +27,7 @@ all six SVG chart dependencies. The repository homepage points to the live
 dashboard and portfolio topics are configured. GitHub Actions also runs the
 project's test and core code-quality suite in a clean Python 3.10 environment;
 the first CI run completed successfully. The final portfolio-summary update is
-committed locally and `main` is one commit ahead of `origin/main` because the
-latest GitHub HTTPS push timed out.
+committed and synchronized with `origin/main`.
 
 ## Completed
 
@@ -218,8 +217,7 @@ when they improve a clear business decision or methodological reliability.
 ## Known Issues
 
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
-  connection-reset errors. The final portfolio-summary commit is pending remote
-  synchronization; confirm remote state after any interrupted push.
+  connection-reset errors. Confirm remote state after any interrupted push.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
   exists in an incompatible state. Tests still pass; use
   `python -m pytest -q -p no:cacheprovider` if a clean, cache-free run is needed.
