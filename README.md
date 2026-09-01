@@ -15,7 +15,10 @@ operations dashboard.
 
 ![Olist operations dashboard](docs/assets/dashboard_preview.png)
 
-The generated dashboard is available at
+**Live dashboard:**
+[Open the published Olist operations dashboard](https://leoyoxi666.github.io/olist-brazil-ecommerce-analysis/)
+
+The generated local dashboard is also available at
 [`outputs/dashboard.html`](outputs/dashboard.html). Download or clone the
 repository and open the file in a browser to view the full dashboard.
 

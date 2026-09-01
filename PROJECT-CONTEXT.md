@@ -20,10 +20,10 @@ dashboard, methodology docs, tests, and GitHub presentation. The analysis
 generates eleven metric tables and six SVG charts. A three-priority executive
 decision summary and compact analysis validations are now integrated into the
 analysis layer, report, dashboard, README, and quality report. All configured
-quality checks pass, including nine automated tests. The repository was
-synchronized with `origin/main` before the current executive-summary work. The
-executive-summary phase is committed locally and `main` is currently one commit
-ahead of `origin/main` because GitHub HTTPS timed out during the latest push.
+quality checks pass, including nine automated tests. The repository is public
+and synchronized with `origin/main`. GitHub Pages is enabled with GitHub Actions
+as its publishing source; the deployment workflow and public dashboard link
+are being added in the current release task.
 
 ## Completed
 
@@ -89,11 +89,15 @@ ahead of `origin/main` because GitHub HTTPS timed out during the latest push.
   project structure, reproducibility instructions, limitations, and a dashboard
   preview image.
 - Added persistent collaboration guidance and project handoff context.
+- Changed the GitHub repository visibility to public and enabled GitHub Pages
+  with GitHub Actions as the publishing source.
+- Added a Pages deployment workflow that publishes only the standalone
+  dashboard HTML and its six tracked SVG chart dependencies.
 
 ## Current Task
 
-Prepare the repository for public portfolio release and decide whether to host
-the standalone dashboard through GitHub Pages or another static host.
+Deploy and verify the public standalone dashboard through GitHub Pages, then
+complete the final portfolio review.
 
 ## Important Files
 
@@ -137,6 +141,8 @@ the standalone dashboard through GitHub Pages or another static host.
 - `.flake8`: executable Flake8 configuration.
 - `.gitignore`: prevents raw data, processed data, environments, databases, and
   caches from entering Git.
+- `.github/workflows/pages.yml`: packages the dashboard and tracked SVG charts
+  and deploys them through GitHub Pages.
 
 ## Important Decisions
 
@@ -180,6 +186,9 @@ the standalone dashboard through GitHub Pages or another static host.
 - Reusable logic belongs in `src/olist_analysis/`; scripts only orchestrate.
 - The dashboard is a self-contained local HTML artifact using tracked SVG
   charts; the README uses a tracked PNG preview for GitHub rendering.
+- GitHub Pages publishes a minimal static artifact containing only
+  `outputs/dashboard.html` as `index.html` and the six tracked SVG charts. Raw
+  data, processed data, generated CSVs, and the SQLite database are excluded.
 - Brazilian state codes must remain original two-letter abbreviations. Browser
   auto-translation can corrupt them and should not be treated as source data.
 - Project and code filenames remain in English.
@@ -189,8 +198,8 @@ the standalone dashboard through GitHub Pages or another static host.
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
   connection-reset errors. The current executive-summary commit is pending
   remote synchronization; confirm remote state after any interrupted push.
-- The repository is currently private; it must be made public later if it is to
-  serve as an externally visible portfolio project.
+- The Pages workflow still requires a successful push and deployment run before
+  the public dashboard URL can be considered verified.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
   exists in an incompatible state. Tests still pass; use
   `python -m pytest -q -p no:cacheprovider` if a clean, cache-free run is needed.
@@ -199,9 +208,6 @@ the standalone dashboard through GitHub Pages or another static host.
 
 ## Next Steps
 
-1. Review repository contents and decide when to change visibility from private
-   to public.
-2. Decide whether to publish the standalone dashboard through GitHub Pages or
-   another static host, then add the public link to the README.
-3. Perform final portfolio QA and prepare a concise resume/interview project
-   summary.
+1. Push the Pages workflow and verify the live dashboard and all six SVG charts.
+2. Perform final public-repository portfolio QA.
+3. Prepare a concise resume/interview project summary.
