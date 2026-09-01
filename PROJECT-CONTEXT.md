@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-08-31
+Last updated: 2026-09-01
 
 ## Project Goal
 
@@ -17,12 +17,13 @@ repository, and GitHub remote are configured. Customer cohort retention,
 tie-stable RFM segmentation, cohort-RFM targeting, and volume-qualified
 delivery-risk prioritization are integrated into the analysis layer, report,
 dashboard, methodology docs, tests, and GitHub presentation. The analysis
-generates ten metric tables and six SVG charts, and all configured quality
-checks pass.
-
-The cohort-RFM phase is committed locally and `main` is one commit ahead of
-`origin/main`. The latest push could not connect to `github.com:443`; all local
-work and generated presentation artifacts are safe.
+generates eleven metric tables and six SVG charts. A three-priority executive
+decision summary and compact analysis validations are now integrated into the
+analysis layer, report, dashboard, README, and quality report. All configured
+quality checks pass, including nine automated tests. The repository was
+synchronized with `origin/main` before the current executive-summary work. The
+executive-summary phase is committed locally and `main` is currently one commit
+ahead of `origin/main` because GitHub HTTPS timed out during the latest push.
 
 ## Completed
 
@@ -35,7 +36,7 @@ work and generated presentation artifacts are safe.
 - Added 12 pipeline data-quality checks.
 - Implemented monthly GMV/orders, category, customer RFM, state, seller,
   delivery, and review analyses.
-- Generated ten analysis tables and six version-controlled SVG charts.
+- Generated eleven analysis tables and six version-controlled SVG charts.
 - Generated `outputs/analysis_report.md` and the standalone
   `outputs/dashboard.html` dashboard.
 - Established the delivered-order baseline and complete trend window through
@@ -67,7 +68,19 @@ work and generated presentation artifacts are safe.
   completed orders.
 - Added dispatch-SLA versus carrier-lane triage and a dedicated delivery-risk
   methodology document.
-- Verified the automated test suite: 7 tests pass.
+- Added an executive decision summary covering retention growth, delivery
+  service, and category experience. The qualified historical scopes are 74,153
+  target customers with R$10.37M GMV, 7,826 late orders with R$1.16M GMV, and
+  six high-GMV below-average-review categories with R$4.98M GMV.
+- Added analysis-level validation summaries for the RFM population and
+  cohort-target eligibility to `outputs/data_quality_report.json`.
+- Confirmed that no one-time buyer is assigned to `loyal` or `champions`, and
+  that eligible cohort-RFM target ranks contain no duplicates.
+- Added executive-summary methodology, dashboard decision cards, report and
+  README conclusions, and an updated dashboard preview.
+- Replaced the machine-specific database path in the generated quality report
+  with the portable project-relative path.
+- Verified the automated test suite: 9 tests pass.
 - Added working Flake8 and mypy configuration and verified isort, Black,
   Flake8, mypy, tests, analysis generation, and dashboard generation.
 - Initialized Git on `main`, configured the GitHub remote, and pushed the first
@@ -79,8 +92,8 @@ work and generated presentation artifacts are safe.
 
 ## Current Task
 
-Build a concise executive synthesis view connecting retention opportunity,
-delivery risk, and commercial value without implying causal effects.
+Prepare the repository for public portfolio release and decide whether to host
+the standalone dashboard through GitHub Pages or another static host.
 
 ## Important Files
 
@@ -106,6 +119,8 @@ delivery risk, and commercial value without implying causal effects.
   cohort eligibility, target pools, priority tiers, and journey rules.
 - `docs/delivery_risk_methodology.md`: volume guards, ranking order, triage
   rules, and interpretation limits for delivery-risk actions.
+- `docs/executive_summary_methodology.md`: executive-priority definitions,
+  commercial-scope calculations, action rules, and interpretation limits.
 - `outputs/analysis_report.md`: current business diagnosis.
 - `outputs/dashboard.html`: generated operations dashboard.
 - `outputs/analysis/cohort_retention.svg`: tracked cohort-retention heatmap.
@@ -116,6 +131,8 @@ delivery risk, and commercial value without implying causal effects.
 - `outputs/analysis/cohort_rfm_targets.svg`: tracked top retention target chart.
 - `outputs/analysis/seller_state_delivery_actions.csv`: generated qualified
   seller-to-customer-state delivery action queue; reproducible and untracked.
+- `outputs/analysis/executive_summary.csv`: generated three-row executive
+  decision table; reproducible and intentionally untracked.
 - `docs/assets/dashboard_preview.png`: README dashboard preview.
 - `.flake8`: executable Flake8 configuration.
 - `.gitignore`: prevents raw data, processed data, environments, databases, and
@@ -149,6 +166,14 @@ delivery risk, and commercial value without implying causal effects.
   the first review is carrier lane capacity and routing.
 - Delivery action labels are investigation starting points, not causal blame or
   statistical-significance claims.
+- Executive prioritization uses three decision areas: retention growth,
+  delivery service, and category experience. Commercial values are historical
+  merchandise-GMV exposure, not predicted uplift, recoverable revenue, profit,
+  or a forecast.
+- Category-experience scope is limited to categories within the top ten by GMV
+  whose completed-order-weighted review score is below the platform average.
+- Analysis validations are appended to the pipeline quality report after
+  analytical outputs are generated.
 - The analysis reports associations rather than unsupported causal claims.
 - Raw CSVs remain immutable and untracked; processed datasets and SQLite are
   reproducible and untracked.
@@ -162,8 +187,8 @@ delivery risk, and commercial value without implying causal effects.
 ## Known Issues
 
 - GitHub HTTPS pushes have intermittently failed on port 443 with timeout or
-  connection-reset errors. The current cohort-RFM commit is pending remote
-  synchronization. Confirm remote state after future interrupted pushes.
+  connection-reset errors. The current executive-summary commit is pending
+  remote synchronization; confirm remote state after any interrupted push.
 - The repository is currently private; it must be made public later if it is to
   serve as an externally visible portfolio project.
 - Pytest can emit a Windows cache-provider warning when `.pytest_cache` already
@@ -174,9 +199,9 @@ delivery risk, and commercial value without implying causal effects.
 
 ## Next Steps
 
-1. Add a small executive summary view that connects retention opportunity,
-   delivery risk, and commercial value without implying causality.
-2. Add compact validation summaries for the corrected RFM population and
-   cohort-target eligibility to the data-quality report.
-3. Decide when to make the repository public and whether to publish the static
-   dashboard through GitHub Pages or another static host.
+1. Review repository contents and decide when to change visibility from private
+   to public.
+2. Decide whether to publish the standalone dashboard through GitHub Pages or
+   another static host, then add the public link to the README.
+3. Perform final portfolio QA and prepare a concise resume/interview project
+   summary.

@@ -23,6 +23,17 @@ sample guards, not statistical-significance claims.
 | Late delivery rate | 8.11% |
 | Average review score | 4.16 / 5 |
 
+## Executive decision priorities
+
+| Rank | Priority area | Current signal | Historical scope | Merchandise GMV | Recommended next action |
+|---:|---|---:|---:|---:|---|
+| 1 | Retention Growth | 3.00% | 74,153 qualified target customers | 10,369,095.96 | run segmented retention holdout tests |
+| 2 | Delivery Service | 8.11% | 7,826 late orders | 1,158,920.51 | execute lane and dispatch reviews |
+| 3 | Category Experience | 4.01 / 5 | 6 top gmv below average categories | 4,984,859.38 | review quality and freight before growth |
+
+Commercial value is historical merchandise GMV within the diagnostic scope;
+it is not forecast uplift, recoverable revenue, or accounting profit.
+
 ## Initial findings
 
 1. **Growth scaled materially during 2017.** The monthly GMV and order charts
@@ -66,9 +77,11 @@ sample guards, not statistical-significance claims.
 - [State late-delivery chart](analysis/state_late_delivery.svg)
 - [Customer cohort retention heatmap](analysis/cohort_retention.svg)
 - [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
+- `executive_summary.csv`: three-row management decision summary
 - `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
 - `seller_state_delivery_actions.csv`: qualified lane-level action list
 
-See `../docs/cohort_rfm_targeting_methodology.md` and
+See `../docs/executive_summary_methodology.md`,
+`../docs/cohort_rfm_targeting_methodology.md`, and
 `../docs/delivery_risk_methodology.md` for ranking logic and interpretation
 limits.

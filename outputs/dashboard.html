@@ -13,6 +13,14 @@ h1 { margin: 0 0 6px; font-size: 30px; }
 box-shadow: 0 2px 10px rgba(23,32,51,.06); }
 .label { color: #596579; font-size: 13px; }
 .value { font-size: 24px; font-weight: 700; margin-top: 8px; }
+.executive { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+margin-top: 18px; }
+.decision-card { background: #172033; color: #fff; border-radius: 10px; padding: 18px; }
+.decision-card h3 { margin: 5px 0 12px; font-size: 18px; }
+.decision-rank { color: #9fb9ff; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.decision-signal { color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.decision-detail { color: #dbe3f2; font-size: 13px; margin-top: 4px; }
+.decision-action { color: #b9f4d0; font-size: 13px; font-weight: 700; margin-top: 14px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
 .wide { grid-column: 1 / -1; }
 .panel h2 { font-size: 18px; margin: 0 0 14px; }
@@ -24,13 +32,14 @@ text-align: left; }
 .data-table th { color: #596579; font-weight: 600; }
 .table-scroll { overflow-x: auto; }
 .action-table { min-width: 1120px; }
-@media (max-width: 800px) { .cards, .grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 520px) { .cards, .grid { grid-template-columns: 1fr; } .wrap { padding: 18px; } }
+@media (max-width: 800px) { .cards, .grid, .executive { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .cards, .grid, .executive { grid-template-columns: 1fr; } .wrap { padding: 18px; } }
 </style></head>
 <body><main class="wrap">
 <h1>Olist Brazil E-commerce Operations Dashboard</h1>
 <div class="subtitle">Delivered-order baseline; trend window through 2018-08</div>
 <section class="cards"><div class="card"><div class="label">Completed orders</div><div class="value">96,478</div></div><div class="card"><div class="label">Merchandise GMV</div><div class="value">13,221,498.11</div></div><div class="card"><div class="label">Active buyers</div><div class="value">93,358</div></div><div class="card"><div class="label">Average order value</div><div class="value">137.04</div></div><div class="card"><div class="label">Repeat buyer rate</div><div class="value">3.00%</div></div><div class="card"><div class="label">Late delivery rate</div><div class="value">8.11%</div></div><div class="card"><div class="label">Average delivery days</div><div class="value">12.13</div></div><div class="card"><div class="label">Average review score</div><div class="value">4.16 / 5</div></div></section>
+<section class="executive"><article class="decision-card"><div class="decision-rank">Priority 1</div><h3>Retention Growth</h3><div class="decision-signal">3.00%</div><div class="decision-detail">74,153 qualified target customers</div><div class="decision-detail">R$10,369,095.96 historical merchandise GMV</div><div class="decision-action">run segmented retention holdout tests</div></article><article class="decision-card"><div class="decision-rank">Priority 2</div><h3>Delivery Service</h3><div class="decision-signal">8.11%</div><div class="decision-detail">7,826 late orders</div><div class="decision-detail">R$1,158,920.51 historical merchandise GMV</div><div class="decision-action">execute lane and dispatch reviews</div></article><article class="decision-card"><div class="decision-rank">Priority 3</div><h3>Category Experience</h3><div class="decision-signal">4.01 / 5</div><div class="decision-detail">6 top gmv below average categories</div><div class="decision-detail">R$4,984,859.38 historical merchandise GMV</div><div class="decision-action">review quality and freight before growth</div></article></section>
 <section class="grid">
 <div class="panel"><h2>Monthly merchandise GMV</h2>
 <img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>

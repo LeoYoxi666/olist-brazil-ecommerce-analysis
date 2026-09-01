@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import html
+import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -512,6 +514,117 @@ def _build_seller_state_actions(
     return actions
 
 
+def _build_executive_summary(
+    metrics: dict[str, pd.DataFrame],
+) -> pd.DataFrame:
+    """Create three decision-oriented rows from the analytical outputs."""
+    logistics = metrics["logistics_summary"].set_index("metric")["value"]
+    cohort_rfm = metrics["cohort_rfm_targets"]
+    seller_actions = metrics["seller_state_delivery_actions"]
+    category = metrics["category_metrics"]
+    ranked_targets = cohort_rfm[cohort_rfm["priority_rank"].notna()]
+    top_categories = category.nlargest(10, "merchandise_gmv")
+    category_focus = top_categories[
+        top_categories["average_review_score"]
+        < float(logistics["average_review_score"])
+    ]
+    if category_focus.empty:
+        category_focus = top_categories.head(1)
+    focus_orders = category_focus["completed_orders"].sum()
+    focus_review = (
+        category_focus["average_review_score"]
+        .mul(category_focus["completed_orders"])
+        .sum()
+        / focus_orders
+    )
+    rows = [
+        {
+            "priority_rank": 1,
+            "priority_area": "retention_growth",
+            "signal_name": "repeat_buyer_rate",
+            "signal_value": float(logistics["repeat_buyer_rate"]),
+            "signal_unit": "rate",
+            "scope_count": int(ranked_targets["target_customers"].sum()),
+            "scope_unit": "qualified_target_customers",
+            "commercial_value": float(ranked_targets["target_customer_gmv"].sum()),
+            "evidence_scope": f"{len(ranked_targets)} qualified cohort-RFM groups",
+            "recommended_action": "run_segmented_retention_holdout_tests",
+        },
+        {
+            "priority_rank": 2,
+            "priority_area": "delivery_service",
+            "signal_name": "late_delivery_rate",
+            "signal_value": float(logistics["late_delivery_rate"]),
+            "signal_unit": "rate",
+            "scope_count": int(logistics["late_orders"]),
+            "scope_unit": "late_orders",
+            "commercial_value": float(logistics["delayed_merchandise_gmv"]),
+            "evidence_scope": f"{len(seller_actions)} qualified seller-state lanes",
+            "recommended_action": "execute_lane_and_dispatch_reviews",
+        },
+        {
+            "priority_rank": 3,
+            "priority_area": "category_experience",
+            "signal_name": "priority_category_review_score",
+            "signal_value": float(focus_review),
+            "signal_unit": "score_out_of_5",
+            "scope_count": int(len(category_focus)),
+            "scope_unit": "top_gmv_below_average_categories",
+            "commercial_value": float(category_focus["merchandise_gmv"].sum()),
+            "evidence_scope": "top 10 GMV categories versus platform review average",
+            "recommended_action": "review_quality_and_freight_before_growth",
+        },
+    ]
+    return pd.DataFrame(rows)
+
+
+def _build_analysis_validation(
+    metrics: dict[str, pd.DataFrame],
+) -> dict[str, Any]:
+    """Summarize high-value business-rule validation outcomes."""
+    rfm = metrics["rfm_segments"]
+    cohort_rfm = metrics["cohort_rfm_targets"]
+    loyal_segments = rfm[rfm["rfm_segment"].isin(["loyal", "champions"])]
+    return {
+        "rfm_population": {
+            "buyers": int(rfm["buyers"].sum()),
+            "repeat_buyers": int(rfm["repeat_buyers"].sum()),
+            "one_time_buyers": int(rfm["one_time_buyers"].sum()),
+            "segments": {
+                str(row["rfm_segment"]): int(row["buyers"]) for _, row in rfm.iterrows()
+            },
+            "one_time_buyers_in_loyal_or_champions": int(
+                loyal_segments["one_time_buyers"].sum()
+            ),
+        },
+        "cohort_rfm_targeting": {
+            "groups": int(len(cohort_rfm)),
+            "volume_eligible_groups": int(cohort_rfm["targeting_eligible"].sum()),
+            "followup_eligible_groups": int(cohort_rfm["evaluation_eligible"].sum()),
+            "ranked_groups": int(cohort_rfm["priority_rank"].notna().sum()),
+            "duplicate_priority_ranks": int(
+                cohort_rfm["priority_rank"].dropna().duplicated().sum()
+            ),
+        },
+    }
+
+
+def _update_analysis_quality_report(
+    paths: ProjectPaths,
+    metrics: dict[str, pd.DataFrame],
+) -> None:
+    """Append analytical business-rule checks to the pipeline quality report."""
+    report_path = paths.outputs / "data_quality_report.json"
+    if report_path.exists():
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    else:
+        report = {}
+    report["analysis_checks"] = _build_analysis_validation(metrics)
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
 def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
     """Build customer, commercial, seller, and logistics metrics."""
     orders = _read_processed(paths, "order_mart")
@@ -559,6 +672,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         users.groupby("rfm_segment", as_index=False)
         .agg(
             buyers=("customer_unique_id", "nunique"),
+            repeat_buyers=("is_repeat_buyer", "sum"),
             merchandise_gmv=("merchandise_gmv", "sum"),
             average_order_count=("completed_order_count", "mean"),
             average_monetary=("monetary", "mean"),
@@ -566,6 +680,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         )
         .sort_values("merchandise_gmv", ascending=False)
     )
+    rfm["one_time_buyers"] = rfm["buyers"] - rfm["repeat_buyers"]
     seller = _apply_risk_ranking(
         sellers,
         "completed_order_count",
@@ -576,6 +691,28 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
             {
                 "metric": "completed_orders",
                 "value": int(len(completed)),
+            },
+            {
+                "metric": "active_buyers",
+                "value": int(users["customer_unique_id"].nunique()),
+            },
+            {
+                "metric": "repeat_buyers",
+                "value": int(users["is_repeat_buyer"].sum()),
+            },
+            {
+                "metric": "repeat_buyer_rate",
+                "value": users["is_repeat_buyer"].mean(),
+            },
+            {
+                "metric": "late_orders",
+                "value": int(completed["is_late_delivery"].sum()),
+            },
+            {
+                "metric": "delayed_merchandise_gmv",
+                "value": completed["merchandise_gmv"]
+                .where(completed["is_late_delivery"] == 1, 0.0)
+                .sum(),
             },
             {
                 "metric": "average_dispatch_days",
@@ -606,7 +743,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
     cohort_retention = _build_cohort_retention(orders)
     cohort_rfm_targets = _build_cohort_rfm_targets(users)
     seller_state_actions = _build_seller_state_actions(orders, items)
-    return {
+    metrics = {
         "monthly_metrics": monthly,
         "category_metrics": category,
         "state_metrics": state,
@@ -618,6 +755,8 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         "cohort_rfm_targets": cohort_rfm_targets,
         "seller_state_delivery_actions": seller_state_actions,
     }
+    metrics["executive_summary"] = _build_executive_summary(metrics)
+    return metrics
 
 
 def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None:
@@ -629,6 +768,7 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
     state = metrics["state_metrics"]
     seller = metrics["seller_metrics"]
     actions = metrics["seller_state_delivery_actions"]
+    executive = metrics["executive_summary"]
     logistics = metrics["logistics_summary"].set_index("metric")["value"]
     delivery = metrics["delivery_review"].set_index("delivery_status")
     month_1_retention = _weighted_cohort_rate(cohort, 1)
@@ -657,6 +797,22 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
             f"with {int(top_lane['late_orders'])} late orders across "
             f"{int(top_lane['completed_orders'])} completed orders."
         )
+    executive_rows = []
+    for row in executive.sort_values("priority_rank").to_dict("records"):
+        signal = (
+            f"{row['signal_value']:.2%}"
+            if row["signal_unit"] == "rate"
+            else f"{row['signal_value']:.2f} / 5"
+        )
+        executive_rows.append(
+            f"| {int(row['priority_rank'])} | "
+            f"{str(row['priority_area']).replace('_', ' ').title()} | "
+            f"{signal} | {int(row['scope_count']):,} "
+            f"{str(row['scope_unit']).replace('_', ' ')} | "
+            f"{row['commercial_value']:,.2f} | "
+            f"{str(row['recommended_action']).replace('_', ' ')} |"
+        )
+    executive_table = "\n".join(executive_rows)
     report = f"""# Olist Brazil E-commerce Operations Diagnosis
 
 ## Scope
@@ -681,6 +837,15 @@ sample guards, not statistical-significance claims.
 | Average delivery days | {logistics['average_delivery_days']:.2f} |
 | Late delivery rate | {logistics['late_delivery_rate']:.2%} |
 | Average review score | {logistics['average_review_score']:.2f} / 5 |
+
+## Executive decision priorities
+
+| Rank | Priority area | Current signal | Historical scope | Merchandise GMV | Recommended next action |
+|---:|---|---:|---:|---:|---|
+{executive_table}
+
+Commercial value is historical merchandise GMV within the diagnostic scope;
+it is not forecast uplift, recoverable revenue, or accounting profit.
 
 ## Initial findings
 
@@ -725,10 +890,12 @@ sample guards, not statistical-significance claims.
 - [State late-delivery chart](analysis/state_late_delivery.svg)
 - [Customer cohort retention heatmap](analysis/cohort_retention.svg)
 - [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
+- `executive_summary.csv`: three-row management decision summary
 - `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
 - `seller_state_delivery_actions.csv`: qualified lane-level action list
 
-See `../docs/cohort_rfm_targeting_methodology.md` and
+See `../docs/executive_summary_methodology.md`,
+`../docs/cohort_rfm_targeting_methodology.md`, and
 `../docs/delivery_risk_methodology.md` for ranking logic and interpretation
 limits.
 """
@@ -741,6 +908,7 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
     metrics = _build_metrics(paths)
     for name, frame in metrics.items():
         frame.to_csv(paths.analysis / f"{name}.csv", index=False)
+    _update_analysis_quality_report(paths, metrics)
     monthly = metrics["monthly_metrics"]
     _line_chart(
         paths.analysis / "monthly_gmv.svg",

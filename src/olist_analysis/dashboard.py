@@ -41,6 +41,33 @@ def _cohort_summary(frame: pd.DataFrame) -> pd.DataFrame:
     return summary.reset_index().sort_values("cohort_month", ascending=False)
 
 
+def _executive_cards_html(frame: pd.DataFrame) -> str:
+    """Render decision-focused cards from the executive summary table."""
+    cards = []
+    for row in frame.sort_values("priority_rank").to_dict("records"):
+        signal = (
+            f"{row['signal_value']:.2%}"
+            if row["signal_unit"] == "rate"
+            else f"{row['signal_value']:.2f} / 5"
+        )
+        area = str(row["priority_area"]).replace("_", " ").title()
+        scope = str(row["scope_unit"]).replace("_", " ")
+        action = str(row["recommended_action"]).replace("_", " ")
+        cards.append(
+            '<article class="decision-card">'
+            f'<div class="decision-rank">Priority {int(row["priority_rank"])}</div>'
+            f"<h3>{html.escape(area)}</h3>"
+            f'<div class="decision-signal">{html.escape(signal)}</div>'
+            f'<div class="decision-detail">{int(row["scope_count"]):,} '
+            f"{html.escape(scope)}</div>"
+            f'<div class="decision-detail">R${row["commercial_value"]:,.2f} '
+            "historical merchandise GMV</div>"
+            f'<div class="decision-action">{html.escape(action)}</div>'
+            "</article>"
+        )
+    return "".join(cards)
+
+
 def build_dashboard(paths: ProjectPaths) -> Path:
     """Write the standalone HTML dashboard and return its path."""
     order_mart = pd.read_csv(paths.processed / "order_mart.csv")
@@ -50,6 +77,7 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     monthly = _read(paths, "monthly_metrics")
     cohort = _read(paths, "cohort_retention")
     cohort_rfm = _read(paths, "cohort_rfm_targets")
+    executive = _read(paths, "executive_summary")
     seller_state_actions = _read(paths, "seller_state_delivery_actions")
     completed = order_mart[order_mart["order_status"] == COMPLETED_STATUS]
     gmv = completed["merchandise_gmv"].sum()
@@ -73,6 +101,7 @@ def build_dashboard(paths: ProjectPaths) -> Path:
         f'<div class="value">{html.escape(value)}</div></div>'
         for label, value in cards
     )
+    executive_html = _executive_cards_html(executive)
     category_view = category.sort_values("merchandise_gmv", ascending=False)
     state_view = state[state["risk_ranking_eligible"]].sort_values("risk_priority_rank")
     state_view["late_delivery_rate"] = state_view["late_delivery_rate"].map(
@@ -186,6 +215,14 @@ h1 {{ margin: 0 0 6px; font-size: 30px; }}
 box-shadow: 0 2px 10px rgba(23,32,51,.06); }}
 .label {{ color: #596579; font-size: 13px; }}
 .value {{ font-size: 24px; font-weight: 700; margin-top: 8px; }}
+.executive {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+margin-top: 18px; }}
+.decision-card {{ background: #172033; color: #fff; border-radius: 10px; padding: 18px; }}
+.decision-card h3 {{ margin: 5px 0 12px; font-size: 18px; }}
+.decision-rank {{ color: #9fb9ff; font-size: 12px; font-weight: 700; text-transform: uppercase; }}
+.decision-signal {{ color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 8px; }}
+.decision-detail {{ color: #dbe3f2; font-size: 13px; margin-top: 4px; }}
+.decision-action {{ color: #b9f4d0; font-size: 13px; font-weight: 700; margin-top: 14px; }}
 .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }}
 .wide {{ grid-column: 1 / -1; }}
 .panel h2 {{ font-size: 18px; margin: 0 0 14px; }}
@@ -197,13 +234,14 @@ text-align: left; }}
 .data-table th {{ color: #596579; font-weight: 600; }}
 .table-scroll {{ overflow-x: auto; }}
 .action-table {{ min-width: 1120px; }}
-@media (max-width: 800px) {{ .cards, .grid {{ grid-template-columns: 1fr 1fr; }} }}
-@media (max-width: 520px) {{ .cards, .grid {{ grid-template-columns: 1fr; }} .wrap {{ padding: 18px; }} }}
+@media (max-width: 800px) {{ .cards, .grid, .executive {{ grid-template-columns: 1fr 1fr; }} }}
+@media (max-width: 520px) {{ .cards, .grid, .executive {{ grid-template-columns: 1fr; }} .wrap {{ padding: 18px; }} }}
 </style></head>
 <body><main class="wrap">
 <h1>Olist Brazil E-commerce Operations Dashboard</h1>
 <div class="subtitle">Delivered-order baseline; trend window through 2018-08</div>
 <section class="cards">{card_html}</section>
+<section class="executive">{executive_html}</section>
 <section class="grid">
 <div class="panel"><h2>Monthly merchandise GMV</h2>
 <img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>

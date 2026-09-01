@@ -8,7 +8,7 @@ operations dashboard.
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-7%20passed-2E8B57)
+![Tests](https://img.shields.io/badge/tests-9%20passed-2E8B57)
 ![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## Dashboard preview
@@ -34,6 +34,17 @@ August 2018.
 | Late delivery rate | 8.11% | Material service-risk population |
 | Average delivery time | 12.13 days | Purchase-to-delivery cycle time |
 | Average review score | 4.16 / 5 | Overall delivered-order satisfaction |
+
+### Executive decision priorities
+
+| Priority | Current signal | Historical scope | Merchandise GMV | Recommended action |
+|---|---:|---:|---:|---|
+| Retention growth | 3.00% repeat-buyer rate | 74,153 qualified target customers | R$10.37M | Segment-specific tests with holdouts |
+| Delivery service | 8.11% late-delivery rate | 7,826 late orders | R$1.16M | Seller dispatch and carrier-lane reviews |
+| Category experience | 4.01 / 5 focus-category score | 6 top-GMV categories below platform average | R$4.98M | Resolve quality and freight issues before growth |
+
+Commercial values show historical diagnostic exposure, not predicted uplift,
+recoverable revenue, or accounting profit.
 
 ## Key findings and recommendations
 
@@ -128,8 +139,8 @@ Expected verification result:
 ```text
 Built 13 tables
 Quality checks: 12
-Generated 10 analysis tables
-7 passed
+Generated 11 analysis tables
+9 passed
 ```
 
 Open the dashboard on Windows:
@@ -151,6 +162,7 @@ olist-brazil-ecommerce-analysis/
 |   |-- cohort_retention_methodology.md
 |   |-- cohort_rfm_targeting_methodology.md
 |   |-- delivery_risk_methodology.md
+|   |-- executive_summary_methodology.md
 |   |-- data_dictionary.md      # Dataset keys and relationships
 |   `-- data_cleaning_rules.md  # Cleaning and metric rules
 |-- outputs/
@@ -178,6 +190,7 @@ olist-brazil-ecommerce-analysis/
 | `analysis/*.svg` | Version-controlled charts used by the dashboard |
 | `cohort_retention.csv` | Tidy monthly cohort size, active buyers, and retention rates |
 | `cohort_rfm_targets.csv` | Qualified cohort-segment retention planning queue |
+| `executive_summary.csv` | Three-row management decision summary with historical scope |
 | `seller_state_delivery_actions.csv` | Volume-qualified seller-to-customer-state delivery review queue |
 
 ## Metric and quality controls
@@ -188,6 +201,8 @@ olist-brazil-ecommerce-analysis/
 - Invalid timestamps are coerced to missing values and monitored.
 - Duplicate primary keys, join coverage, missingness, and output row counts are
   checked by the pipeline.
+- The analysis stage appends RFM population integrity and cohort-target ranking
+  checks to `data_quality_report.json`.
 - Monetary metrics distinguish merchandise value, freight, and payments.
 - RFM scoring preserves ties; frequency uses actual completed order count capped
   at 5 so one-time buyers cannot be arbitrarily scored as loyal.
@@ -205,6 +220,8 @@ are documented in
 [`docs/cohort_retention_methodology.md`](docs/cohort_retention_methodology.md).
 Cohort-RFM segmentation, eligibility, and journey rules are documented in
 [`docs/cohort_rfm_targeting_methodology.md`](docs/cohort_rfm_targeting_methodology.md).
+Executive scope and interpretation rules are documented in
+[`docs/executive_summary_methodology.md`](docs/executive_summary_methodology.md).
 Delivery ranking thresholds and triage logic are documented in
 [`docs/delivery_risk_methodology.md`](docs/delivery_risk_methodology.md).
 

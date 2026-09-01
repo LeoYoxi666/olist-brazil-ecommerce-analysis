@@ -445,7 +445,7 @@ def persist_tables(
             CREATE INDEX idx_item_mart_seller ON item_mart(seller_id);
             """)
     report = _quality_report(tables)
-    report["database"] = str(database)
+    report["database"] = database.relative_to(paths.root).as_posix()
     (paths.outputs / "data_quality_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )

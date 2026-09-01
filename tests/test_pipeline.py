@@ -11,8 +11,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from olist_analysis.analytics import (
     _apply_risk_ranking,
+    _build_analysis_validation,
     _build_cohort_retention,
     _build_cohort_rfm_targets,
+    _build_executive_summary,
     _build_seller_state_actions,
 )
 from olist_analysis.pipeline import _build_order_mart, _build_user_mart, _score_series
@@ -208,6 +210,72 @@ def test_cohort_rfm_targets_apply_volume_and_followup_guards() -> None:
     assert january["recommended_journey"] == "second_purchase_high_value_offer"
     assert not bool(july["evaluation_eligible"])
     assert pd.isna(july["priority_rank"])
+
+
+def _sample_executive_metrics() -> dict[str, pd.DataFrame]:
+    """Return compact frames shared by executive-summary validation tests."""
+    return {
+        "logistics_summary": pd.DataFrame(
+            {
+                "metric": [
+                    "repeat_buyer_rate",
+                    "late_delivery_rate",
+                    "late_orders",
+                    "delayed_merchandise_gmv",
+                    "average_review_score",
+                ],
+                "value": [0.03, 0.08, 8, 900.0, 4.2],
+            }
+        ),
+        "cohort_rfm_targets": pd.DataFrame(
+            {
+                "priority_rank": pd.Series([1, pd.NA], dtype="Int64"),
+                "target_customers": [100, 50],
+                "target_customer_gmv": [5000.0, 1000.0],
+                "targeting_eligible": [True, False],
+                "evaluation_eligible": [True, True],
+            }
+        ),
+        "seller_state_delivery_actions": pd.DataFrame({"priority_rank": [1, 2]}),
+        "category_metrics": pd.DataFrame(
+            {
+                "category_name": ["weak", "strong"],
+                "completed_orders": [100, 80],
+                "merchandise_gmv": [10000.0, 8000.0],
+                "average_review_score": [3.8, 4.5],
+            }
+        ),
+        "rfm_segments": pd.DataFrame(
+            {
+                "rfm_segment": ["standard", "loyal", "champions"],
+                "buyers": [80, 15, 5],
+                "repeat_buyers": [0, 15, 5],
+                "one_time_buyers": [80, 0, 0],
+            }
+        ),
+    }
+
+
+def test_executive_summary_connects_scope_and_commercial_value() -> None:
+    """Executive rows should expose retention, delivery, and category scope."""
+    result = _build_executive_summary(_sample_executive_metrics()).set_index(
+        "priority_area"
+    )
+
+    assert result.loc["retention_growth", "scope_count"] == 100
+    assert result.loc["retention_growth", "commercial_value"] == 5000.0
+    assert result.loc["delivery_service", "scope_count"] == 8
+    assert result.loc["category_experience", "scope_count"] == 1
+
+
+def test_analysis_validation_checks_rfm_and_target_ranks() -> None:
+    """Business-rule validation should catch segmentation and ranking defects."""
+    result = _build_analysis_validation(_sample_executive_metrics())
+
+    assert result["rfm_population"]["buyers"] == 100
+    assert result["rfm_population"]["one_time_buyers_in_loyal_or_champions"] == 0
+    assert result["cohort_rfm_targeting"]["ranked_groups"] == 1
+    assert result["cohort_rfm_targeting"]["duplicate_priority_ranks"] == 0
 
 
 def test_risk_ranking_excludes_small_samples_and_ranks_late_volume() -> None:
