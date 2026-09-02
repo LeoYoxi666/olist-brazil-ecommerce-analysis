@@ -6,8 +6,9 @@
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-12%20passed-2E8B57)
+![Tests](https://img.shields.io/badge/tests-16%20passed-2E8B57)
 [![Python CI](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml)
+![Release](https://img.shields.io/badge/release-v1.0.0-7158E2)
 ![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## 1. 在线仪表盘

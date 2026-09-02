@@ -70,7 +70,7 @@ def _read_processed(paths: ProjectPaths, name: str) -> pd.DataFrame:
 def _parse_datetime(frame: pd.DataFrame, columns: list[str]) -> None:
     """原地解析日期字段，并将无效值转换为空值。"""
     for column in columns:
-        frame[column] = pd.to_datetime(frame[column], errors="coerce")
+        frame[column] = pd.to_datetime(frame[column], errors="coerce", format="mixed")
 
 
 def _write_svg(path: Path, body: str, title: str) -> None:

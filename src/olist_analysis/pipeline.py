@@ -40,7 +40,7 @@ def _first_mode(series: pd.Series) -> str | None:
 def _parse_dates(frame: pd.DataFrame, columns: list[str]) -> None:
     """原地将指定字段转换为日期时间类型。"""
     for column in columns:
-        frame[column] = pd.to_datetime(frame[column], errors="coerce")
+        frame[column] = pd.to_datetime(frame[column], errors="coerce", format="mixed")
 
 
 def _read_sources(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
