@@ -21,6 +21,45 @@ from olist_analysis.config import (
     ProjectPaths,
 )
 
+RFM_SEGMENT_LABELS = {
+    "champions": "冠军用户",
+    "at_risk": "流失风险用户",
+    "loyal": "忠诚用户",
+    "high_value": "高价值用户",
+    "new_active": "新近活跃用户",
+    "standard": "普通用户",
+}
+
+PRIORITY_AREA_LABELS = {
+    "retention_growth": "用户留存增长",
+    "delivery_service": "配送服务改善",
+    "category_experience": "品类体验优化",
+}
+
+SCOPE_UNIT_LABELS = {
+    "qualified_target_customers": "名合格目标用户",
+    "late_orders": "笔延迟订单",
+    "top_gmv_below_average_categories": "个高 GMV 且评分低于平台均值的品类",
+}
+
+ACTION_LABELS = {
+    "run_segmented_retention_holdout_tests": "按客群开展带留出组的留存实验",
+    "execute_lane_and_dispatch_reviews": "复核卖家发货与承运线路",
+    "review_quality_and_freight_before_growth": "增长前先复核商品质量与运费",
+    "seller_dispatch_sla_review": "复核卖家发货 SLA",
+    "carrier_lane_capacity_review": "复核承运线路容量与路由",
+}
+
+JOURNEY_LABELS = {
+    "win_back_service_recovery": "服务补救与流失召回",
+    "second_purchase_high_value_offer": "高价值用户二次购买激励",
+    "early_second_purchase_nudge": "早期二次购买引导",
+    "loyalty_reinforcement": "忠诚关系强化",
+    "vip_advocacy": "VIP 口碑与推荐",
+    "category_replenishment_nurture": "品类复购培育",
+    "manual_review": "人工复核",
+}
+
 
 def _read_processed(paths: ProjectPaths, name: str) -> pd.DataFrame:
     """Read one processed CSV table."""
@@ -38,7 +77,7 @@ def _write_svg(path: Path, body: str, title: str) -> None:
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
  viewBox="0 0 1200 680">
 <rect width="1200" height="680" fill="#ffffff"/>
-<text x="70" y="58" font-family="Arial" font-size="26" font-weight="700"
+<text x="70" y="58" font-family="Arial, Microsoft YaHei, sans-serif" font-size="26" font-weight="700"
  fill="#172033">{html.escape(title)}</text>
 {body}
 </svg>"""
@@ -74,7 +113,7 @@ def _line_chart(path: Path, labels: list[str], values: list[float], title: str) 
         if index % max(len(labels) // 10, 1) == 0:
             body.append(
                 f'<text x="{x:.1f}" y="{top + plot_height + 30}" '
-                f'text-anchor="middle" font-family="Arial" font-size="12">'
+                f'text-anchor="middle" font-family="Arial, Microsoft YaHei, sans-serif" font-size="12">'
                 f"{html.escape(labels[index])}</text>"
             )
     _write_svg(path, "\n".join(body), title)
@@ -107,12 +146,12 @@ def _bar_chart(
         )
         body.append(
             f'<text x="{left - 10}" y="{y + bar_height * 0.75:.1f}" '
-            f'text-anchor="end" font-family="Arial" font-size="13">'
+            f'text-anchor="end" font-family="Arial, Microsoft YaHei, sans-serif" font-size="13">'
             f"{html.escape(str(label))}</text>"
         )
         body.append(
             f'<text x="{left + bar_width + 8:.1f}" '
-            f'y="{y + bar_height * 0.75:.1f}" font-family="Arial" '
+            f'y="{y + bar_height * 0.75:.1f}" font-family="Arial, Microsoft YaHei, sans-serif" '
             f'font-size="12">{value:,.0f}</text>'
         )
     _write_svg(path, "\n".join(body), title)
@@ -187,8 +226,8 @@ def _retention_heatmap(
     if retention.empty:
         _write_svg(
             path,
-            '<text x="70" y="130" font-family="Arial" font-size="18">'
-            "No cohort data available</text>",
+            '<text x="70" y="130" font-family="Arial, Microsoft YaHei, sans-serif" font-size="18">'
+            "暂无 cohort 数据</text>",
             title,
         )
         return
@@ -215,7 +254,7 @@ def _retention_heatmap(
         x = left + column_index * cell_width + cell_width / 2
         body.append(
             f'<text x="{x:.1f}" y="98" text-anchor="middle" '
-            f'font-family="Arial" font-size="13" fill="#596579">'
+            f'font-family="Arial, Microsoft YaHei, sans-serif" font-size="13" fill="#596579">'
             f"M{month_number}</text>"
         )
 
@@ -223,7 +262,7 @@ def _retention_heatmap(
         y = top + row_index * cell_height
         body.append(
             f'<text x="{left - 12}" y="{y + cell_height * 0.7:.1f}" '
-            f'text-anchor="end" font-family="Arial" font-size="13" '
+            f'text-anchor="end" font-family="Arial, Microsoft YaHei, sans-serif" font-size="13" '
             f'fill="#172033">{html.escape(str(cohort_month))}</text>'
         )
         for column_index, month_number in enumerate(month_numbers):
@@ -251,7 +290,7 @@ def _retention_heatmap(
                 body.append(
                     f'<text x="{x + cell_width / 2:.1f}" '
                     f'y="{y + cell_height * 0.68:.1f}" text-anchor="middle" '
-                    f'font-family="Arial" font-size="11" fill="{text_color}">'
+                    f'font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="{text_color}">'
                     f"{label}</text>"
                 )
     _write_svg(path, "\n".join(body), title)
@@ -760,7 +799,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
 
 
 def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None:
-    """Write a concise first-pass business diagnosis in Markdown."""
+    """Write a concise Chinese business diagnosis in Markdown."""
     category = metrics["category_metrics"]
     rfm = metrics["rfm_segments"]
     cohort = metrics["cohort_retention"]
@@ -778,24 +817,26 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
     qualified_sellers = int(seller["risk_ranking_eligible"].sum())
     ranked_retention_groups = cohort_rfm[cohort_rfm["priority_rank"].notna()]
     if ranked_retention_groups.empty:
-        top_retention_summary = "No cohort-RFM group meets the ranking guards."
+        top_retention_summary = "暂无 cohort-RFM 客群满足排名门槛。"
     else:
         top_retention = ranked_retention_groups.iloc[0]
+        segment_label = RFM_SEGMENT_LABELS.get(
+            str(top_retention["rfm_segment"]), str(top_retention["rfm_segment"])
+        )
         top_retention_summary = (
-            f"The top target is the {top_retention['cohort_month']} "
-            f"`{top_retention['rfm_segment']}` group, with "
-            f"{int(top_retention['target_customers']):,} target customers and "
-            f"{top_retention['target_customer_gmv']:,.2f} in merchandise GMV."
+            f"首要目标为 {top_retention['cohort_month']} 的“{segment_label}”客群，"
+            f"包含 {int(top_retention['target_customers']):,} 名目标用户，"
+            f"对应 R${top_retention['target_customer_gmv']:,.2f} 商品 GMV。"
         )
     if actions.empty:
-        top_lane_summary = "No seller-state lane meets the action threshold."
+        top_lane_summary = "暂无卖家—州线路满足行动门槛。"
     else:
         top_lane = actions.iloc[0]
         top_lane_summary = (
-            f"The top qualified lane is seller `{top_lane['seller_id']}` "
-            f"({top_lane['seller_state']} to {top_lane['customer_state']}), "
-            f"with {int(top_lane['late_orders'])} late orders across "
-            f"{int(top_lane['completed_orders'])} completed orders."
+            f"首要合格线路为卖家 `{top_lane['seller_id']}` "
+            f"（{top_lane['seller_state']} 至 {top_lane['customer_state']}），"
+            f"{int(top_lane['completed_orders'])} 笔已完成订单中有 "
+            f"{int(top_lane['late_orders'])} 笔延迟。"
         )
     executive_rows = []
     for row in executive.sort_values("priority_rank").to_dict("records"):
@@ -806,98 +847,86 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
         )
         executive_rows.append(
             f"| {int(row['priority_rank'])} | "
-            f"{str(row['priority_area']).replace('_', ' ').title()} | "
+            f"{PRIORITY_AREA_LABELS.get(str(row['priority_area']), row['priority_area'])} | "
             f"{signal} | {int(row['scope_count']):,} "
-            f"{str(row['scope_unit']).replace('_', ' ')} | "
-            f"{row['commercial_value']:,.2f} | "
-            f"{str(row['recommended_action']).replace('_', ' ')} |"
+            f"{SCOPE_UNIT_LABELS.get(str(row['scope_unit']), row['scope_unit'])} | "
+            f"R${row['commercial_value']:,.2f} | "
+            f"{ACTION_LABELS.get(str(row['recommended_action']), row['recommended_action'])} |"
         )
     executive_table = "\n".join(executive_rows)
-    report = f"""# Olist Brazil E-commerce Operations Diagnosis
+    report = f"""# Olist 巴西电商运营诊断报告
 
-## Scope
+## 1. 分析范围
 
-This first-pass report uses delivered orders as completed transactions and
-uses purchase month through `{LAST_COMPLETE_TREND_MONTH}` for trend analysis.
-The data does not contain campaign exposure, product cost, or commission data;
-therefore, this report does not claim campaign causality, advertising ROI, or
-accounting profit.
-Risk rankings require at least {MIN_STATE_RISK_ORDERS} completed orders per
-state, {MIN_SELLER_RISK_ORDERS} per seller, and
-{MIN_SELLER_STATE_ACTION_ORDERS} per seller-state lane. These are operational
-sample guards, not statistical-significance claims.
+本报告以已交付订单作为完成交易基准，趋势分析截至
+`{LAST_COMPLETE_TREND_MONTH}`。数据不包含广告曝光、商品成本或平台佣金，
+因此不对广告活动因果关系、广告投资回报率或会计利润作出结论。
 
-## Executive baseline
+风险排名要求每个州至少有 {MIN_STATE_RISK_ORDERS} 笔已完成订单、每个卖家至少有
+{MIN_SELLER_RISK_ORDERS} 笔已完成订单、每条卖家—州线路至少有
+{MIN_SELLER_STATE_ACTION_ORDERS} 笔已完成订单。这些是运营样本量门槛，
+不代表统计显著性检验。
 
-| Metric | Value |
+## 2. 管理指标基准
+
+| 指标 | 数值 |
 |---|---:|
-| Completed orders | {int(logistics['completed_orders']):,} |
-| Merchandise GMV | {category['merchandise_gmv'].sum():,.2f} |
-| Active buyers | {int(rfm['buyers'].sum()):,} |
-| Average delivery days | {logistics['average_delivery_days']:.2f} |
-| Late delivery rate | {logistics['late_delivery_rate']:.2%} |
-| Average review score | {logistics['average_review_score']:.2f} / 5 |
+| 已完成订单 | {int(logistics['completed_orders']):,} |
+| 商品 GMV | R${category['merchandise_gmv'].sum():,.2f} |
+| 活跃买家 | {int(rfm['buyers'].sum()):,} |
+| 平均交付天数 | {logistics['average_delivery_days']:.2f} |
+| 延迟交付率 | {logistics['late_delivery_rate']:.2%} |
+| 平均评价得分 | {logistics['average_review_score']:.2f} / 5 |
 
-## Executive decision priorities
+## 3. 管理决策优先级
 
-| Rank | Priority area | Current signal | Historical scope | Merchandise GMV | Recommended next action |
+| 排名 | 优先领域 | 当前信号 | 历史范围 | 商品 GMV | 建议下一步行动 |
 |---:|---|---:|---:|---:|---|
 {executive_table}
 
-Commercial value is historical merchandise GMV within the diagnostic scope;
-it is not forecast uplift, recoverable revenue, or accounting profit.
+商业价值表示诊断范围内的历史商品 GMV，不是预测增量、可挽回收入或会计利润。
 
-## Initial findings
+## 4. 主要发现
 
-1. **Growth scaled materially during 2017.** The monthly GMV and order charts
-   show a strong ramp-up, with the highest complete-month volume in November
-   2017. This is a seasonal signal, not proof of a specific campaign effect.
-2. **Retention is the clearest growth opportunity.** Weighted cohort retention
-   is {month_1_retention:.2%} in month 1, {month_3_retention:.2%} in month 3,
-   and {month_6_retention:.2%} in month 6. {len(ranked_retention_groups)}
-   cohort-RFM groups meet the volume and follow-up guards.
+1. **2017 年业务规模明显增长。** 月度 GMV 与订单图显示业务快速上升，
+   2017 年 11 月是完整月份中的高点。这是季节性信号，不是某次营销活动产生效果的证明。
+2. **用户留存是最明确的增长机会。** 加权 cohort 留存率在第 1、3、6 个月分别为
+   {month_1_retention:.2%}、{month_3_retention:.2%} 和 {month_6_retention:.2%}；
+   共有 {len(ranked_retention_groups)} 个 cohort-RFM 客群满足样本量和观察期门槛。
    {top_retention_summary}
-3. **Late delivery is closely associated with poor satisfaction.** On-time
-   orders average {delivery.loc['on_time', 'average_review_score']:.2f} points,
-   versus {delivery.loc['late', 'average_review_score']:.2f} for late orders.
-   The relationship is diagnostic, not a causal experiment.
-4. **Delivery risk is concentrated enough for targeted action.**
-   {qualified_states} states and {qualified_sellers} sellers meet the minimum
-   volume guards. {top_lane_summary}
-5. **Category quality needs to be managed alongside sales.** The category
-   output combines GMV, freight share, and ratings; high-volume, low-rating
-   categories should not be optimized on sales alone.
+3. **延迟交付与较差满意度密切相关。** 准时订单平均评分为
+   {delivery.loc['on_time', 'average_review_score']:.2f}，延迟订单为
+   {delivery.loc['late', 'average_review_score']:.2f}。该关系用于运营诊断，
+   不能解释为因果实验结果。
+4. **配送风险足够集中，可以定向处理。** 共有 {qualified_states} 个州和
+   {qualified_sellers} 个卖家满足最低样本量门槛。{top_lane_summary}
+5. **品类质量需要与销售规模共同管理。** 品类结果同时纳入 GMV、运费占比和评分；
+   对高销量、低评分品类不能只按销售规模进行优化。
 
-## Recommended next actions
+## 5. 建议行动
 
-1. Work through `cohort_rfm_targets.csv` in priority order. Use the recommended
-   journey as a test hypothesis, maintain a holdout group, and measure
-   incremental repeat purchase and GMV rather than raw post-campaign totals.
-2. Work through `seller_state_delivery_actions.csv` in priority order. Review
-   seller dispatch SLA where dispatch consumes at least
-   {SELLER_DISPATCH_SHARE_THRESHOLD:.0%} of delivery time; otherwise review
-   carrier lane capacity and routing.
-3. Review the top categories with low ratings or high freight share before
-   proposing assortment or promotion changes.
-4. Recalculate the action list after each intervention window and compare both
-   late-order volume and customer review outcomes.
+1. 按优先级处理 `cohort_rfm_targets.csv`。将建议旅程作为实验假设，保留留出组，
+   衡量增量复购和增量 GMV，而不是只比较活动后的原始总量。
+2. 按优先级处理 `seller_state_delivery_actions.csv`。当发货环节占交付时间至少
+   {SELLER_DISPATCH_SHARE_THRESHOLD:.0%} 时复核卖家发货 SLA，否则优先复核承运线路容量与路由。
+3. 提出选品或促销调整前，先复核高 GMV 但评分偏低或运费占比较高的重点品类。
+4. 每个干预窗口结束后重新计算行动队列，同时比较延迟订单量和用户评价变化。
 
-## Generated artifacts
+## 6. 生成产物
 
-- [Monthly GMV chart](analysis/monthly_gmv.svg)
-- [Monthly orders chart](analysis/monthly_orders.svg)
-- [Top categories chart](analysis/top_categories_gmv.svg)
-- [State late-delivery chart](analysis/state_late_delivery.svg)
-- [Customer cohort retention heatmap](analysis/cohort_retention.svg)
-- [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
-- `executive_summary.csv`: three-row management decision summary
-- `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
-- `seller_state_delivery_actions.csv`: qualified lane-level action list
+- [月度 GMV 图](analysis/monthly_gmv.svg)
+- [月度订单图](analysis/monthly_orders.svg)
+- [重点品类图](analysis/top_categories_gmv.svg)
+- [各州延迟交付图](analysis/state_late_delivery.svg)
+- [用户 cohort 留存热力图](analysis/cohort_retention.svg)
+- [cohort-RFM 留存优先级图](analysis/cohort_rfm_targets.svg)
+- `executive_summary.csv`：三行管理决策摘要
+- `cohort_rfm_targets.csv`：满足样本量和观察期门槛的留存行动队列
+- `seller_state_delivery_actions.csv`：满足门槛的线路级行动队列
 
-See `../docs/executive_summary_methodology.md`,
-`../docs/cohort_rfm_targeting_methodology.md`, and
-`../docs/delivery_risk_methodology.md` for ranking logic and interpretation
-limits.
+排名逻辑和解释边界见 `../docs/executive_summary_methodology.md`、
+`../docs/cohort_rfm_targeting_methodology.md` 和
+`../docs/delivery_risk_methodology.md`。
 """
     (paths.outputs / "analysis_report.md").write_text(report, encoding="utf-8")
 
@@ -914,20 +943,20 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         paths.analysis / "monthly_gmv.svg",
         monthly["order_month"].tolist(),
         monthly["merchandise_gmv"].tolist(),
-        "Monthly merchandise GMV",
+        "月度商品 GMV",
     )
     _line_chart(
         paths.analysis / "monthly_orders.svg",
         monthly["order_month"].tolist(),
         monthly["completed_orders"].tolist(),
-        "Monthly completed orders",
+        "月度已完成订单",
     )
     category = metrics["category_metrics"].head(10).sort_values("merchandise_gmv")
     _bar_chart(
         paths.analysis / "top_categories_gmv.svg",
         category["category_name"].tolist(),
         category["merchandise_gmv"].tolist(),
-        "Top categories by merchandise GMV",
+        "商品 GMV 最高的品类",
     )
     state = (
         metrics["state_metrics"]
@@ -939,13 +968,13 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         paths.analysis / "state_late_delivery.svg",
         state["customer_state"].tolist(),
         (state["late_delivery_rate"] * 100).tolist(),
-        "Late delivery rate for priority customer states (%)",
+        "重点用户州延迟交付率（%）",
         color="#e05a47",
     )
     _retention_heatmap(
         paths.analysis / "cohort_retention.svg",
         metrics["cohort_retention"],
-        "Monthly customer cohort retention",
+        "月度用户 cohort 留存率",
     )
     cohort_rfm = (
         metrics["cohort_rfm_targets"]
@@ -959,10 +988,10 @@ def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
         (
             cohort_rfm["cohort_month"]
             + " | "
-            + cohort_rfm["rfm_segment"].str.replace("_", " ")
+            + cohort_rfm["rfm_segment"].map(RFM_SEGMENT_LABELS)
         ).tolist(),
         cohort_rfm["target_customers"].astype(float).tolist(),
-        "Top cohort-RFM retention target groups",
+        "cohort-RFM 留存目标客群",
         color="#7158e2",
     )
     _write_report(paths, metrics)

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 
 ## Project Goal
 
@@ -27,7 +27,12 @@ all six SVG chart dependencies. The repository homepage points to the live
 dashboard and portfolio topics are configured. GitHub Actions also runs the
 project's test and core code-quality suite in a clean Python 3.10 environment;
 the first CI run completed successfully. The final portfolio-summary update is
-committed and synchronized with `origin/main`.
+committed and synchronized with `origin/main`. All public-facing Markdown
+documents, generated report content, dashboard labels and section headings,
+and SVG chart titles now use Simplified Chinese. Public Markdown uses one
+consistent heading scheme: the H1 title is unnumbered, H2 headings use
+sequential decimal numbers, and H3 headings use hierarchical decimal numbers.
+Automated presentation checks increased the test suite to 12 passing tests.
 
 ## Completed
 
@@ -84,7 +89,7 @@ committed and synchronized with `origin/main`.
   README conclusions, and an updated dashboard preview.
 - Replaced the machine-specific database path in the generated quality report
   with the portable project-relative path.
-- Verified the automated test suite: 9 tests pass.
+- Verified the automated test suite: 12 tests pass.
 - Added working Flake8 and mypy configuration and verified isort, Black,
   Flake8, mypy, tests, analysis generation, and dashboard generation.
 - Initialized Git on `main`, configured the GitHub remote, and pushed the first
@@ -106,15 +111,24 @@ committed and synchronized with `origin/main`.
 - Confirmed that Git history contains no raw CSVs, processed CSVs, SQLite
   databases, virtual-environment files, Python caches, or compiled bytecode.
 - Added automated Python CI for relevant pushes and pull requests. The workflow
-  installs dependencies and runs isort, Black, Flake8, mypy, and all nine tests;
+  installs dependencies and runs isort, Black, Flake8, mypy, and all 12 tests;
   its first GitHub-hosted run passed.
-- Added concise Chinese and English resume bullets, interview pitches, an
-  evidence walkthrough, and interpretation boundaries for portfolio use.
+- Added concise Chinese resume bullets, an interview pitch, an evidence
+  walkthrough, and interpretation boundaries for portfolio use.
+- Standardized all public-facing reports and methodology documents to
+  Simplified Chinese with consistently numbered H2 and H3 headings.
+- Localized generated report text, dashboard KPIs, tables, decision cards,
+  recommendations, section headings, and all six SVG chart titles while
+  preserving English filenames, code identifiers, and source-data values.
+- Added automated checks for public-document heading numbering, Chinese
+  dashboard/report titles, translated table labels, and preserved state codes.
+- Regenerated the dashboard preview after the Chinese presentation update.
 
 ## Current Task
 
-Keep the published project healthy and add future analytical enhancements only
-when they improve a clear business decision or methodological reliability.
+Publish the unified Chinese presentation update to `origin/main`, then keep the
+published project healthy and add future analytical enhancements only when they
+improve a clear business decision or methodological reliability.
 
 ## Important Files
 
@@ -142,8 +156,8 @@ when they improve a clear business decision or methodological reliability.
   rules, and interpretation limits for delivery-risk actions.
 - `docs/executive_summary_methodology.md`: executive-priority definitions,
   commercial-scope calculations, action rules, and interpretation limits.
-- `docs/portfolio_summary.md`: concise Chinese and English resume bullets,
-  interview pitches, evidence sequence, and interpretation boundaries.
+- `docs/portfolio_summary.md`: concise Chinese resume bullets, interview pitch,
+  evidence sequence, and interpretation boundaries.
 - `outputs/analysis_report.md`: current business diagnosis.
 - `outputs/dashboard.html`: generated operations dashboard.
 - `outputs/analysis/cohort_retention.svg`: tracked cohort-retention heatmap.
@@ -213,6 +227,9 @@ when they improve a clear business decision or methodological reliability.
 - Brazilian state codes must remain original two-letter abbreviations. Browser
   auto-translation can corrupt them and should not be treated as source data.
 - Project and code filenames remain in English.
+- Public-facing README, methodology documents, generated reports, dashboards,
+  table labels, and chart titles use Simplified Chinese. Public Markdown keeps
+  H1 unnumbered, H2 sequentially numbered, and H3 hierarchically numbered.
 
 ## Known Issues
 
@@ -226,7 +243,9 @@ when they improve a clear business decision or methodological reliability.
 
 ## Next Steps
 
-1. Continue future analytical enhancements only when they add a clear business
+1. Commit and push the unified Chinese presentation update, then verify the
+   GitHub README, methodology documents, dashboard, charts, and Pages site.
+2. Continue future analytical enhancements only when they add a clear business
    decision or improve methodological reliability.
-2. Keep README, dashboard, report, tests, CI, and project context synchronized
+3. Keep README, dashboard, report, tests, CI, and project context synchronized
    with any future metric or business-definition changes.

@@ -1,6 +1,6 @@
 # Olist 数据字典
 
-## 数据概览
+## 1. 数据概览
 
 | 文件 | 行数 | 一行代表 | 业务主键/关联键 | 主要用途 |
 |---|---:|---|---|---|
@@ -14,7 +14,7 @@
 | `olist_geolocation_dataset.csv` | 1,000,163 | 一个邮编对应的一条地理观测 | `geolocation_zip_code_prefix` 非唯一 | 地理位置、区域分析 |
 | `product_category_name_translation.csv` | 71 | 一个葡语品类的英文翻译 | `product_category_name` | 品类名称标准化 |
 
-## 1. 订单表：`olist_orders_dataset.csv`
+## 2. 订单表：`olist_orders_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -27,7 +27,7 @@
 | `order_delivered_customer_date` | 客户签收时间 | 时间字段；可能为空 |
 | `order_estimated_delivery_date` | 预计送达时间 | 时间字段；用于判断延迟 |
 
-## 2. 客户表：`olist_customers_dataset.csv`
+## 3. 客户表：`olist_customers_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -37,7 +37,7 @@
 | `customer_city` | 客户城市 | 文本 |
 | `customer_state` | 客户州 | 巴西州缩写 |
 
-## 3. 订单商品表：`olist_order_items_dataset.csv`
+## 4. 订单商品表：`olist_order_items_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -49,7 +49,7 @@
 | `price` | 商品价格 | 数值；商品 GMV 的基础 |
 | `freight_value` | 该商品分摊的运费 | 数值；与 price 分开分析 |
 
-## 4. 支付表：`olist_order_payments_dataset.csv`
+## 5. 支付表：`olist_order_payments_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -59,7 +59,7 @@
 | `payment_installments` | 分期期数 | 数值 |
 | `payment_value` | 该笔支付金额 | 数值；使用前先按订单汇总 |
 
-## 5. 评价表：`olist_order_reviews_dataset.csv`
+## 6. 评价表：`olist_order_reviews_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -71,7 +71,7 @@
 | `review_creation_date` | 评价创建时间 | 时间字段 |
 | `review_answer_timestamp` | 商家/平台回复时间 | 时间字段 |
 
-## 6. 商品表：`olist_products_dataset.csv`
+## 7. 商品表：`olist_products_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -85,7 +85,7 @@
 | `product_height_cm` | 商品高度（厘米） | 数值 |
 | `product_width_cm` | 商品宽度（厘米） | 数值 |
 
-## 7. 卖家表：`olist_sellers_dataset.csv`
+## 8. 卖家表：`olist_sellers_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -94,7 +94,7 @@
 | `seller_city` | 卖家城市 | 文本 |
 | `seller_state` | 卖家州 | 州缩写 |
 
-## 8. 地理表：`olist_geolocation_dataset.csv`
+## 9. 地理表：`olist_geolocation_dataset.csv`
 
 | 字段 | 含义 | 类型/注意事项 |
 |---|---|---|
@@ -104,14 +104,14 @@
 | `geolocation_city` | 地理城市 | 文本 |
 | `geolocation_state` | 地理州 | 文本 |
 
-## 9. 品类翻译表：`product_category_name_translation.csv`
+## 10. 品类翻译表：`product_category_name_translation.csv`
 
 | 字段 | 含义 |
 |---|---|
 | `product_category_name` | 葡萄牙语品类名；关联 products |
 | `product_category_name_english` | 英文品类名 |
 
-## 10. 关联规则
+## 11. 关联规则
 
 ```text
 orders ── customer_id ── customers ── customer_unique_id（用户主身份）
@@ -122,7 +122,7 @@ orders ── order_id ── reviews（先聚合）
 customers/sellers ── 邮编前缀 ── geolocation（先去重/聚合）
 ```
 
-## 11. 关联禁忌
+## 12. 关联禁忌
 
 - 不要把订单、商品明细、支付和评价四张明细表直接同时连接。
 - 不要用 `customer_id` 计算复购；同一用户可能拥有多个收货身份。

@@ -7,7 +7,45 @@ from pathlib import Path
 
 import pandas as pd
 
+from olist_analysis.analytics import (
+    ACTION_LABELS,
+    JOURNEY_LABELS,
+    PRIORITY_AREA_LABELS,
+    RFM_SEGMENT_LABELS,
+    SCOPE_UNIT_LABELS,
+)
 from olist_analysis.config import COMPLETED_STATUS, ProjectPaths
+
+COLUMN_LABELS = {
+    "priority_rank": "优先级",
+    "risk_priority_rank": "风险优先级",
+    "category_name": "品类名称",
+    "customer_state": "用户州",
+    "seller_state": "卖家州",
+    "seller_id": "卖家 ID",
+    "completed_orders": "已完成订单",
+    "late_orders": "延迟订单",
+    "merchandise_gmv": "商品 GMV",
+    "average_review_score": "平均评分",
+    "late_delivery_rate": "延迟交付率",
+    "average_delivery_days": "平均交付天数",
+    "average_dispatch_days": "平均发货天数",
+    "recommended_action": "建议行动",
+    "order_month": "订单月份",
+    "active_buyers": "活跃买家",
+    "average_order_value": "平均订单金额",
+    "cohort_month": "cohort 月份",
+    "cohort_size": "cohort 用户数",
+    "month_1_retention": "第 1 月留存率",
+    "month_3_retention": "第 3 月留存率",
+    "month_6_retention": "第 6 月留存率",
+    "rfm_segment": "RFM 客群",
+    "target_customers": "目标用户",
+    "target_customer_gmv": "目标用户 GMV",
+    "repeat_buyer_rate": "复购买家率",
+    "observable_followup_months": "可观察后续月数",
+    "recommended_journey": "建议用户旅程",
+}
 
 
 def _read(paths: ProjectPaths, name: str) -> pd.DataFrame:
@@ -18,7 +56,19 @@ def _read(paths: ProjectPaths, name: str) -> pd.DataFrame:
 def _table_html(frame: pd.DataFrame, columns: list[str], limit: int) -> str:
     """Render a selected DataFrame slice as an escaped HTML table."""
     view = frame.loc[:, columns].head(limit).copy()
-    view.columns = [column.replace("_", " ").title() for column in view.columns]
+    if "rfm_segment" in view.columns:
+        view["rfm_segment"] = view["rfm_segment"].map(
+            lambda value: RFM_SEGMENT_LABELS.get(str(value), str(value))
+        )
+    if "recommended_action" in view.columns:
+        view["recommended_action"] = view["recommended_action"].map(
+            lambda value: ACTION_LABELS.get(str(value), str(value))
+        )
+    if "recommended_journey" in view.columns:
+        view["recommended_journey"] = view["recommended_journey"].map(
+            lambda value: JOURNEY_LABELS.get(str(value), str(value))
+        )
+    view.columns = [COLUMN_LABELS.get(column, column) for column in view.columns]
     return str(
         view.to_html(index=False, classes="data-table", border=0, justify="left")
     )
@@ -50,18 +100,22 @@ def _executive_cards_html(frame: pd.DataFrame) -> str:
             if row["signal_unit"] == "rate"
             else f"{row['signal_value']:.2f} / 5"
         )
-        area = str(row["priority_area"]).replace("_", " ").title()
-        scope = str(row["scope_unit"]).replace("_", " ")
-        action = str(row["recommended_action"]).replace("_", " ")
+        area = PRIORITY_AREA_LABELS.get(
+            str(row["priority_area"]), str(row["priority_area"])
+        )
+        scope = SCOPE_UNIT_LABELS.get(str(row["scope_unit"]), str(row["scope_unit"]))
+        action = ACTION_LABELS.get(
+            str(row["recommended_action"]), str(row["recommended_action"])
+        )
         cards.append(
             '<article class="decision-card">'
-            f'<div class="decision-rank">Priority {int(row["priority_rank"])}</div>'
+            f'<div class="decision-rank">优先级 {int(row["priority_rank"])}</div>'
             f"<h3>{html.escape(area)}</h3>"
             f'<div class="decision-signal">{html.escape(signal)}</div>'
             f'<div class="decision-detail">{int(row["scope_count"]):,} '
             f"{html.escape(scope)}</div>"
             f'<div class="decision-detail">R${row["commercial_value"]:,.2f} '
-            "historical merchandise GMV</div>"
+            "历史商品 GMV</div>"
             f'<div class="decision-action">{html.escape(action)}</div>'
             "</article>"
         )
@@ -87,14 +141,14 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     delivery_days = completed["delivery_days"].mean()
     score = completed["average_review_score"].mean()
     cards = [
-        ("Completed orders", f"{len(completed):,}"),
-        ("Merchandise GMV", f"{gmv:,.2f}"),
-        ("Active buyers", f"{user_mart['customer_unique_id'].nunique():,}"),
-        ("Average order value", f"{aov:,.2f}"),
-        ("Repeat buyer rate", f"{repeat_rate:.2%}"),
-        ("Late delivery rate", f"{late_rate:.2%}"),
-        ("Average delivery days", f"{delivery_days:.2f}"),
-        ("Average review score", f"{score:.2f} / 5"),
+        ("已完成订单", f"{len(completed):,}"),
+        ("商品 GMV", f"R${gmv:,.2f}"),
+        ("活跃买家", f"{user_mart['customer_unique_id'].nunique():,}"),
+        ("平均订单金额", f"R${aov:,.2f}"),
+        ("复购买家率", f"{repeat_rate:.2%}"),
+        ("延迟交付率", f"{late_rate:.2%}"),
+        ("平均交付天数", f"{delivery_days:.2f}"),
+        ("平均评价得分", f"{score:.2f} / 5"),
     ]
     card_html = "".join(
         f'<div class="card"><div class="label">{html.escape(label)}</div>'
@@ -201,15 +255,17 @@ def build_dashboard(paths: ProjectPaths) -> Path:
         15,
     )
     dashboard = f"""<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Olist Operations Dashboard</title>
+<title>Olist 巴西电商运营仪表盘</title>
 <style>
-body {{ margin: 0; background: #f4f6fa; color: #172033; font-family: Arial, sans-serif; }}
+body {{ margin: 0; background: #f4f6fa; color: #172033;
+font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }}
 .wrap {{ max-width: 1220px; margin: 0 auto; padding: 32px; }}
 h1 {{ margin: 0 0 6px; font-size: 30px; }}
 .subtitle {{ color: #596579; margin-bottom: 24px; }}
+.section-title {{ font-size: 22px; margin: 28px 0 14px; }}
 .cards {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }}
 .card, .panel {{ background: #fff; border-radius: 10px; padding: 18px;
 box-shadow: 0 2px 10px rgba(23,32,51,.06); }}
@@ -238,36 +294,37 @@ text-align: left; }}
 @media (max-width: 520px) {{ .cards, .grid, .executive {{ grid-template-columns: 1fr; }} .wrap {{ padding: 18px; }} }}
 </style></head>
 <body><main class="wrap">
-<h1>Olist Brazil E-commerce Operations Dashboard</h1>
-<div class="subtitle">Delivered-order baseline; trend window through 2018-08</div>
+<h1>Olist 巴西电商运营仪表盘</h1>
+<div class="subtitle">以已交付订单为基准；趋势窗口截至 2018 年 8 月</div>
 <section class="cards">{card_html}</section>
+<h2 class="section-title">1. 管理决策优先级</h2>
 <section class="executive">{executive_html}</section>
 <section class="grid">
-<div class="panel"><h2>Monthly merchandise GMV</h2>
-<img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>
-<div class="panel"><h2>Monthly completed orders</h2>
-<img class="chart" src="analysis/monthly_orders.svg" alt="Monthly completed orders"></div>
-<div class="panel wide"><h2>Monthly customer cohort retention</h2>
+<div class="panel"><h2>2. 月度商品 GMV</h2>
+<img class="chart" src="analysis/monthly_gmv.svg" alt="月度商品 GMV"></div>
+<div class="panel"><h2>3. 月度已完成订单</h2>
+<img class="chart" src="analysis/monthly_orders.svg" alt="月度已完成订单"></div>
+<div class="panel wide"><h2>4. 月度用户 cohort 留存</h2>
 <img class="chart-wide" src="analysis/cohort_retention.svg"
- alt="Monthly customer cohort retention heatmap"></div>
-<div class="panel wide"><h2>Top cohort-RFM retention targets</h2>
+ alt="月度用户 cohort 留存热力图"></div>
+<div class="panel wide"><h2>5. cohort-RFM 留存目标客群</h2>
 <img class="chart" src="analysis/cohort_rfm_targets.svg"
- alt="Top cohort and RFM retention target groups"></div>
-<div class="panel"><h2>Top categories by GMV</h2>
-<img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
-<div class="panel"><h2>Late delivery rate by state</h2>
-<img class="chart" src="analysis/state_late_delivery.svg" alt="Late delivery rate by state"></div>
-<div class="panel"><h2>Top categories</h2>
+ alt="cohort-RFM 留存目标客群"></div>
+<div class="panel"><h2>6. 商品 GMV 最高的品类</h2>
+<img class="chart" src="analysis/top_categories_gmv.svg" alt="商品 GMV 最高的品类"></div>
+<div class="panel"><h2>7. 各州延迟交付率</h2>
+<img class="chart" src="analysis/state_late_delivery.svg" alt="各州延迟交付率"></div>
+<div class="panel"><h2>8. 重点品类明细</h2>
 {category_table}</div>
-<div class="panel"><h2>State service risk</h2>
+<div class="panel"><h2>9. 州级服务风险</h2>
 {state_table}</div>
-<div class="panel"><h2>Recent monthly performance</h2>
+<div class="panel"><h2>10. 近期月度表现</h2>
 {monthly_table}</div>
-<div class="panel wide"><h2>Cohort retention summary</h2>
+<div class="panel wide"><h2>11. cohort 留存摘要</h2>
 {cohort_table}</div>
-<div class="panel wide"><h2>Cohort-RFM retention action list</h2>
+<div class="panel wide"><h2>12. cohort-RFM 留存行动队列</h2>
 <div class="table-scroll action-table">{retention_target_table}</div></div>
-<div class="panel wide"><h2>Seller-state late-delivery action list</h2>
+<div class="panel wide"><h2>13. 卖家—州延迟交付行动队列</h2>
 <div class="table-scroll action-table">{action_table}</div></div>
 </section></main></body></html>"""
     output = paths.outputs / "dashboard.html"

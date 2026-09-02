@@ -1,87 +1,75 @@
-# Olist Brazil E-commerce Operations Diagnosis
+# Olist 巴西电商运营诊断报告
 
-## Scope
+## 1. 分析范围
 
-This first-pass report uses delivered orders as completed transactions and
-uses purchase month through `2018-08` for trend analysis.
-The data does not contain campaign exposure, product cost, or commission data;
-therefore, this report does not claim campaign causality, advertising ROI, or
-accounting profit.
-Risk rankings require at least 100 completed orders per
-state, 20 per seller, and
-10 per seller-state lane. These are operational
-sample guards, not statistical-significance claims.
+本报告以已交付订单作为完成交易基准，趋势分析截至
+`2018-08`。数据不包含广告曝光、商品成本或平台佣金，
+因此不对广告活动因果关系、广告投资回报率或会计利润作出结论。
 
-## Executive baseline
+风险排名要求每个州至少有 100 笔已完成订单、每个卖家至少有
+20 笔已完成订单、每条卖家—州线路至少有
+10 笔已完成订单。这些是运营样本量门槛，
+不代表统计显著性检验。
 
-| Metric | Value |
+## 2. 管理指标基准
+
+| 指标 | 数值 |
 |---|---:|
-| Completed orders | 96,478 |
-| Merchandise GMV | 13,221,498.11 |
-| Active buyers | 93,358 |
-| Average delivery days | 12.13 |
-| Late delivery rate | 8.11% |
-| Average review score | 4.16 / 5 |
+| 已完成订单 | 96,478 |
+| 商品 GMV | R$13,221,498.11 |
+| 活跃买家 | 93,358 |
+| 平均交付天数 | 12.13 |
+| 延迟交付率 | 8.11% |
+| 平均评价得分 | 4.16 / 5 |
 
-## Executive decision priorities
+## 3. 管理决策优先级
 
-| Rank | Priority area | Current signal | Historical scope | Merchandise GMV | Recommended next action |
+| 排名 | 优先领域 | 当前信号 | 历史范围 | 商品 GMV | 建议下一步行动 |
 |---:|---|---:|---:|---:|---|
-| 1 | Retention Growth | 3.00% | 74,153 qualified target customers | 10,369,095.96 | run segmented retention holdout tests |
-| 2 | Delivery Service | 8.11% | 7,826 late orders | 1,158,920.51 | execute lane and dispatch reviews |
-| 3 | Category Experience | 4.01 / 5 | 6 top gmv below average categories | 4,984,859.38 | review quality and freight before growth |
+| 1 | 用户留存增长 | 3.00% | 74,153 名合格目标用户 | R$10,369,095.96 | 按客群开展带留出组的留存实验 |
+| 2 | 配送服务改善 | 8.11% | 7,826 笔延迟订单 | R$1,158,920.51 | 复核卖家发货与承运线路 |
+| 3 | 品类体验优化 | 4.01 / 5 | 6 个高 GMV 且评分低于平台均值的品类 | R$4,984,859.38 | 增长前先复核商品质量与运费 |
 
-Commercial value is historical merchandise GMV within the diagnostic scope;
-it is not forecast uplift, recoverable revenue, or accounting profit.
+商业价值表示诊断范围内的历史商品 GMV，不是预测增量、可挽回收入或会计利润。
 
-## Initial findings
+## 4. 主要发现
 
-1. **Growth scaled materially during 2017.** The monthly GMV and order charts
-   show a strong ramp-up, with the highest complete-month volume in November
-   2017. This is a seasonal signal, not proof of a specific campaign effect.
-2. **Retention is the clearest growth opportunity.** Weighted cohort retention
-   is 0.48% in month 1, 0.26% in month 3,
-   and 0.23% in month 6. 41
-   cohort-RFM groups meet the volume and follow-up guards.
-   The top target is the 2017-11 `at_risk` group, with 2,702 target customers and 719,732.08 in merchandise GMV.
-3. **Late delivery is closely associated with poor satisfaction.** On-time
-   orders average 4.29 points,
-   versus 2.57 for late orders.
-   The relationship is diagnostic, not a causal experiment.
-4. **Delivery risk is concentrated enough for targeted action.**
-   24 states and 804 sellers meet the minimum
-   volume guards. The top qualified lane is seller `4a3ca9315b744ce9f8e9374361493884` (SP to SP), with 58 late orders across 800 completed orders.
-5. **Category quality needs to be managed alongside sales.** The category
-   output combines GMV, freight share, and ratings; high-volume, low-rating
-   categories should not be optimized on sales alone.
+1. **2017 年业务规模明显增长。** 月度 GMV 与订单图显示业务快速上升，
+   2017 年 11 月是完整月份中的高点。这是季节性信号，不是某次营销活动产生效果的证明。
+2. **用户留存是最明确的增长机会。** 加权 cohort 留存率在第 1、3、6 个月分别为
+   0.48%、0.26% 和 0.23%；
+   共有 41 个 cohort-RFM 客群满足样本量和观察期门槛。
+   首要目标为 2017-11 的“流失风险用户”客群，包含 2,702 名目标用户，对应 R$719,732.08 商品 GMV。
+3. **延迟交付与较差满意度密切相关。** 准时订单平均评分为
+   4.29，延迟订单为
+   2.57。该关系用于运营诊断，
+   不能解释为因果实验结果。
+4. **配送风险足够集中，可以定向处理。** 共有 24 个州和
+   804 个卖家满足最低样本量门槛。首要合格线路为卖家 `4a3ca9315b744ce9f8e9374361493884` （SP 至 SP），800 笔已完成订单中有 58 笔延迟。
+5. **品类质量需要与销售规模共同管理。** 品类结果同时纳入 GMV、运费占比和评分；
+   对高销量、低评分品类不能只按销售规模进行优化。
 
-## Recommended next actions
+## 5. 建议行动
 
-1. Work through `cohort_rfm_targets.csv` in priority order. Use the recommended
-   journey as a test hypothesis, maintain a holdout group, and measure
-   incremental repeat purchase and GMV rather than raw post-campaign totals.
-2. Work through `seller_state_delivery_actions.csv` in priority order. Review
-   seller dispatch SLA where dispatch consumes at least
-   35% of delivery time; otherwise review
-   carrier lane capacity and routing.
-3. Review the top categories with low ratings or high freight share before
-   proposing assortment or promotion changes.
-4. Recalculate the action list after each intervention window and compare both
-   late-order volume and customer review outcomes.
+1. 按优先级处理 `cohort_rfm_targets.csv`。将建议旅程作为实验假设，保留留出组，
+   衡量增量复购和增量 GMV，而不是只比较活动后的原始总量。
+2. 按优先级处理 `seller_state_delivery_actions.csv`。当发货环节占交付时间至少
+   35% 时复核卖家发货 SLA，否则优先复核承运线路容量与路由。
+3. 提出选品或促销调整前，先复核高 GMV 但评分偏低或运费占比较高的重点品类。
+4. 每个干预窗口结束后重新计算行动队列，同时比较延迟订单量和用户评价变化。
 
-## Generated artifacts
+## 6. 生成产物
 
-- [Monthly GMV chart](analysis/monthly_gmv.svg)
-- [Monthly orders chart](analysis/monthly_orders.svg)
-- [Top categories chart](analysis/top_categories_gmv.svg)
-- [State late-delivery chart](analysis/state_late_delivery.svg)
-- [Customer cohort retention heatmap](analysis/cohort_retention.svg)
-- [Cohort-RFM retention priorities](analysis/cohort_rfm_targets.svg)
-- `executive_summary.csv`: three-row management decision summary
-- `cohort_rfm_targets.csv`: volume- and follow-up-qualified retention queue
-- `seller_state_delivery_actions.csv`: qualified lane-level action list
+- [月度 GMV 图](analysis/monthly_gmv.svg)
+- [月度订单图](analysis/monthly_orders.svg)
+- [重点品类图](analysis/top_categories_gmv.svg)
+- [各州延迟交付图](analysis/state_late_delivery.svg)
+- [用户 cohort 留存热力图](analysis/cohort_retention.svg)
+- [cohort-RFM 留存优先级图](analysis/cohort_rfm_targets.svg)
+- `executive_summary.csv`：三行管理决策摘要
+- `cohort_rfm_targets.csv`：满足样本量和观察期门槛的留存行动队列
+- `seller_state_delivery_actions.csv`：满足门槛的线路级行动队列
 
-See `../docs/executive_summary_methodology.md`,
-`../docs/cohort_rfm_targeting_methodology.md`, and
-`../docs/delivery_risk_methodology.md` for ranking logic and interpretation
-limits.
+排名逻辑和解释边界见 `../docs/executive_summary_methodology.md`、
+`../docs/cohort_rfm_targeting_methodology.md` 和
+`../docs/delivery_risk_methodology.md`。

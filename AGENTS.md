@@ -84,6 +84,12 @@ Start-Process .\outputs\dashboard.html
   analysis explicitly requires another population.
 - Keep filenames, module names, variables, functions, and Git commit messages
   in English.
+- Keep public-facing README, methodology documents, reports, chart titles, and
+  dashboard labels in Simplified Chinese while preserving English filenames,
+  code identifiers, and source-data values.
+- Use unnumbered level-1 Markdown titles, sequential decimal numbering for
+  level-2 sections, and hierarchical numbering for level-3 sections in all
+  public-facing Markdown documents.
 - Do not silently change business definitions. Update the relevant docs, tests,
   report, dashboard, and `PROJECT-CONTEXT.md` together.
 

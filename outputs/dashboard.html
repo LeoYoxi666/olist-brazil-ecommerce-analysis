@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Olist Operations Dashboard</title>
+<title>Olist 巴西电商运营仪表盘</title>
 <style>
-body { margin: 0; background: #f4f6fa; color: #172033; font-family: Arial, sans-serif; }
+body { margin: 0; background: #f4f6fa; color: #172033;
+font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
 .wrap { max-width: 1220px; margin: 0 auto; padding: 32px; }
 h1 { margin: 0 0 6px; font-size: 30px; }
 .subtitle { color: #596579; margin-bottom: 24px; }
+.section-title { font-size: 22px; margin: 28px 0 14px; }
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .card, .panel { background: #fff; border-radius: 10px; padding: 18px;
 box-shadow: 0 2px 10px rgba(23,32,51,.06); }
@@ -36,33 +38,34 @@ text-align: left; }
 @media (max-width: 520px) { .cards, .grid, .executive { grid-template-columns: 1fr; } .wrap { padding: 18px; } }
 </style></head>
 <body><main class="wrap">
-<h1>Olist Brazil E-commerce Operations Dashboard</h1>
-<div class="subtitle">Delivered-order baseline; trend window through 2018-08</div>
-<section class="cards"><div class="card"><div class="label">Completed orders</div><div class="value">96,478</div></div><div class="card"><div class="label">Merchandise GMV</div><div class="value">13,221,498.11</div></div><div class="card"><div class="label">Active buyers</div><div class="value">93,358</div></div><div class="card"><div class="label">Average order value</div><div class="value">137.04</div></div><div class="card"><div class="label">Repeat buyer rate</div><div class="value">3.00%</div></div><div class="card"><div class="label">Late delivery rate</div><div class="value">8.11%</div></div><div class="card"><div class="label">Average delivery days</div><div class="value">12.13</div></div><div class="card"><div class="label">Average review score</div><div class="value">4.16 / 5</div></div></section>
-<section class="executive"><article class="decision-card"><div class="decision-rank">Priority 1</div><h3>Retention Growth</h3><div class="decision-signal">3.00%</div><div class="decision-detail">74,153 qualified target customers</div><div class="decision-detail">R$10,369,095.96 historical merchandise GMV</div><div class="decision-action">run segmented retention holdout tests</div></article><article class="decision-card"><div class="decision-rank">Priority 2</div><h3>Delivery Service</h3><div class="decision-signal">8.11%</div><div class="decision-detail">7,826 late orders</div><div class="decision-detail">R$1,158,920.51 historical merchandise GMV</div><div class="decision-action">execute lane and dispatch reviews</div></article><article class="decision-card"><div class="decision-rank">Priority 3</div><h3>Category Experience</h3><div class="decision-signal">4.01 / 5</div><div class="decision-detail">6 top gmv below average categories</div><div class="decision-detail">R$4,984,859.38 historical merchandise GMV</div><div class="decision-action">review quality and freight before growth</div></article></section>
+<h1>Olist 巴西电商运营仪表盘</h1>
+<div class="subtitle">以已交付订单为基准；趋势窗口截至 2018 年 8 月</div>
+<section class="cards"><div class="card"><div class="label">已完成订单</div><div class="value">96,478</div></div><div class="card"><div class="label">商品 GMV</div><div class="value">R$13,221,498.11</div></div><div class="card"><div class="label">活跃买家</div><div class="value">93,358</div></div><div class="card"><div class="label">平均订单金额</div><div class="value">R$137.04</div></div><div class="card"><div class="label">复购买家率</div><div class="value">3.00%</div></div><div class="card"><div class="label">延迟交付率</div><div class="value">8.11%</div></div><div class="card"><div class="label">平均交付天数</div><div class="value">12.13</div></div><div class="card"><div class="label">平均评价得分</div><div class="value">4.16 / 5</div></div></section>
+<h2 class="section-title">1. 管理决策优先级</h2>
+<section class="executive"><article class="decision-card"><div class="decision-rank">优先级 1</div><h3>用户留存增长</h3><div class="decision-signal">3.00%</div><div class="decision-detail">74,153 名合格目标用户</div><div class="decision-detail">R$10,369,095.96 历史商品 GMV</div><div class="decision-action">按客群开展带留出组的留存实验</div></article><article class="decision-card"><div class="decision-rank">优先级 2</div><h3>配送服务改善</h3><div class="decision-signal">8.11%</div><div class="decision-detail">7,826 笔延迟订单</div><div class="decision-detail">R$1,158,920.51 历史商品 GMV</div><div class="decision-action">复核卖家发货与承运线路</div></article><article class="decision-card"><div class="decision-rank">优先级 3</div><h3>品类体验优化</h3><div class="decision-signal">4.01 / 5</div><div class="decision-detail">6 个高 GMV 且评分低于平台均值的品类</div><div class="decision-detail">R$4,984,859.38 历史商品 GMV</div><div class="decision-action">增长前先复核商品质量与运费</div></article></section>
 <section class="grid">
-<div class="panel"><h2>Monthly merchandise GMV</h2>
-<img class="chart" src="analysis/monthly_gmv.svg" alt="Monthly merchandise GMV"></div>
-<div class="panel"><h2>Monthly completed orders</h2>
-<img class="chart" src="analysis/monthly_orders.svg" alt="Monthly completed orders"></div>
-<div class="panel wide"><h2>Monthly customer cohort retention</h2>
+<div class="panel"><h2>2. 月度商品 GMV</h2>
+<img class="chart" src="analysis/monthly_gmv.svg" alt="月度商品 GMV"></div>
+<div class="panel"><h2>3. 月度已完成订单</h2>
+<img class="chart" src="analysis/monthly_orders.svg" alt="月度已完成订单"></div>
+<div class="panel wide"><h2>4. 月度用户 cohort 留存</h2>
 <img class="chart-wide" src="analysis/cohort_retention.svg"
- alt="Monthly customer cohort retention heatmap"></div>
-<div class="panel wide"><h2>Top cohort-RFM retention targets</h2>
+ alt="月度用户 cohort 留存热力图"></div>
+<div class="panel wide"><h2>5. cohort-RFM 留存目标客群</h2>
 <img class="chart" src="analysis/cohort_rfm_targets.svg"
- alt="Top cohort and RFM retention target groups"></div>
-<div class="panel"><h2>Top categories by GMV</h2>
-<img class="chart" src="analysis/top_categories_gmv.svg" alt="Top categories by GMV"></div>
-<div class="panel"><h2>Late delivery rate by state</h2>
-<img class="chart" src="analysis/state_late_delivery.svg" alt="Late delivery rate by state"></div>
-<div class="panel"><h2>Top categories</h2>
+ alt="cohort-RFM 留存目标客群"></div>
+<div class="panel"><h2>6. 商品 GMV 最高的品类</h2>
+<img class="chart" src="analysis/top_categories_gmv.svg" alt="商品 GMV 最高的品类"></div>
+<div class="panel"><h2>7. 各州延迟交付率</h2>
+<img class="chart" src="analysis/state_late_delivery.svg" alt="各州延迟交付率"></div>
+<div class="panel"><h2>8. 重点品类明细</h2>
 <table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Category Name</th>
-      <th>Completed Orders</th>
-      <th>Merchandise Gmv</th>
-      <th>Average Review Score</th>
+      <th>品类名称</th>
+      <th>已完成订单</th>
+      <th>商品 GMV</th>
+      <th>平均评分</th>
     </tr>
   </thead>
   <tbody>
@@ -128,17 +131,17 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
-<div class="panel"><h2>State service risk</h2>
+<div class="panel"><h2>9. 州级服务风险</h2>
 <table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Risk Priority Rank</th>
-      <th>Customer State</th>
-      <th>Completed Orders</th>
-      <th>Late Orders</th>
-      <th>Late Delivery Rate</th>
-      <th>Average Delivery Days</th>
-      <th>Average Review Score</th>
+      <th>风险优先级</th>
+      <th>用户州</th>
+      <th>已完成订单</th>
+      <th>延迟订单</th>
+      <th>延迟交付率</th>
+      <th>平均交付天数</th>
+      <th>平均评分</th>
     </tr>
   </thead>
   <tbody>
@@ -234,15 +237,15 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
-<div class="panel"><h2>Recent monthly performance</h2>
+<div class="panel"><h2>10. 近期月度表现</h2>
 <table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Order Month</th>
-      <th>Completed Orders</th>
-      <th>Merchandise Gmv</th>
-      <th>Active Buyers</th>
-      <th>Average Order Value</th>
+      <th>订单月份</th>
+      <th>已完成订单</th>
+      <th>商品 GMV</th>
+      <th>活跃买家</th>
+      <th>平均订单金额</th>
     </tr>
   </thead>
   <tbody>
@@ -332,15 +335,15 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
-<div class="panel wide"><h2>Cohort retention summary</h2>
+<div class="panel wide"><h2>11. cohort 留存摘要</h2>
 <table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Cohort Month</th>
-      <th>Cohort Size</th>
-      <th>Month 1 Retention</th>
-      <th>Month 3 Retention</th>
-      <th>Month 6 Retention</th>
+      <th>cohort 月份</th>
+      <th>cohort 用户数</th>
+      <th>第 1 月留存率</th>
+      <th>第 3 月留存率</th>
+      <th>第 6 月留存率</th>
     </tr>
   </thead>
   <tbody>
@@ -430,186 +433,186 @@ text-align: left; }
     </tr>
   </tbody>
 </table></div>
-<div class="panel wide"><h2>Cohort-RFM retention action list</h2>
+<div class="panel wide"><h2>12. cohort-RFM 留存行动队列</h2>
 <div class="table-scroll action-table"><table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Priority Rank</th>
-      <th>Cohort Month</th>
-      <th>Rfm Segment</th>
-      <th>Target Customers</th>
-      <th>Target Customer Gmv</th>
-      <th>Repeat Buyer Rate</th>
-      <th>Observable Followup Months</th>
-      <th>Recommended Journey</th>
+      <th>优先级</th>
+      <th>cohort 月份</th>
+      <th>RFM 客群</th>
+      <th>目标用户</th>
+      <th>目标用户 GMV</th>
+      <th>复购买家率</th>
+      <th>可观察后续月数</th>
+      <th>建议用户旅程</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>1.0</td>
       <td>2017-11</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>2702</td>
       <td>719732.08</td>
       <td>3.85%</td>
       <td>9</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>2.0</td>
       <td>2018-03</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>2660</td>
       <td>693554.82</td>
       <td>0.00%</td>
       <td>5</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>3.0</td>
       <td>2018-04</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>2649</td>
       <td>713443.72</td>
       <td>0.00%</td>
       <td>4</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>4.0</td>
       <td>2018-05</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>2570</td>
       <td>709258.24</td>
       <td>0.00%</td>
       <td>3</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>5.0</td>
       <td>2018-01</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>2514</td>
       <td>642241.56</td>
       <td>0.00%</td>
       <td>7</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>6.0</td>
       <td>2018-02</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>2281</td>
       <td>561321.97</td>
       <td>0.00%</td>
       <td>6</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>7.0</td>
       <td>2017-12</td>
-      <td>high_value</td>
+      <td>高价值用户</td>
       <td>1699</td>
       <td>417997.72</td>
       <td>0.00%</td>
       <td>8</td>
-      <td>second_purchase_high_value_offer</td>
+      <td>高价值用户二次购买激励</td>
     </tr>
     <tr>
       <td>8.0</td>
       <td>2017-10</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1681</td>
       <td>482291.79</td>
       <td>4.82%</td>
       <td>10</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>9.0</td>
       <td>2017-09</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1574</td>
       <td>459840.16</td>
       <td>6.42%</td>
       <td>11</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>10.0</td>
       <td>2017-08</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1522</td>
       <td>403988.75</td>
       <td>7.23%</td>
       <td>12</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>11.0</td>
       <td>2017-07</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1431</td>
       <td>345037.27</td>
       <td>7.34%</td>
       <td>13</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>12.0</td>
       <td>2017-05</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1320</td>
       <td>369128.55</td>
       <td>9.39%</td>
       <td>15</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>13.0</td>
       <td>2017-06</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>1112</td>
       <td>312387.95</td>
       <td>9.26%</td>
       <td>14</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>14.0</td>
       <td>2017-03</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>964</td>
       <td>277826.26</td>
       <td>9.13%</td>
       <td>17</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
     <tr>
       <td>15.0</td>
       <td>2017-04</td>
-      <td>at_risk</td>
+      <td>流失风险用户</td>
       <td>906</td>
       <td>272270.95</td>
       <td>8.28%</td>
       <td>16</td>
-      <td>win_back_service_recovery</td>
+      <td>服务补救与流失召回</td>
     </tr>
   </tbody>
 </table></div></div>
-<div class="panel wide"><h2>Seller-state late-delivery action list</h2>
+<div class="panel wide"><h2>13. 卖家—州延迟交付行动队列</h2>
 <div class="table-scroll action-table"><table class="dataframe data-table">
   <thead>
     <tr style="text-align: left;">
-      <th>Priority Rank</th>
-      <th>Seller Id</th>
-      <th>Seller State</th>
-      <th>Customer State</th>
-      <th>Completed Orders</th>
-      <th>Late Orders</th>
-      <th>Late Delivery Rate</th>
-      <th>Average Dispatch Days</th>
-      <th>Recommended Action</th>
+      <th>优先级</th>
+      <th>卖家 ID</th>
+      <th>卖家州</th>
+      <th>用户州</th>
+      <th>已完成订单</th>
+      <th>延迟订单</th>
+      <th>延迟交付率</th>
+      <th>平均发货天数</th>
+      <th>建议行动</th>
     </tr>
   </thead>
   <tbody>
@@ -622,7 +625,7 @@ text-align: left; }
       <td>58</td>
       <td>7.25%</td>
       <td>2.28</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>2</td>
@@ -633,7 +636,7 @@ text-align: left; }
       <td>55</td>
       <td>25.11%</td>
       <td>3.81</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>3</td>
@@ -644,7 +647,7 @@ text-align: left; }
       <td>51</td>
       <td>19.10%</td>
       <td>2.26</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>4</td>
@@ -655,7 +658,7 @@ text-align: left; }
       <td>43</td>
       <td>5.38%</td>
       <td>1.18</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>5</td>
@@ -666,7 +669,7 @@ text-align: left; }
       <td>40</td>
       <td>19.90%</td>
       <td>2.47</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>6</td>
@@ -677,7 +680,7 @@ text-align: left; }
       <td>36</td>
       <td>9.25%</td>
       <td>11.57</td>
-      <td>seller_dispatch_sla_review</td>
+      <td>复核卖家发货 SLA</td>
     </tr>
     <tr>
       <td>7</td>
@@ -688,7 +691,7 @@ text-align: left; }
       <td>35</td>
       <td>14.34%</td>
       <td>2.45</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>8</td>
@@ -699,7 +702,7 @@ text-align: left; }
       <td>34</td>
       <td>25.37%</td>
       <td>1.99</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>9</td>
@@ -710,7 +713,7 @@ text-align: left; }
       <td>32</td>
       <td>9.97%</td>
       <td>3.86</td>
-      <td>seller_dispatch_sla_review</td>
+      <td>复核卖家发货 SLA</td>
     </tr>
     <tr>
       <td>10</td>
@@ -721,7 +724,7 @@ text-align: left; }
       <td>31</td>
       <td>25.00%</td>
       <td>4.89</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>11</td>
@@ -732,7 +735,7 @@ text-align: left; }
       <td>31</td>
       <td>18.56%</td>
       <td>2.44</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>12</td>
@@ -743,7 +746,7 @@ text-align: left; }
       <td>29</td>
       <td>6.53%</td>
       <td>2.39</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>13</td>
@@ -754,7 +757,7 @@ text-align: left; }
       <td>27</td>
       <td>15.43%</td>
       <td>11.69</td>
-      <td>seller_dispatch_sla_review</td>
+      <td>复核卖家发货 SLA</td>
     </tr>
     <tr>
       <td>14</td>
@@ -765,7 +768,7 @@ text-align: left; }
       <td>27</td>
       <td>4.27%</td>
       <td>1.70</td>
-      <td>carrier_lane_capacity_review</td>
+      <td>复核承运线路容量与路由</td>
     </tr>
     <tr>
       <td>15</td>
@@ -776,7 +779,7 @@ text-align: left; }
       <td>26</td>
       <td>6.27%</td>
       <td>2.95</td>
-      <td>seller_dispatch_sla_review</td>
+      <td>复核卖家发货 SLA</td>
     </tr>
   </tbody>
 </table></div></div>

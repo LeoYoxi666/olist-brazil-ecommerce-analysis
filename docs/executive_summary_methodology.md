@@ -1,48 +1,39 @@
-# Executive Decision Summary Methodology
+# Olist 管理决策摘要方法
 
-## Purpose
+## 1. 分析目的
 
-The executive summary condenses the detailed analytical outputs into three
-decision areas: retention growth, delivery service, and category experience.
-It is designed for prioritization and investigation, not causal attribution or
-financial forecasting.
+管理决策摘要将详细分析结果压缩为三个决策领域：用户留存增长、配送服务改善和
+品类体验优化。该摘要用于安排优先级和确定调查方向，不用于因果归因或财务预测。
 
-## Priority areas
+## 2. 决策优先领域
 
-### 1. Retention growth
+### 2.1 用户留存增长
 
-- Signal: repeat-buyer rate across delivered-order customers.
-- Scope: target customers in cohort-RFM groups with at least 100 buyers and
-  three observable follow-up months.
-- Commercial value: historical merchandise GMV from those target customers.
-- Suggested action: run segment-specific retention tests with holdout groups.
+- 当前信号：已交付订单用户的复购买家率。
+- 影响范围：买家数不少于 100 且至少有 3 个可观察后续月份的 cohort-RFM 目标用户。
+- 商业金额：上述目标用户贡献的历史商品 GMV。
+- 建议行动：针对不同客群开展带留出组的留存实验。
 
-### 2. Delivery service
+### 2.2 配送服务改善
 
-- Signal: delivered orders arriving after the estimated delivery date.
-- Scope: number of late delivered orders.
-- Commercial value: merchandise GMV from those late orders.
-- Supporting queue: qualified seller-to-customer-state lanes.
-- Suggested action: review seller dispatch or carrier-lane capacity according
-  to the documented triage rule.
+- 当前信号：在预计交付日期后送达的已交付订单占比。
+- 影响范围：延迟交付订单数。
+- 商业金额：延迟订单对应的商品 GMV。
+- 支撑队列：满足门槛的卖家—用户目的州线路。
+- 建议行动：按照已记录的分诊规则，复核卖家发货或承运线路容量。
 
-### 3. Category experience
+### 2.3 品类体验优化
 
-- Population: the ten categories with the most merchandise GMV.
-- Scope: categories whose average review score is below the platform delivered-
-  order average.
-- Signal: completed-order-weighted review score across those categories.
-- Commercial value: merchandise GMV of those categories.
-- Suggested action: review quality, seller mix, freight, and delivery before
-  proposing additional growth investment.
+- 分析总体：商品 GMV 最高的 10 个品类。
+- 影响范围：平均评分低于平台已交付订单均值的品类。
+- 当前信号：上述品类按已完成订单加权的评价得分。
+- 商业金额：上述品类对应的商品 GMV。
+- 建议行动：追加增长投入前，先复核商品质量、卖家结构、运费和配送表现。
 
-## Interpretation limits
+## 3. 解释边界
 
-Priority rank is a management planning order. Commercial value is historical
-merchandise GMV exposed to an opportunity or risk; it is not recoverable
-revenue, incremental lift, accounting profit, or a forecast. The source data
-does not contain campaign exposure, advertising cost, product cost, commission,
-or randomized treatment assignment.
+优先级仅表示管理规划顺序。商业金额表示机会或风险范围内的历史商品 GMV，不等于
+可追回收入、预测增量、会计利润或未来预测。原始数据不包含营销曝光、广告成本、
+商品成本、平台佣金或随机实验分组。
 
-Retention actions require holdout-based measurement. Delivery and category
-actions require operational investigation before responsibility is assigned.
+留存行动需要通过留出组衡量增量效果；配送和品类行动在明确责任前需要开展运营调查。

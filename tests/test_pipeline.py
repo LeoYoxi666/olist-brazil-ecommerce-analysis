@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from olist_analysis.analytics import (
     _build_executive_summary,
     _build_seller_state_actions,
 )
+from olist_analysis.dashboard import _table_html
 from olist_analysis.pipeline import _build_order_mart, _build_user_mart, _score_series
 
 
@@ -335,3 +337,72 @@ def test_seller_state_actions_deduplicate_items_and_apply_threshold() -> None:
     assert result.loc[0, "late_orders"] == 2
     assert result.loc[0, "merchandise_gmv"] == 35.0
     assert result.loc[0, "recommended_action"] == "seller_dispatch_sla_review"
+
+
+def test_dashboard_table_uses_chinese_presentation_labels() -> None:
+    """Dashboard tables should translate display labels but preserve source values."""
+    frame = pd.DataFrame(
+        {
+            "customer_state": ["SP"],
+            "rfm_segment": ["at_risk"],
+            "recommended_action": ["seller_dispatch_sla_review"],
+        }
+    )
+
+    rendered = _table_html(frame, list(frame.columns), 1)
+
+    assert "用户州" in rendered
+    assert "RFM 客群" in rendered
+    assert "流失风险用户" in rendered
+    assert "复核卖家发货 SLA" in rendered
+    assert ">SP<" in rendered
+
+
+def test_public_markdown_heading_numbering_is_consistent() -> None:
+    """Public Markdown should use unnumbered H1 and numbered H2/H3 headings."""
+    project_root = Path(__file__).resolve().parents[1]
+    documents = [
+        project_root / "README.md",
+        *sorted((project_root / "docs").glob("*.md")),
+        project_root
+        / "docs"
+        / "reference"
+        / "coding_standards_project_requirements.md",
+        project_root / "outputs" / "analysis_report.md",
+    ]
+
+    for document in documents:
+        headings = [
+            line
+            for line in document.read_text(encoding="utf-8").splitlines()
+            if line.startswith("#")
+        ]
+        assert headings[0].startswith("# ")
+        assert not re.match(r"^# \d+\.", headings[0])
+        assert all(
+            re.match(r"^## \d+\. ", heading)
+            for heading in headings
+            if heading.startswith("## ")
+        )
+        assert all(
+            re.match(r"^### \d+\.\d+ ", heading)
+            for heading in headings
+            if heading.startswith("### ")
+        )
+
+
+def test_generated_presentation_artifacts_are_chinese() -> None:
+    """Tracked report and dashboard should keep their user-facing titles Chinese."""
+    project_root = Path(__file__).resolve().parents[1]
+    report = (project_root / "outputs" / "analysis_report.md").read_text(
+        encoding="utf-8"
+    )
+    dashboard = (project_root / "outputs" / "dashboard.html").read_text(
+        encoding="utf-8"
+    )
+
+    assert report.startswith("# Olist 巴西电商运营诊断报告")
+    assert "## 1. 分析范围" in report
+    assert '<html lang="zh-CN">' in dashboard
+    assert "<h1>Olist 巴西电商运营仪表盘</h1>" in dashboard
+    assert "<h2>13. 卖家—州延迟交付行动队列</h2>" in dashboard

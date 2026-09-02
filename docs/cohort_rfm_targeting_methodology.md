@@ -1,73 +1,67 @@
-# Cohort and RFM Targeting Methodology
+# Olist cohort-RFM 目标客群分析方法
 
-## Purpose
+## 1. 分析目的
 
-This analysis combines acquisition timing with current customer value and
-lifecycle state. It creates an aggregate retention-planning queue without
-publishing customer identifiers or claiming causal campaign impact.
+该分析结合用户首购时间、当前价值和生命周期状态，形成汇总级留存行动队列。
+输出不公开用户标识，也不宣称营销活动具有因果效果。
 
-## Customer snapshot
+## 2. 用户观察快照
 
-- Use delivered orders and `customer_unique_id`.
-- Use August 2018 as the complete observation cutoff.
-- `cohort_month` is the month of the first completed purchase.
-- `observable_followup_months` is the number of complete calendar months from
-  acquisition to the cutoff. Month 3 evaluation requires at least three
-  observable follow-up months.
+- 使用已交付订单和 `customer_unique_id`。
+- 使用 2018 年 8 月作为完整观察截止月份。
+- `cohort_month` 表示用户首次完成购买的月份。
+- `observable_followup_months` 表示从首购到截止月份之间可观察的完整自然月数。
+- 评估第 3 月表现时，至少需要 3 个可观察后续月份。
 
-## Tie-stable RFM scoring
+## 3. 并列值稳定的 RFM 评分
 
-Recency and monetary value use percentile bands from 1 to 5. Equal input values
-receive the same score. Higher recency scores mean a more recent purchase;
-higher monetary scores mean more merchandise GMV.
+最近购买时间和消费金额使用 1 至 5 分的百分位区间。相同输入值获得相同分数。
+最近购买得分越高表示购买越近；消费金额得分越高表示商品 GMV 越高。
 
-Frequency is not forced into percentile bands because most buyers placed only
-one order. It uses completed order count capped at 5:
+由于大多数买家仅完成一笔订单，购买频次不强制使用百分位分组，而是使用实际已完成
+订单数并封顶为 5：
 
 ```text
 f_score = min(completed_order_count, 5)
 ```
 
-This prevents identical one-time buyers from being arbitrarily split across
-frequency scores.
+该规则避免将完全相同的一次购买用户任意拆分到不同频次分数。
 
-Segments are mutually exclusive and assigned in this order:
+RFM 客群互斥，并按以下顺序分配：
 
-1. `champions`: recent repeat buyers with high monetary value;
-2. `at_risk`: stale repeat buyers or stale high-value buyers;
-3. `loyal`: remaining repeat buyers;
-4. `high_value`: remaining high-monetary buyers;
-5. `new_active`: recent one-time buyers;
-6. `standard`: all remaining buyers.
+1. `champions`：近期购买、已复购且消费金额较高的用户；
+2. `at_risk`：较久未购买的复购买家或高价值用户；
+3. `loyal`：其余复购买家；
+4. `high_value`：其余高消费金额用户；
+5. `new_active`：近期活跃的一次购买用户；
+6. `standard`：其余用户。
 
-## Cohort-RFM target groups
+## 4. cohort-RFM 目标客群
 
-The output contains one row per `cohort_month` and `rfm_segment`. It reports
-buyers, target customers, repeat buyers, completed orders, merchandise GMV,
-target-customer GMV, recency, review score, cohort shares, and follow-up time.
+输出按 `cohort_month` 和 `rfm_segment` 每个组合生成一行，包含买家数、目标用户数、
+复购买家数、已完成订单数、商品 GMV、目标用户 GMV、最近购买时间、评价得分、
+cohort 占比和可观察期。
 
-For `new_active`, `high_value`, and `standard`, the target pool is one-time
-buyers. For `at_risk`, `loyal`, and `champions`, the full segment is retained
-for win-back, loyalty, or advocacy planning.
+对于 `new_active`、`high_value` 和 `standard`，目标池仅包含一次购买用户。
+对于 `at_risk`、`loyal` 和 `champions`，保留整个客群，用于召回、忠诚度或
+用户倡导计划。
 
-Priority ranking requires:
+进入优先级排序必须同时满足：
 
-- at least 100 buyers in the cohort-segment group;
-- at least three observable follow-up months;
-- at least one target customer.
+- cohort—客群组合至少有 100 名买家；
+- 至少有 3 个可观察后续月份；
+- 至少有 1 名目标用户。
 
-Eligible groups rank first by strategic tier, then target-customer count, then
-target-customer GMV. The tiers and suggested journeys are:
+合格客群依次按策略层级、目标用户数和目标用户 GMV 排序：
 
-| Tier | Segment | Suggested journey |
+| 层级 | 客群 | 建议行动 |
 |---:|---|---|
-| 1 | `at_risk` | Win-back and service recovery |
-| 1 | `high_value` | High-value second-purchase offer |
-| 2 | `new_active` | Early second-purchase nudge |
-| 2 | `loyal` | Loyalty reinforcement |
-| 3 | `champions` | VIP and advocacy |
-| 3 | `standard` | Category replenishment nurture |
+| 1 | `at_risk` | 用户召回与服务补救 |
+| 1 | `high_value` | 高价值用户第二次购买激励 |
+| 2 | `new_active` | 早期第二次购买提醒 |
+| 2 | `loyal` | 忠诚度强化 |
+| 3 | `champions` | VIP 与用户倡导 |
+| 3 | `standard` | 品类补购培育 |
 
-The tiers are planning rules, not predicted uplift. Any campaign test should
-use a holdout group and report incremental repeat purchase, GMV, and customer
-experience rather than raw post-campaign totals.
+以上层级是运营规划规则，不是预测增量。任何营销实验都应设置留出组，并报告增量复购、
+增量 GMV 和用户体验，而不是仅比较活动后的原始总量。

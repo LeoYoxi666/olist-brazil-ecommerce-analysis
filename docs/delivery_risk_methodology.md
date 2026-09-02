@@ -1,71 +1,62 @@
-# Delivery Risk Prioritization Methodology
+# Olist 配送风险优先级分析方法
 
-## Purpose
+## 1. 分析目的
 
-This analysis turns delivery performance into an operational review queue. It
-prioritizes combinations that affect more completed orders while preventing
-very small samples from dominating the rankings.
+该分析将配送表现转化为可执行的运营复核队列，优先处理影响更多已完成订单的组合，
+并通过最小样本量门槛避免极小样本主导排序。
 
-The output is diagnostic. It identifies where investigation should start; it
-does not prove that a seller, carrier, or route caused a delay.
+输出属于诊断结果，用于确定调查起点；不能证明卖家、承运商或线路是延迟原因。
 
-## Population and unit of analysis
+## 2. 分析范围与分析单位
 
-- Only delivered orders are included.
-- State risk uses the customer's destination state.
-- Seller risk uses one aggregated seller record.
-- Seller-state actions use one seller-order per origin-state and destination-
-  state combination. Multiple items from the same seller in one order are
-  aggregated before order counts and rates are calculated.
-- Merchandise GMV is item price and excludes freight.
+- 仅纳入已交付订单。
+- 州级风险使用用户收货目的州。
+- 卖家风险按卖家汇总为一条记录。
+- 卖家—州行动按卖家、发货州、目的州形成订单级组合。同一卖家在一笔订单中的多个
+  商品明细先汇总，再计算订单数和比率。
+- 商品 GMV 仅包含商品价格，不含运费。
 
-## Minimum-volume guards
+## 3. 最小样本量门槛
 
-| Ranking | Minimum completed orders |
+| 排序对象 | 最少已完成订单 |
 |---|---:|
-| Customer state | 100 |
-| Seller | 20 |
-| Seller-state lane | 10 |
+| 用户目的州 | 100 |
+| 卖家 | 20 |
+| 卖家—州线路 | 10 |
 
-These thresholds are pragmatic operational safeguards. They reduce unstable
-rankings from tiny denominators but are not confidence intervals, hypothesis
-tests, or evidence of statistical significance.
+这些门槛是实务性的运营保护规则，可减少极小分母导致的不稳定排序，但不等同于置信区间、
+假设检验或统计显著性证据。
 
-Rows below the state or seller threshold remain in their metric tables with
-`risk_ranking_eligible = False` and no risk rank. Seller-state lanes below the
-threshold are excluded from the action list.
+低于州级或卖家门槛的记录仍保留在指标表中，但
+`risk_ranking_eligible = False` 且不分配风险排名。低于门槛的卖家—州线路不进入
+行动队列。
 
-## Priority ranking
+## 4. 优先级排序
 
-Eligible rows are ordered by:
+合格记录依次按以下字段降序排列：
 
-1. late-order count, descending;
-2. late-delivery rate, descending;
-3. merchandise GMV, descending.
+1. 延迟订单数；
+2. 延迟交付率；
+3. 商品 GMV。
 
-Late-order count leads because the first operational goal is to reduce the
-largest number of affected orders. Rate and GMV resolve ties and add severity
-and commercial context.
+延迟订单数排在首位，是因为首要运营目标是减少受影响订单总量；延迟率和 GMV 用于
+打破并列，并补充风险严重程度和商业背景。
 
-## Suggested investigation path
+## 5. 建议调查路径
 
-For each qualified seller-state lane:
+对每条合格的卖家—州线路：
 
-- If average dispatch time is at least 35% of average delivery time, the
-  suggested first review is `seller_dispatch_sla_review`.
-- Otherwise, the suggested first review is
-  `carrier_lane_capacity_review`.
+- 如果平均发货时长至少占平均交付时长的 35%，优先检查
+  `seller_dispatch_sla_review`，即卖家发货 SLA。
+- 否则优先检查 `carrier_lane_capacity_review`，即承运线路容量和路由。
 
-The 35% split is a triage rule, not a causal model. Teams should validate stock
-availability, seller handling, carrier handoff, route capacity, holidays,
-distance, product mix, and data completeness before assigning responsibility.
+35% 是分诊规则，不是因果模型。归责前应核实库存、卖家处理、承运交接、线路容量、
+节假日、距离、商品结构和数据完整性。
 
-## Output fields
+## 6. 输出字段
 
-`seller_state_delivery_actions.csv` includes the priority rank, seller ID,
-seller origin state, customer destination state, completed and late orders,
-merchandise and delayed GMV, dispatch and delivery times, review metrics,
-dispatch share, recommended first review, and the applied order threshold.
+`seller_state_delivery_actions.csv` 包含优先级、卖家 ID、卖家发货州、用户目的州、
+已完成订单数、延迟订单数、商品 GMV、延迟订单 GMV、发货和交付时长、评价指标、
+发货时长占比、建议首查事项及所用订单门槛。
 
-Recalculate the list after each intervention window and evaluate both
-late-order volume and customer review outcomes.
+每个干预周期结束后应重新计算行动队列，同时评估延迟订单量和用户评价结果。

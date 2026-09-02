@@ -1,38 +1,32 @@
-# Cohort Retention Methodology
+# Olist 用户 cohort 留存分析方法
 
-## Purpose
+## 1. 分析目的
 
-Monthly cohort retention measures whether customers return after their first
-completed purchase. It complements the overall repeat-buyer rate and RFM
-segments by showing how repeat activity changes across acquisition months and
-customer age.
+月度 cohort 留存用于衡量用户在首次完成购买后是否再次购买。该指标与整体复购买家率
+和 RFM 分群互为补充，可以展示不同首购月份、不同用户生命周期下的复购变化。
 
-## Population
+## 2. 分析范围
 
-- Include orders where `order_status = 'delivered'`.
-- Use `customer_unique_id` as the stable customer key.
-- Use `order_purchase_timestamp` as the activity date.
-- Include activity only through `2018-08`, the last complete trend month.
-- Exclude records with a missing customer key or invalid purchase timestamp.
+- 仅纳入 `order_status = 'delivered'` 的订单。
+- 使用 `customer_unique_id` 作为稳定用户标识。
+- 使用 `order_purchase_timestamp` 作为用户活跃日期。
+- 活跃记录截至最后一个完整趋势月份 `2018-08`。
+- 排除用户标识缺失或购买时间无效的记录。
 
-## Definitions
+## 3. 指标定义
 
-- `cohort_month`: month of the customer's first completed purchase.
-- `month_number`: whole calendar months between the activity month and the
-  cohort month. The acquisition month is month 0.
-- `cohort_size`: unique customers active in month 0.
-- `active_buyers`: unique cohort customers purchasing in the specified month.
-- `retention_rate`: `active_buyers / cohort_size`.
+- `cohort_month`：用户首次完成购买所在月份。
+- `month_number`：活跃月份与首购月份之间相隔的完整自然月数；首购月为第 0 月。
+- `cohort_size`：第 0 月活跃的去重用户数。
+- `active_buyers`：指定月份发生购买的 cohort 去重用户数。
+- `retention_rate`：`active_buyers / cohort_size`。
 
-Each customer is counted at most once in each activity month, even if the
-customer places multiple completed orders in that month.
+同一用户即使在一个活跃月份内完成多笔订单，也只计为一名活跃买家。
 
-## Interpretation
+## 4. 结果解释
 
-Month 1, month 3, and month 6 rates measure activity in those exact months;
-they are not cumulative survival rates. Recent cohorts have fewer observable
-follow-up months, so blank future cells are expected and must not be converted
-to zero.
+第 1、3、6 月留存率分别衡量用户在对应月份的实际活跃情况，不是累计留存率。
+近期 cohort 的可观察后续月份较少，因此未来月份为空属于正常截尾，不能替换为零。
 
-The SVG heatmap displays the most recent 18 cohorts and up to 12 months of
-follow-up. The version-controlled CSV retains every observed cohort-month cell.
+SVG 热力图展示最近 18 个 cohort 和最多 12 个后续月份；版本化 CSV 保留所有已观察到
+的 cohort—月份记录。
