@@ -126,9 +126,9 @@ Automated presentation checks increased the test suite to 12 passing tests.
 
 ## Current Task
 
-Publish the unified Chinese presentation update to `origin/main`, then keep the
-published project healthy and add future analytical enhancements only when they
-improve a clear business decision or methodological reliability.
+Keep the published project healthy and add future analytical enhancements only
+when they improve a clear business decision or methodological reliability. The
+unified Chinese presentation is committed and synchronized with `origin/main`.
 
 ## Important Files
 
@@ -243,8 +243,8 @@ improve a clear business decision or methodological reliability.
 
 ## Next Steps
 
-1. Commit and push the unified Chinese presentation update, then verify the
-   GitHub README, methodology documents, dashboard, charts, and Pages site.
+1. Verify the updated GitHub README, methodology documents, dashboard, charts,
+   and Pages site after the deployment workflow completes.
 2. Continue future analytical enhancements only when they add a clear business
    decision or improve methodological reliability.
 3. Keep README, dashboard, report, tests, CI, and project context synchronized
