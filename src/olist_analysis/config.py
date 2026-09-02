@@ -1,9 +1,7 @@
-"""Centralize project paths and documented business-analysis parameters.
+"""集中管理项目路径和已记录的业务分析参数。
 
-Business thresholds live here so the pipeline, analysis, tests, and
-documentation use one definition. Changing one of these values can change
-reported populations and rankings, so update the related methodology document
-and tests at the same time.
+业务阈值统一放在这里，确保数据管道、分析、测试和文档采用同一套定义。
+修改这些数值可能改变报告人群和排序结果，因此必须同步更新相关方法文档与测试。
 """
 
 from __future__ import annotations
@@ -15,17 +13,17 @@ from typing import Final
 
 @dataclass(frozen=True)
 class ProjectPaths:
-    """Repository-relative locations shared by every workflow stage."""
+    """各工作流阶段共用的项目相对路径。"""
 
-    root: Path  # Repository root; the only path callers need to provide.
-    raw: Path  # Immutable source CSV files supplied by the dataset.
-    processed: Path  # Reproducible cleaned tables, marts, and SQLite database.
-    outputs: Path  # Generated reports, dashboard, and quality summary.
-    analysis: Path  # Generated metric tables and SVG chart assets.
+    root: Path  # 项目根目录，是调用方唯一需要提供的路径。
+    raw: Path  # 数据集提供的不可变原始 CSV 文件目录。
+    processed: Path  # 可复现的清洗表、数据集市和 SQLite 数据库目录。
+    outputs: Path  # 生成的报告、仪表盘和质量摘要目录。
+    analysis: Path  # 生成的指标表和 SVG 图表目录。
 
     @classmethod
     def from_root(cls, root: Path) -> "ProjectPaths":
-        """Create project paths from a repository root."""
+        """根据项目根目录构造所有标准路径。"""
         return cls(
             root=root,
             raw=root / "data" / "raw",
@@ -35,29 +33,29 @@ class ProjectPaths:
         )
 
 
-# Exclude September 2018 because the source dataset ends during that month.
+# 原始数据在 2018 年 9 月中途结束，因此趋势分析排除该不完整月份。
 LAST_COMPLETE_TREND_MONTH: Final = "2018-08"
 
-# Treat only delivered orders as completed commercial transactions.
+# 只有已交付订单才计入完成交易口径。
 COMPLETED_STATUS: Final = "delivered"
 
-# Scores of 1 or 2 on the five-point scale define a negative review.
+# 五分制中，1 分或 2 分定义为负面评价。
 NEGATIVE_REVIEW_MAX_SCORE: Final = 2
 
-# Minimum completed orders required before a state enters risk ranking.
+# 州进入配送风险排名前必须达到的最少已完成订单数。
 MIN_STATE_RISK_ORDERS: Final = 100
 
-# Minimum completed orders required before a seller enters risk ranking.
+# 卖家进入配送风险排名前必须达到的最少已完成订单数。
 MIN_SELLER_RISK_ORDERS: Final = 20
 
-# Minimum seller-to-customer-state orders required for an action lane.
+# 卖家—用户州线路进入行动队列前必须达到的最少订单数。
 MIN_SELLER_STATE_ACTION_ORDERS: Final = 10
 
-# Dispatch consuming at least 35% of delivery time triggers seller SLA review.
+# 发货阶段占总配送时间至少 35% 时，优先检查卖家发货 SLA。
 SELLER_DISPATCH_SHARE_THRESHOLD: Final = 0.35
 
-# Minimum buyers required for a cohort-RFM group to enter the target queue.
+# cohort-RFM 客群进入目标队列前必须达到的最少买家数。
 MIN_COHORT_RFM_BUYERS: Final = 100
 
-# Require three observable months so a target group can support evaluation.
+# 至少保留三个可观察后续月份，目标客群才具备效果评估条件。
 COHORT_RFM_EVALUATION_MONTHS: Final = 3

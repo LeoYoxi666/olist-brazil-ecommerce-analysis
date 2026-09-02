@@ -1,3 +1,3 @@
-"""Reusable data processing and analysis functions for the Olist project."""
+"""Olist 项目可复用的数据处理与分析功能。"""
 
 __all__ = ["config", "pipeline", "analytics"]

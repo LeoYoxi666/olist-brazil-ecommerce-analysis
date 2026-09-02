@@ -1,4 +1,4 @@
-"""Build the standalone HTML operations dashboard."""
+"""构建独立 HTML 运营仪表盘。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from olist_analysis.dashboard import build_dashboard
 
 
 def main() -> None:
-    """Generate the HTML dashboard from analysis outputs."""
+    """根据分析结果生成 HTML 仪表盘。"""
     output = build_dashboard(ProjectPaths.from_root(PROJECT_ROOT))
     print(f"Generated {output}")
 

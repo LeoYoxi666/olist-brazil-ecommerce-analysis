@@ -1,4 +1,4 @@
-"""Load, clean, model, and persist Olist marketplace data."""
+"""读取、清洗、建模并持久化 Olist 电商数据。"""
 
 from __future__ import annotations
 
@@ -14,8 +14,7 @@ from olist_analysis.config import (
     ProjectPaths,
 )
 
-# Logical table names are separated from vendor filenames so downstream code
-# does not depend on the dataset's long physical file names.
+# 将逻辑表名与数据集原始文件名分离，避免下游代码依赖冗长的物理文件名。
 FILE_NAMES = {
     "customers": "olist_customers_dataset.csv",
     "geolocation": "olist_geolocation_dataset.csv",
@@ -30,7 +29,7 @@ FILE_NAMES = {
 
 
 def _first_mode(series: pd.Series) -> str | None:
-    """Return the first mode, or None when a series has no values."""
+    """返回第一个众数；序列没有有效值时返回 None。"""
     values = series.dropna()
     if values.empty:
         return None
@@ -39,13 +38,13 @@ def _first_mode(series: pd.Series) -> str | None:
 
 
 def _parse_dates(frame: pd.DataFrame, columns: list[str]) -> None:
-    """Convert selected columns to datetime in place."""
+    """原地将指定字段转换为日期时间类型。"""
     for column in columns:
         frame[column] = pd.to_datetime(frame[column], errors="coerce")
 
 
 def _read_sources(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
-    """Read all nine raw CSV files with identifier-safe dtypes."""
+    """读取九张原始 CSV，并保护邮编等标识字段的数据类型。"""
     source = paths.raw
     data = {
         "customers": pd.read_csv(
@@ -71,7 +70,7 @@ def _read_sources(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
 
 
 def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    """Apply non-destructive type, text, date, and geography cleaning."""
+    """以非破坏方式清洗类型、文本、日期和地理字段。"""
     customers = data["customers"]
     customers["customer_zip_code_prefix"] = customers[
         "customer_zip_code_prefix"
@@ -84,8 +83,8 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     geo["geolocation_zip_code_prefix"] = geo["geolocation_zip_code_prefix"].str.zfill(5)
     geo["geolocation_city"] = geo["geolocation_city"].str.strip().str.lower()
     geo["geolocation_state"] = geo["geolocation_state"].str.strip().str.upper()
-    # A postal prefix can contain many coordinate observations. Medians resist
-    # coordinate outliers, while the first mode supplies a deterministic label.
+    # 同一邮编前缀可能对应多条坐标记录。经纬度使用中位数抵抗异常值，
+    # 城市和州使用第一个众数，保证标签结果稳定且可复现。
     geo_clean = (
         geo.groupby("geolocation_zip_code_prefix", as_index=False)
         .agg(
@@ -134,8 +133,7 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         | reviews["review_comment_message"].notna()
     ).astype(int)
 
-    # Keep the Portuguese category as a fallback instead of dropping products
-    # whose optional English translation is absent.
+    # 英文品类翻译缺失时回退到葡萄牙语名称，避免丢弃对应商品。
     products = data["products"].merge(
         data["translations"], on="product_category_name", how="left"
     )
@@ -167,9 +165,9 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
 
 
 def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Create one row per order after aggregating one-to-many facts."""
-    # Aggregate one-to-many item, payment, and review records before joining;
-    # direct joins would multiply rows and overstate order-level money fields.
+    """先聚合一对多明细，再生成一行一订单的数据集市。"""
+    # 商品、支付和评价均可能一单多行，必须先分别聚合再关联；
+    # 直接关联会产生笛卡尔式行扩张，并重复计算订单金额。
     items = data["items"].assign(
         item_total=lambda frame: frame["price"] + frame["freight_value"]
     )
@@ -241,8 +239,7 @@ def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
     orders["delivery_days"] = (
         orders["order_delivered_customer_date"] - orders["order_approved_at"]
     ).dt.total_seconds() / 86400
-    # Late delivery is valid only for completed orders with an actual arrival
-    # after the customer's promised date.
+    # 只有已完成且实际送达时间晚于承诺日期的订单才定义为延迟交付。
     orders["is_late_delivery"] = (
         (orders["order_status"] == COMPLETED_STATUS)
         & (
@@ -256,7 +253,7 @@ def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
 def _build_item_mart(
     data: dict[str, pd.DataFrame], orders: pd.DataFrame
 ) -> pd.DataFrame:
-    """Create one row per order item with order, product, and seller attributes."""
+    """生成包含订单、商品和卖家属性的一行一商品明细表。"""
     order_columns = [
         "order_id",
         "order_status",
@@ -282,7 +279,7 @@ def _build_item_mart(
 
 
 def _score_series(series: pd.Series) -> pd.Series:
-    """Assign tie-stable percentile scores from 1 to 5."""
+    """按百分位分配 1 至 5 分，并保证相同值获得相同分数。"""
     percentile = series.rank(method="average", pct=True)
     return (
         pd.cut(
@@ -297,7 +294,7 @@ def _score_series(series: pd.Series) -> pd.Series:
 
 
 def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
-    """Create one row per unique buyer with RFM and lifecycle fields."""
+    """生成包含 RFM 和生命周期字段的一行一买家数据集市。"""
     completed = orders[orders["order_status"] == COMPLETED_STATUS].copy()
     user_mart = completed.groupby("customer_unique_id", as_index=False).agg(
         completed_order_count=("order_id", "nunique"),
@@ -315,8 +312,8 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
     user_mart["frequency"] = user_mart["completed_order_count"]
     user_mart["monetary"] = user_mart["merchandise_gmv"]
     user_mart["r_score"] = 6 - _score_series(user_mart["recency_days"])
-    # Order frequency is extremely concentrated at one purchase. Scoring the
-    # actual count avoids splitting tied one-time buyers across quantile bands.
+    # 订单频次高度集中在一次购买，直接按实际次数评分可以避免将相同的
+    # 一次购买用户强行拆分到不同的分位区间。
     user_mart["f_score"] = user_mart["frequency"].clip(upper=5).astype(int)
     user_mart["m_score"] = _score_series(user_mart["monetary"])
     user_mart["rfm_score"] = (
@@ -324,8 +321,8 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
         + user_mart["f_score"].astype(str)
         + user_mart["m_score"].astype(str)
     )
-    # Conditions are applied in priority order and only to unassigned users,
-    # which keeps the six RFM segments mutually exclusive.
+    # 条件按优先级依次应用，并且只处理尚未分群的用户，从而保证六个
+    # RFM 客群互斥。
     conditions = [
         (user_mart["r_score"] >= 4)
         & (user_mart["f_score"] >= 2)
@@ -349,7 +346,7 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
 def _build_seller_mart(
     data: dict[str, pd.DataFrame], items: pd.DataFrame
 ) -> pd.DataFrame:
-    """Create one row per seller from delivered seller-order performance."""
+    """根据已交付订单表现生成一行一卖家的数据集市。"""
     completed_items = items[items["order_status"] == COMPLETED_STATUS]
     seller_order = completed_items.groupby(
         ["seller_id", "order_id"], as_index=False
@@ -371,7 +368,7 @@ def _build_seller_mart(
 
 
 def build_analysis_tables(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
-    """Build cleaned source tables and four analysis marts."""
+    """构建清洗后的源表和四张分析数据集市。"""
     data = _clean_sources(_read_sources(paths))
     orders = _build_order_mart(data)
     items = _build_item_mart(data, orders)
@@ -385,7 +382,7 @@ def build_analysis_tables(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
 
 
 def _quality_report(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
-    """Return row counts, null counts, and key duplication checks."""
+    """返回行数、空值数和业务键重复检查结果。"""
     key_map = {
         "customers": ["customer_id"],
         "orders": ["order_id"],
@@ -432,14 +429,13 @@ def _quality_report(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
 def persist_tables(
     paths: ProjectPaths, tables: dict[str, pd.DataFrame]
 ) -> dict[str, Any]:
-    """Write CSV marts, SQLite tables, and a JSON quality report."""
+    """写出 CSV 数据集市、SQLite 表和 JSON 质量报告。"""
     paths.processed.mkdir(parents=True, exist_ok=True)
     paths.outputs.mkdir(parents=True, exist_ok=True)
     for name, frame in tables.items():
         frame.to_csv(paths.processed / f"{name}.csv", index=False)
     database = paths.processed / "olist_analysis.sqlite"
-    # Rebuild the analytical database from reproducible DataFrames; no manually
-    # maintained state is expected inside this generated file.
+    # 分析数据库完全由可复现的 DataFrame 重建，不在该生成文件中维护人工状态。
     if database.exists():
         database.unlink()
     with sqlite3.connect(database) as connection:

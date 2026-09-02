@@ -1,4 +1,4 @@
-"""Generate analysis tables, charts, and the Chinese business report."""
+"""生成分析表、图表和中文业务报告。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from olist_analysis.config import ProjectPaths
 
 
 def main() -> None:
-    """Run the analysis stage from processed project data."""
+    """基于处理后的项目数据运行分析阶段。"""
     paths = ProjectPaths.from_root(PROJECT_ROOT)
     metrics = generate_analysis(paths)
     print(f"Generated {len(metrics)} analysis tables in {paths.analysis}")

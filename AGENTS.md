@@ -84,6 +84,8 @@ Start-Process .\outputs\dashboard.html
   analysis explicitly requires another population.
 - Keep filenames, module names, variables, functions, and Git commit messages
   in English.
+- Keep code comments and docstrings in Simplified Chinese while preserving
+  English technical terms, identifiers, field names, and API names.
 - Keep public-facing README, methodology documents, reports, chart titles, and
   dashboard labels in Simplified Chinese while preserving English filenames,
   code identifiers, and source-data values.

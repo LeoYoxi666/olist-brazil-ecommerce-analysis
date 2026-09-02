@@ -1,4 +1,4 @@
-"""Build a lightweight, dependency-free HTML operations dashboard."""
+"""构建轻量且无外部依赖的 HTML 运营仪表盘。"""
 
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ from olist_analysis.analytics import (
 )
 from olist_analysis.config import COMPLETED_STATUS, ProjectPaths
 
-# Analytical column names stay stable in CSV outputs. Only rendered labels are
-# translated here, keeping presentation changes separate from metric schemas.
+# CSV 分析结果中的字段名保持稳定，仅在这里翻译展示标签，
+# 使展示层调整与指标表结构保持分离。
 COLUMN_LABELS = {
     "priority_rank": "优先级",
     "risk_priority_rank": "风险优先级",
@@ -51,12 +51,12 @@ COLUMN_LABELS = {
 
 
 def _read(paths: ProjectPaths, name: str) -> pd.DataFrame:
-    """Read one generated analysis table."""
+    """读取一张生成的分析表。"""
     return pd.read_csv(paths.analysis / f"{name}.csv")
 
 
 def _table_html(frame: pd.DataFrame, columns: list[str], limit: int) -> str:
-    """Render a selected DataFrame slice as an escaped HTML table."""
+    """将指定 DataFrame 切片转义并渲染为 HTML 表格。"""
     view = frame.loc[:, columns].head(limit).copy()
     if "rfm_segment" in view.columns:
         view["rfm_segment"] = view["rfm_segment"].map(
@@ -77,7 +77,7 @@ def _table_html(frame: pd.DataFrame, columns: list[str], limit: int) -> str:
 
 
 def _cohort_summary(frame: pd.DataFrame) -> pd.DataFrame:
-    """Create a compact month 1, 3, and 6 cohort-retention table."""
+    """生成包含第 1、3、6 月留存率的紧凑 cohort 摘要表。"""
     sizes = frame.loc[:, ["cohort_month", "cohort_size"]].drop_duplicates()
     rates = frame.pivot(
         index="cohort_month", columns="month_number", values="retention_rate"
@@ -94,7 +94,7 @@ def _cohort_summary(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def _executive_cards_html(frame: pd.DataFrame) -> str:
-    """Render decision-focused cards from the executive summary table."""
+    """根据管理摘要表渲染面向决策的卡片。"""
     cards = []
     for row in frame.sort_values("priority_rank").to_dict("records"):
         signal = (
@@ -125,7 +125,7 @@ def _executive_cards_html(frame: pd.DataFrame) -> str:
 
 
 def build_dashboard(paths: ProjectPaths) -> Path:
-    """Write the standalone HTML dashboard and return its path."""
+    """写出独立 HTML 仪表盘并返回文件路径。"""
     order_mart = pd.read_csv(paths.processed / "order_mart.csv")
     user_mart = pd.read_csv(paths.processed / "user_mart.csv")
     category = _read(paths, "category_metrics")

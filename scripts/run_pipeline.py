@@ -1,4 +1,4 @@
-"""Run the Olist cleaning and data-mart pipeline."""
+"""运行 Olist 数据清洗与数据集市管道。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from olist_analysis.pipeline import build_analysis_tables, persist_tables
 
 
 def main() -> None:
-    """Build and persist all cleaned tables and marts."""
+    """构建并持久化全部清洗表和数据集市。"""
     paths = ProjectPaths.from_root(PROJECT_ROOT)
     tables = build_analysis_tables(paths)
     report = persist_tables(paths, tables)

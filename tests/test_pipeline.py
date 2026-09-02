@@ -1,4 +1,4 @@
-"""Unit tests for the Olist data-mart rules."""
+"""Olist 数据集市规则的单元测试。"""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from olist_analysis.pipeline import _build_order_mart, _build_user_mart, _score_
 
 
 def test_score_series_returns_five_ordered_buckets() -> None:
-    """Percentile scoring should preserve ties and span five ordered buckets."""
+    """百分位评分应保留并列关系，并覆盖五个有序区间。"""
     values = pd.Series([value for value in range(1, 6) for _ in range(20)])
     result = _score_series(values)
     assert set(result.unique()) == {1, 2, 3, 4, 5}
@@ -31,7 +31,7 @@ def test_score_series_returns_five_ordered_buckets() -> None:
 
 
 def test_user_mart_does_not_label_one_time_buyers_as_loyal() -> None:
-    """Tied one-time buyers must share one frequency score and segment safely."""
+    """频次相同的一次购买用户应获得相同分数并被安全分群。"""
     orders = pd.DataFrame(
         {
             "order_id": ["o1", "o2", "o3", "o4"],
@@ -57,7 +57,7 @@ def test_user_mart_does_not_label_one_time_buyers_as_loyal() -> None:
 
 
 def test_order_mart_aggregates_items_and_payments_once() -> None:
-    """Multiple item and payment rows should remain one order row."""
+    """多条商品和支付记录聚合后应保持一行一订单。"""
     data = {
         "orders": pd.DataFrame(
             {
@@ -127,7 +127,7 @@ def test_order_mart_aggregates_items_and_payments_once() -> None:
 
 
 def test_cohort_retention_uses_first_completed_purchase_month() -> None:
-    """Cohorts should use unique monthly buyers and exclude trailing months."""
+    """cohort 应按月去重买家，并排除不完整的尾部月份。"""
     orders = pd.DataFrame(
         {
             "order_id": ["o1", "o2", "o3", "o4", "o5", "o6", "o7"],
@@ -166,7 +166,7 @@ def test_cohort_retention_uses_first_completed_purchase_month() -> None:
 
 
 def test_cohort_rfm_targets_apply_volume_and_followup_guards() -> None:
-    """Target ranks should require group volume and observable month 3."""
+    """目标排名应同时满足客群规模和三个月可观察期门槛。"""
     users = pd.DataFrame(
         {
             "customer_unique_id": ["u1", "u2", "u3", "u4", "u5"],
@@ -215,7 +215,7 @@ def test_cohort_rfm_targets_apply_volume_and_followup_guards() -> None:
 
 
 def _sample_executive_metrics() -> dict[str, pd.DataFrame]:
-    """Return compact frames shared by executive-summary validation tests."""
+    """返回管理摘要验证测试共用的精简数据表。"""
     return {
         "logistics_summary": pd.DataFrame(
             {
@@ -259,7 +259,7 @@ def _sample_executive_metrics() -> dict[str, pd.DataFrame]:
 
 
 def test_executive_summary_connects_scope_and_commercial_value() -> None:
-    """Executive rows should expose retention, delivery, and category scope."""
+    """管理摘要应呈现留存、配送和品类的分析范围。"""
     result = _build_executive_summary(_sample_executive_metrics()).set_index(
         "priority_area"
     )
@@ -271,7 +271,7 @@ def test_executive_summary_connects_scope_and_commercial_value() -> None:
 
 
 def test_analysis_validation_checks_rfm_and_target_ranks() -> None:
-    """Business-rule validation should catch segmentation and ranking defects."""
+    """业务规则验证应能发现分群和排名缺陷。"""
     result = _build_analysis_validation(_sample_executive_metrics())
 
     assert result["rfm_population"]["buyers"] == 100
@@ -281,7 +281,7 @@ def test_analysis_validation_checks_rfm_and_target_ranks() -> None:
 
 
 def test_risk_ranking_excludes_small_samples_and_ranks_late_volume() -> None:
-    """Risk ranks should apply the denominator guard before sorting impact."""
+    """风险排名应先应用分母门槛，再按影响规模排序。"""
     metrics = pd.DataFrame(
         {
             "name": ["small", "large", "medium"],
@@ -300,7 +300,7 @@ def test_risk_ranking_excludes_small_samples_and_ranks_late_volume() -> None:
 
 
 def test_seller_state_actions_deduplicate_items_and_apply_threshold() -> None:
-    """Lane actions should count seller orders rather than individual items."""
+    """线路行动队列应统计卖家订单，而不是逐件统计商品。"""
     orders = pd.DataFrame(
         {
             "order_id": ["o1", "o2", "o3", "o4"],
@@ -340,7 +340,7 @@ def test_seller_state_actions_deduplicate_items_and_apply_threshold() -> None:
 
 
 def test_dashboard_table_uses_chinese_presentation_labels() -> None:
-    """Dashboard tables should translate display labels but preserve source values."""
+    """仪表盘表格应翻译展示标签，同时保留源数据取值。"""
     frame = pd.DataFrame(
         {
             "customer_state": ["SP"],
@@ -359,7 +359,7 @@ def test_dashboard_table_uses_chinese_presentation_labels() -> None:
 
 
 def test_public_markdown_heading_numbering_is_consistent() -> None:
-    """Public Markdown should use unnumbered H1 and numbered H2/H3 headings."""
+    """公开 Markdown 应使用无编号一级标题和有编号二、三级标题。"""
     project_root = Path(__file__).resolve().parents[1]
     documents = [
         project_root / "README.md",
@@ -392,7 +392,7 @@ def test_public_markdown_heading_numbering_is_consistent() -> None:
 
 
 def test_generated_presentation_artifacts_are_chinese() -> None:
-    """Tracked report and dashboard should keep their user-facing titles Chinese."""
+    """版本化报告和仪表盘的用户可见标题应保持中文。"""
     project_root = Path(__file__).resolve().parents[1]
     report = (project_root / "outputs" / "analysis_report.md").read_text(
         encoding="utf-8"

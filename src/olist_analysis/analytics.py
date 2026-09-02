@@ -1,4 +1,4 @@
-"""Generate reproducible metrics, SVG charts, and the Chinese business report."""
+"""生成可复现的业务指标、SVG 图表和中文分析报告。"""
 
 from __future__ import annotations
 
@@ -21,8 +21,7 @@ from olist_analysis.config import (
     ProjectPaths,
 )
 
-# Stable English values remain in analytical tables; these mappings localize
-# only the public report, chart, and dashboard presentation layer.
+# 分析表保留稳定的英文取值，以下映射只负责报告、图表和仪表盘的中文展示。
 RFM_SEGMENT_LABELS = {
     "champions": "冠军用户",
     "at_risk": "流失风险用户",
@@ -64,18 +63,18 @@ JOURNEY_LABELS = {
 
 
 def _read_processed(paths: ProjectPaths, name: str) -> pd.DataFrame:
-    """Read one processed CSV table."""
+    """读取一张处理后的 CSV 表。"""
     return pd.read_csv(paths.processed / f"{name}.csv")
 
 
 def _parse_datetime(frame: pd.DataFrame, columns: list[str]) -> None:
-    """Parse date columns in place, coercing invalid values to missing."""
+    """原地解析日期字段，并将无效值转换为空值。"""
     for column in columns:
         frame[column] = pd.to_datetime(frame[column], errors="coerce")
 
 
 def _write_svg(path: Path, body: str, title: str) -> None:
-    """Write a self-contained SVG document."""
+    """写出不依赖外部资源的 SVG 文档。"""
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680"
  viewBox="0 0 1200 680">
 <rect width="1200" height="680" fill="#ffffff"/>
@@ -87,7 +86,7 @@ def _write_svg(path: Path, body: str, title: str) -> None:
 
 
 def _line_chart(path: Path, labels: list[str], values: list[float], title: str) -> None:
-    """Render a simple line chart as an SVG file."""
+    """将简单折线图渲染为 SVG 文件。"""
     width, height = 1080, 520
     left, top, right, bottom = 90, 90, 40, 90
     plot_width = width - left - right
@@ -128,7 +127,7 @@ def _bar_chart(
     title: str,
     color: str = "#2f6fed",
 ) -> None:
-    """Render a horizontal bar chart as an SVG file."""
+    """将水平条形图渲染为 SVG 文件。"""
     width, height = 1080, 520
     left, top, right, bottom = 250, 90, 50, 70
     plot_width = width - left - right
@@ -160,7 +159,7 @@ def _bar_chart(
 
 
 def _build_cohort_retention(orders: pd.DataFrame) -> pd.DataFrame:
-    """Build tidy monthly customer-cohort retention metrics."""
+    """构建整洁格式的月度用户 cohort 留存指标。"""
     required = {
         "order_id",
         "order_status",
@@ -192,7 +191,7 @@ def _build_cohort_retention(orders: pd.DataFrame) -> pd.DataFrame:
     if activity.empty:
         return pd.DataFrame(columns=columns)
 
-    # Count a buyer once per activity month even when multiple orders occur.
+    # 即使同一买家当月有多笔订单，每个活跃月份也只计数一次。
     activity = activity.drop_duplicates(subset=["customer_unique_id", "activity_month"])
     activity["cohort_month"] = activity.groupby("customer_unique_id")[
         "activity_month"
@@ -225,7 +224,7 @@ def _retention_heatmap(
     max_cohorts: int = 18,
     max_months: int = 12,
 ) -> None:
-    """Render recent monthly cohort retention as an SVG heatmap."""
+    """将近期月度 cohort 留存渲染为 SVG 热力图。"""
     if retention.empty:
         _write_svg(
             path,
@@ -300,7 +299,7 @@ def _retention_heatmap(
 
 
 def _weighted_cohort_rate(retention: pd.DataFrame, month_number: int) -> float:
-    """Return the cohort-size-weighted retention rate for one month number."""
+    """返回指定月份按 cohort 初始人数加权的留存率。"""
     selected = retention[retention["month_number"] == month_number]
     if selected.empty or selected["cohort_size"].sum() == 0:
         return float("nan")
@@ -312,7 +311,7 @@ def _build_cohort_rfm_targets(
     minimum_buyers: int = MIN_COHORT_RFM_BUYERS,
     evaluation_months: int = COHORT_RFM_EVALUATION_MONTHS,
 ) -> pd.DataFrame:
-    """Combine acquisition cohorts and RFM segments into a targeting queue."""
+    """组合获客 cohort 与 RFM 客群，生成目标用户队列。"""
     required = {
         "customer_unique_id",
         "first_purchase_at",
@@ -383,8 +382,7 @@ def _build_cohort_rfm_targets(
         average_review_score=("average_review_score", "mean"),
         observable_followup_months=("observable_followup_months", "first"),
     )
-    # One-time-buyer segments target only users without a second purchase;
-    # repeat-oriented segments retain their full group population.
+    # 一次购买型客群只选择尚未复购的用户；复购型客群保留该组全部用户。
     one_time_segments = {"new_active", "high_value", "standard"}
     targets["target_customers"] = targets["buyers"]
     targets["target_customer_gmv"] = targets["merchandise_gmv"]
@@ -403,8 +401,8 @@ def _build_cohort_rfm_targets(
         "cohort_month"
     )["merchandise_gmv"].transform("sum")
 
-    # Lower tier numbers are reviewed first. Rank within a tier prioritizes
-    # addressable customer volume and then historical merchandise GMV.
+    # 层级数字越小越优先；同层级先按可触达用户数排序，再以历史商品 GMV
+    # 作为次级排序依据。
     tiers = {
         "at_risk": 1,
         "high_value": 1,
@@ -456,7 +454,7 @@ def _apply_risk_ranking(
     completed_orders_column: str,
     minimum_orders: int,
 ) -> pd.DataFrame:
-    """Add sample eligibility and impact-first delivery-risk ranking."""
+    """增加样本资格判断和影响优先的配送风险排名。"""
     result = frame.copy()
     if "late_orders" not in result:
         result["late_orders"] = (
@@ -465,8 +463,8 @@ def _apply_risk_ranking(
     result["late_orders"] = result["late_orders"].astype("Int64")
     result["risk_ranking_eligible"] = result[completed_orders_column] >= minimum_orders
     result["risk_priority_rank"] = pd.Series(pd.NA, index=result.index, dtype="Int64")
-    # Operational impact comes before rate: late-order count is the primary
-    # sort key, followed by late rate and merchandise GMV as tie-breakers.
+    # 排序先考虑运营影响：延迟订单数是主排序字段，延迟率和商品 GMV
+    # 依次作为并列情况下的辅助排序字段。
     eligible_index = (
         result[result["risk_ranking_eligible"]]
         .sort_values(
@@ -489,7 +487,7 @@ def _build_seller_state_actions(
     items: pd.DataFrame,
     minimum_orders: int = MIN_SELLER_STATE_ACTION_ORDERS,
 ) -> pd.DataFrame:
-    """Build a volume-qualified seller-to-customer-state delay action list."""
+    """生成满足样本量门槛的卖家—用户州延迟行动队列。"""
     order_columns = [
         "order_id",
         "customer_state",
@@ -518,8 +516,8 @@ def _build_seller_state_actions(
     completed_orders = orders[orders["order_status"] == COMPLETED_STATUS].loc[
         :, order_columns
     ]
-    # Collapse multiple items from the same seller and order before measuring
-    # a lane; otherwise multi-item baskets would inflate order counts.
+    # 计算线路指标前，先合并同一卖家在同一订单中的多件商品，避免多商品
+    # 购物篮虚增订单数量。
     seller_orders = (
         items[items["order_status"] == COMPLETED_STATUS]
         .assign(seller_state=lambda frame: frame["seller_state"].fillna("unknown"))
@@ -549,8 +547,8 @@ def _build_seller_state_actions(
     actions["dispatch_share_of_delivery"] = actions["average_dispatch_days"].div(
         actions["average_delivery_days"].where(actions["average_delivery_days"] > 0)
     )
-    # Dispatch-heavy delays first point to a seller SLA review. Other lanes
-    # start with carrier capacity and routing; neither label proves causality.
+    # 发货阶段占比较高时先检查卖家 SLA，其他线路先检查承运容量和路由；
+    # 两类标签都只是调查起点，不代表已经证明因果关系。
     actions["recommended_action"] = "carrier_lane_capacity_review"
     actions.loc[
         actions["dispatch_share_of_delivery"] >= SELLER_DISPATCH_SHARE_THRESHOLD,
@@ -569,7 +567,7 @@ def _build_seller_state_actions(
 def _build_executive_summary(
     metrics: dict[str, pd.DataFrame],
 ) -> pd.DataFrame:
-    """Create three decision-oriented rows from the analytical outputs."""
+    """根据分析结果生成三条面向管理决策的摘要。"""
     logistics = metrics["logistics_summary"].set_index("metric")["value"]
     cohort_rfm = metrics["cohort_rfm_targets"]
     seller_actions = metrics["seller_state_delivery_actions"]
@@ -580,8 +578,7 @@ def _build_executive_summary(
         top_categories["average_review_score"]
         < float(logistics["average_review_score"])
     ]
-    # Always retain one category for the executive view when every top category
-    # happens to score at or above the platform average.
+    # 如果头部品类评分都不低于平台均值，仍保留一个品类供管理摘要展示。
     if category_focus.empty:
         category_focus = top_categories.head(1)
     focus_orders = category_focus["completed_orders"].sum()
@@ -635,7 +632,7 @@ def _build_executive_summary(
 def _build_analysis_validation(
     metrics: dict[str, pd.DataFrame],
 ) -> dict[str, Any]:
-    """Summarize high-value business-rule validation outcomes."""
+    """汇总关键业务规则的验证结果。"""
     rfm = metrics["rfm_segments"]
     cohort_rfm = metrics["cohort_rfm_targets"]
     loyal_segments = rfm[rfm["rfm_segment"].isin(["loyal", "champions"])]
@@ -667,7 +664,7 @@ def _update_analysis_quality_report(
     paths: ProjectPaths,
     metrics: dict[str, pd.DataFrame],
 ) -> None:
-    """Append analytical business-rule checks to the pipeline quality report."""
+    """将分析层业务规则检查追加到数据管道质量报告。"""
     report_path = paths.outputs / "data_quality_report.json"
     if report_path.exists():
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -680,7 +677,7 @@ def _update_analysis_quality_report(
 
 
 def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
-    """Build customer, commercial, seller, and logistics metrics."""
+    """构建用户、交易、卖家和物流指标。"""
     orders = _read_processed(paths, "order_mart")
     items = _read_processed(paths, "item_mart")
     users = _read_processed(paths, "user_mart")
@@ -814,7 +811,7 @@ def _build_metrics(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
 
 
 def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None:
-    """Write a concise Chinese business diagnosis in Markdown."""
+    """写出简明的中文 Markdown 业务诊断报告。"""
     category = metrics["category_metrics"]
     rfm = metrics["rfm_segments"]
     cohort = metrics["cohort_retention"]
@@ -947,7 +944,7 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
 
 
 def generate_analysis(paths: ProjectPaths) -> dict[str, pd.DataFrame]:
-    """Generate metric tables, SVG charts, and a Markdown report."""
+    """生成指标表、SVG 图表和 Markdown 报告。"""
     paths.analysis.mkdir(parents=True, exist_ok=True)
     metrics = _build_metrics(paths)
     for name, frame in metrics.items():

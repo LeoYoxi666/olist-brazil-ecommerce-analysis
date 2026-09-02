@@ -36,7 +36,9 @@ Automated presentation checks increased the test suite to 12 passing tests.
 The source code documentation has also been audited: every shared business
 parameter in `config.py` now explains its purpose, and concise rationale
 comments cover the pipeline's non-obvious joins, scoring, targeting, ranking,
-and delivery-triage rules without changing analytical behavior.
+and delivery-triage rules without changing analytical behavior. All comments
+and docstrings in `src/`, `scripts/`, and `tests/` now use Simplified Chinese;
+English remains only for technical terms and code identifiers.
 
 ## Completed
 
@@ -130,6 +132,8 @@ and delivery-triage rules without changing analytical behavior.
 - Documented all shared paths and business parameters in `config.py`, added
   `Final` annotations to configuration constants, and clarified the rationale
   behind non-obvious pipeline, RFM, cohort, risk-ranking, and dashboard logic.
+- Standardized every module, class, function, and test docstring plus all inline
+  code comments to Simplified Chinese across `src/`, `scripts/`, and `tests/`.
 
 ## Current Task
 
@@ -235,6 +239,8 @@ unified Chinese presentation is committed and synchronized with `origin/main`.
 - Brazilian state codes must remain original two-letter abbreviations. Browser
   auto-translation can corrupt them and should not be treated as source data.
 - Project and code filenames remain in English.
+- Code comments and docstrings use Simplified Chinese; technical terms,
+  identifiers, field names, and APIs remain in English where appropriate.
 - Public-facing README, methodology documents, generated reports, dashboards,
   table labels, and chart titles use Simplified Chinese. Public Markdown keeps
   H1 unnumbered, H2 sequentially numbered, and H3 hierarchically numbered.
