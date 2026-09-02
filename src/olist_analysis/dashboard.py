@@ -167,7 +167,11 @@ def build_dashboard(paths: ProjectPaths) -> Path:
     action_view["late_delivery_rate"] = action_view["late_delivery_rate"].map(
         lambda value: f"{value:.2%}"
     )
-    action_view["average_dispatch_days"] = action_view["average_dispatch_days"].round(2)
+    # 小样本或测试数据可能没有任何线路达到门槛；从空 CSV 读回的列会是
+    # object 类型，因此先显式转为数值，保证不同 pandas 版本都能安全舍入。
+    action_view["average_dispatch_days"] = pd.to_numeric(
+        action_view["average_dispatch_days"], errors="coerce"
+    ).round(2)
     recent_months = monthly.tail(12).sort_values("order_month", ascending=False)
     cohort_view = _cohort_summary(cohort)
     retention_target_view = (
