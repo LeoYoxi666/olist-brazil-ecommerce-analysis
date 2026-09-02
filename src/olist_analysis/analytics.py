@@ -1,4 +1,4 @@
-"""Generate reproducible metrics, SVG charts, and a first business report."""
+"""Generate reproducible metrics, SVG charts, and the Chinese business report."""
 
 from __future__ import annotations
 
@@ -21,6 +21,8 @@ from olist_analysis.config import (
     ProjectPaths,
 )
 
+# Stable English values remain in analytical tables; these mappings localize
+# only the public report, chart, and dashboard presentation layer.
 RFM_SEGMENT_LABELS = {
     "champions": "冠军用户",
     "at_risk": "流失风险用户",
@@ -190,6 +192,7 @@ def _build_cohort_retention(orders: pd.DataFrame) -> pd.DataFrame:
     if activity.empty:
         return pd.DataFrame(columns=columns)
 
+    # Count a buyer once per activity month even when multiple orders occur.
     activity = activity.drop_duplicates(subset=["customer_unique_id", "activity_month"])
     activity["cohort_month"] = activity.groupby("customer_unique_id")[
         "activity_month"
@@ -380,6 +383,8 @@ def _build_cohort_rfm_targets(
         average_review_score=("average_review_score", "mean"),
         observable_followup_months=("observable_followup_months", "first"),
     )
+    # One-time-buyer segments target only users without a second purchase;
+    # repeat-oriented segments retain their full group population.
     one_time_segments = {"new_active", "high_value", "standard"}
     targets["target_customers"] = targets["buyers"]
     targets["target_customer_gmv"] = targets["merchandise_gmv"]
@@ -398,6 +403,8 @@ def _build_cohort_rfm_targets(
         "cohort_month"
     )["merchandise_gmv"].transform("sum")
 
+    # Lower tier numbers are reviewed first. Rank within a tier prioritizes
+    # addressable customer volume and then historical merchandise GMV.
     tiers = {
         "at_risk": 1,
         "high_value": 1,
@@ -458,6 +465,8 @@ def _apply_risk_ranking(
     result["late_orders"] = result["late_orders"].astype("Int64")
     result["risk_ranking_eligible"] = result[completed_orders_column] >= minimum_orders
     result["risk_priority_rank"] = pd.Series(pd.NA, index=result.index, dtype="Int64")
+    # Operational impact comes before rate: late-order count is the primary
+    # sort key, followed by late rate and merchandise GMV as tie-breakers.
     eligible_index = (
         result[result["risk_ranking_eligible"]]
         .sort_values(
@@ -509,6 +518,8 @@ def _build_seller_state_actions(
     completed_orders = orders[orders["order_status"] == COMPLETED_STATUS].loc[
         :, order_columns
     ]
+    # Collapse multiple items from the same seller and order before measuring
+    # a lane; otherwise multi-item baskets would inflate order counts.
     seller_orders = (
         items[items["order_status"] == COMPLETED_STATUS]
         .assign(seller_state=lambda frame: frame["seller_state"].fillna("unknown"))
@@ -538,6 +549,8 @@ def _build_seller_state_actions(
     actions["dispatch_share_of_delivery"] = actions["average_dispatch_days"].div(
         actions["average_delivery_days"].where(actions["average_delivery_days"] > 0)
     )
+    # Dispatch-heavy delays first point to a seller SLA review. Other lanes
+    # start with carrier capacity and routing; neither label proves causality.
     actions["recommended_action"] = "carrier_lane_capacity_review"
     actions.loc[
         actions["dispatch_share_of_delivery"] >= SELLER_DISPATCH_SHARE_THRESHOLD,
@@ -567,6 +580,8 @@ def _build_executive_summary(
         top_categories["average_review_score"]
         < float(logistics["average_review_score"])
     ]
+    # Always retain one category for the executive view when every top category
+    # happens to score at or above the platform average.
     if category_focus.empty:
         category_focus = top_categories.head(1)
     focus_orders = category_focus["completed_orders"].sum()

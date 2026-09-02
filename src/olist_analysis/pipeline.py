@@ -14,6 +14,8 @@ from olist_analysis.config import (
     ProjectPaths,
 )
 
+# Logical table names are separated from vendor filenames so downstream code
+# does not depend on the dataset's long physical file names.
 FILE_NAMES = {
     "customers": "olist_customers_dataset.csv",
     "geolocation": "olist_geolocation_dataset.csv",
@@ -82,6 +84,8 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     geo["geolocation_zip_code_prefix"] = geo["geolocation_zip_code_prefix"].str.zfill(5)
     geo["geolocation_city"] = geo["geolocation_city"].str.strip().str.lower()
     geo["geolocation_state"] = geo["geolocation_state"].str.strip().str.upper()
+    # A postal prefix can contain many coordinate observations. Medians resist
+    # coordinate outliers, while the first mode supplies a deterministic label.
     geo_clean = (
         geo.groupby("geolocation_zip_code_prefix", as_index=False)
         .agg(
@@ -130,6 +134,8 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         | reviews["review_comment_message"].notna()
     ).astype(int)
 
+    # Keep the Portuguese category as a fallback instead of dropping products
+    # whose optional English translation is absent.
     products = data["products"].merge(
         data["translations"], on="product_category_name", how="left"
     )
@@ -162,6 +168,8 @@ def _clean_sources(data: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
 
 def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Create one row per order after aggregating one-to-many facts."""
+    # Aggregate one-to-many item, payment, and review records before joining;
+    # direct joins would multiply rows and overstate order-level money fields.
     items = data["items"].assign(
         item_total=lambda frame: frame["price"] + frame["freight_value"]
     )
@@ -233,6 +241,8 @@ def _build_order_mart(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
     orders["delivery_days"] = (
         orders["order_delivered_customer_date"] - orders["order_approved_at"]
     ).dt.total_seconds() / 86400
+    # Late delivery is valid only for completed orders with an actual arrival
+    # after the customer's promised date.
     orders["is_late_delivery"] = (
         (orders["order_status"] == COMPLETED_STATUS)
         & (
@@ -314,6 +324,8 @@ def _build_user_mart(orders: pd.DataFrame) -> pd.DataFrame:
         + user_mart["f_score"].astype(str)
         + user_mart["m_score"].astype(str)
     )
+    # Conditions are applied in priority order and only to unassigned users,
+    # which keeps the six RFM segments mutually exclusive.
     conditions = [
         (user_mart["r_score"] >= 4)
         & (user_mart["f_score"] >= 2)
@@ -426,6 +438,8 @@ def persist_tables(
     for name, frame in tables.items():
         frame.to_csv(paths.processed / f"{name}.csv", index=False)
     database = paths.processed / "olist_analysis.sqlite"
+    # Rebuild the analytical database from reproducible DataFrames; no manually
+    # maintained state is expected inside this generated file.
     if database.exists():
         database.unlink()
     with sqlite3.connect(database) as connection:

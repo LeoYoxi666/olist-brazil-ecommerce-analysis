@@ -1,4 +1,4 @@
-"""Generate analysis tables, charts, and the first business report."""
+"""Generate analysis tables, charts, and the Chinese business report."""
 
 from __future__ import annotations
 

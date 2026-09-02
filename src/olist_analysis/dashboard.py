@@ -16,6 +16,8 @@ from olist_analysis.analytics import (
 )
 from olist_analysis.config import COMPLETED_STATUS, ProjectPaths
 
+# Analytical column names stay stable in CSV outputs. Only rendered labels are
+# translated here, keeping presentation changes separate from metric schemas.
 COLUMN_LABELS = {
     "priority_rank": "优先级",
     "risk_priority_rank": "风险优先级",

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 ## Project Goal
 
@@ -33,6 +33,10 @@ and SVG chart titles now use Simplified Chinese. Public Markdown uses one
 consistent heading scheme: the H1 title is unnumbered, H2 headings use
 sequential decimal numbers, and H3 headings use hierarchical decimal numbers.
 Automated presentation checks increased the test suite to 12 passing tests.
+The source code documentation has also been audited: every shared business
+parameter in `config.py` now explains its purpose, and concise rationale
+comments cover the pipeline's non-obvious joins, scoring, targeting, ranking,
+and delivery-triage rules without changing analytical behavior.
 
 ## Completed
 
@@ -123,6 +127,9 @@ Automated presentation checks increased the test suite to 12 passing tests.
 - Added automated checks for public-document heading numbering, Chinese
   dashboard/report titles, translated table labels, and preserved state codes.
 - Regenerated the dashboard preview after the Chinese presentation update.
+- Documented all shared paths and business parameters in `config.py`, added
+  `Final` annotations to configuration constants, and clarified the rationale
+  behind non-obvious pipeline, RFM, cohort, risk-ranking, and dashboard logic.
 
 ## Current Task
 
@@ -136,7 +143,8 @@ unified Chinese presentation is committed and synchronized with `origin/main`.
   rules.
 - `PROJECT-CONTEXT.md`: authoritative current project handoff.
 - `README.md`: GitHub portfolio landing page and reproducibility guide.
-- `src/olist_analysis/config.py`: project paths and shared constants.
+- `src/olist_analysis/config.py`: documented project paths and authoritative
+  business thresholds shared across the workflow.
 - `src/olist_analysis/pipeline.py`: ingestion, cleaning, validation, marts, and
   SQLite generation.
 - `src/olist_analysis/analytics.py`: business metrics, analytical tables, SVG
