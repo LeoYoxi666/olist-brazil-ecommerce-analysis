@@ -9,6 +9,7 @@
 ![Tests](https://img.shields.io/badge/tests-16%20passed-2E8B57)
 [![Python CI](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml)
 ![Release](https://img.shields.io/badge/release-v1.0.0-7158E2)
+![License](https://img.shields.io/badge/code%20license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active%20development-2F6FED)
 
 ## 1. 在线仪表盘
@@ -99,7 +100,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 
 ### 4.2 放置原始数据
 
-将以下 9 个未经修改的 CSV 文件放入 `data/raw/`：
+从 Olist 官方 Kaggle 页面下载
+[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)，
+然后将以下 9 个未经修改的 CSV 文件放入 `data/raw/`：
 
 ```text
 olist_customers_dataset.csv
@@ -114,6 +117,9 @@ product_category_name_translation.csv
 ```
 
 原始数据和处理后数据体积较大且可由公开 Olist 数据集重新生成，因此不会提交到 Git。
+该数据集由 Olist 发布，Kaggle 当前标注许可为
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)；使用时应遵守署名、
+非商业和相同方式共享要求。本仓库的 MIT 许可仅适用于项目代码，不替代原始数据许可。
 
 ### 4.3 运行完整分析
 
@@ -224,3 +230,14 @@ olist-brazil-ecommerce-analysis/
 原始数据不包含营销活动曝光、广告支出、商品成本、平台佣金或浏览行为，因此本项目
 不推断营销因果增量、广告 ROI、会计利润或漏斗转化。延迟交付与评价得分等关系仅表示
 诊断性关联，不是受控实验得到的因果估计。
+
+## 10. 数据来源与许可
+
+- **数据来源：** Olist，
+  [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)，
+  约 10 万笔 2016—2018 年巴西电商订单；原始数据已匿名化。
+- **数据许可：** Kaggle 元数据标注为
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。原始 CSV 不包含在
+  Git 仓库中，使用者需自行下载并遵守原数据条款。
+- **代码许可：** 本仓库原创代码采用 [MIT License](LICENSE)。MIT 许可不扩展到 Olist
+  数据集，也不改变第三方数据、商标或内容的权利归属。
