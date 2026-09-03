@@ -24,8 +24,8 @@
 浏览器打开该文件。
 
 Power BI 版本采用与淘宝用户分析项目一致的聚合数据导入流程，当前已提供
-[11 张可刷新数据表与使用说明](powerbi/README.md)、
-[6 页中文仪表盘搭建指南](powerbi/build_guide.md)、DAX 度量值和统一主题。
+[11 张可刷新全中文数据表与使用说明](powerbi/README.md)、
+[6 页全中文仪表盘搭建指南](powerbi/build_guide.md)、中文 DAX 度量值和统一主题。
 
 ## 2. 管理摘要
 
@@ -198,8 +198,8 @@ olist-brazil-ecommerce-analysis/
 | `cohort_rfm_targets.csv` | 合格 cohort-RFM 留存行动队列 |
 | `executive_summary.csv` | 包含历史影响范围的三项管理决策摘要 |
 | `seller_state_delivery_actions.csv` | 满足样本门槛的卖家—州配送复核队列 |
-| `powerbi/data/*.csv` | 供 Power BI Import 模式读取的 11 张轻量聚合表 |
-| `powerbi/build_guide.md` | 6 页中文 Power BI 仪表盘的完整搭建与验收说明 |
+| `powerbi/data/*.csv` | 供 Power BI Import 模式读取的 11 张全中文轻量聚合表 |
+| `powerbi/build_guide.md` | 6 页全中文 Power BI 仪表盘的完整搭建与验收说明 |
 
 ## 7. 指标与质量控制
 

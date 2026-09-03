@@ -1,67 +1,66 @@
-// 将这些度量值添加到同名 Power BI 表；名称可保留中文用于页面展示。
-
+// 使用中文查询名和中文字段名创建度量值，保证字段窗格与画布全部中文。
 已完成订单 =
-SUM('monthly_metrics'[completed_orders])
+SUM('月度经营指标'[已完成订单])
 
 商品 GMV =
-SUM('monthly_metrics'[merchandise_gmv])
+SUM('月度经营指标'[商品GMV])
 
 平均订单价值 =
 DIVIDE([商品 GMV], [已完成订单])
 
 活跃买家 =
-SUM('rfm_segments'[buyers])
+SUM('用户RFM分群'[买家数])
 
 复购买家 =
-SUM('rfm_segments'[repeat_buyers])
+SUM('用户RFM分群'[复购买家])
 
 复购买家率 =
 DIVIDE([复购买家], [活跃买家])
 
 延迟订单 =
 CALCULATE(
-    SUM('delivery_review'[orders]),
-    'delivery_review'[is_late_delivery] = TRUE()
+    SUM('配送评价关联'[订单数]),
+    '配送评价关联'[是否延迟] = "延迟"
 )
 
 延迟交付率 =
 DIVIDE(
     [延迟订单],
-    SUM('delivery_review'[orders])
+    SUM('配送评价关联'[订单数])
 )
 
 平均评价得分 =
 DIVIDE(
     SUMX(
-        'delivery_review',
-        'delivery_review'[orders] * 'delivery_review'[average_review_score]
+        '配送评价关联',
+        '配送评价关联'[订单数] * '配送评价关联'[平均评价得分]
     ),
-    SUM('delivery_review'[orders])
+    SUM('配送评价关联'[订单数])
 )
 
-加权 cohort 留存率 =
+加权同期群留存率 =
 DIVIDE(
-    SUM('cohort_retention'[active_buyers]),
-    SUM('cohort_retention'[cohort_size])
+    SUM('月度同期群留存'[活跃买家]),
+    SUM('月度同期群留存'[同期群人数])
 )
 
 合格目标客户 =
 CALCULATE(
-    SUM('cohort_rfm_targets'[target_customers]),
-    'cohort_rfm_targets'[targeting_eligible] = TRUE()
+    SUM('同期群RFM目标'[目标客户数]),
+    '同期群RFM目标'[是否符合目标条件] = "是"
 )
 
 合格目标客户 GMV =
 CALCULATE(
-    SUM('cohort_rfm_targets'[target_customer_gmv]),
-    'cohort_rfm_targets'[targeting_eligible] = TRUE()
+    SUM('同期群RFM目标'[目标客户商品GMV]),
+    '同期群RFM目标'[是否符合目标条件] = "是"
 )
 
 合格风险卖家 =
 CALCULATE(
-    DISTINCTCOUNT('seller_metrics'[seller_id]),
-    'seller_metrics'[risk_ranking_eligible] = TRUE()
+    DISTINCTCOUNT('卖家经营指标'[卖家ID]),
+    '卖家经营指标'[是否符合风险排名条件] = "是"
 )
 
 行动线路数 =
-COUNTROWS('seller_state_delivery_actions')
+COUNTROWS('卖家州配送行动')

@@ -926,12 +926,12 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
 
 ## 6. Power BI 可视化方案
 
-Power BI 使用 `../powerbi/data/` 中的 11 张轻量聚合表，不直接加载原始明细。看板规划为
+Power BI 使用 `../powerbi/data/` 中的 11 张全中文轻量聚合表，不直接加载原始明细。看板规划为
 经营总览、月度趋势、用户价值与留存、品类销售与体验、区域配送与评价、卖家与配送行动
 六个页面。指标计算、RFM 分群、cohort 资格判断和风险排序继续由 Python 分析层负责，
 Power BI 只承担筛选、聚合与交互展示，避免在不同工具中形成两套业务口径。
 
-刷新入口为 `../powerbi/refresh_exports.ps1`，字段布局、DAX 度量值、统一主题和验收规则见
+刷新入口为 `../powerbi/refresh_exports.ps1`，中文字段布局、中文 DAX 度量值、统一主题和验收规则见
 `../powerbi/build_guide.md`。当前 Markdown 报告是正式项目报告；Power BI 页面截图将在
 `.pbix` 完成并验收后补入本报告。
 

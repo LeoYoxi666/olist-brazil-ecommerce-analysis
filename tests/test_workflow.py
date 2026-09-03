@@ -23,7 +23,12 @@ from olist_analysis.pipeline import (
     build_analysis_tables,
     persist_tables,
 )
-from olist_analysis.powerbi import POWERBI_EXPORTS, export_powerbi_data
+from olist_analysis.powerbi import (
+    POWERBI_COLUMN_LABELS,
+    POWERBI_EXPORTS,
+    POWERBI_TABLE_LABELS,
+    export_powerbi_data,
+)
 
 
 def _sample_sources() -> dict[str, pd.DataFrame]:
@@ -284,7 +289,7 @@ def test_versioned_local_links_and_dashboard_assets_exist() -> None:
 
 
 def test_versioned_powerbi_assets_are_complete() -> None:
-    """版本化 Power BI 数据、主题和搭建说明必须保持完整可读。"""
+    """版本化 Power BI 数据、中文模型、主题和搭建说明必须保持完整可读。"""
     root = Path(__file__).resolve().parents[1]
     data_directory = root / "powerbi" / "data"
 
@@ -292,7 +297,32 @@ def test_versioned_powerbi_assets_are_complete() -> None:
     assert actual_exports == set(POWERBI_EXPORTS)
     for filename, required_columns in POWERBI_EXPORTS.items():
         columns = set(pd.read_csv(data_directory / filename, nrows=0).columns)
-        assert set(required_columns).issubset(columns)
+        expected_columns = {
+            POWERBI_COLUMN_LABELS[column] for column in required_columns
+        }
+        assert columns == expected_columns
+
+    assert set(POWERBI_TABLE_LABELS) == set(POWERBI_EXPORTS)
+    assert all(
+        re.search(r"[\u4e00-\u9fff]", label) for label in POWERBI_TABLE_LABELS.values()
+    )
+
+    categories = pd.read_csv(data_directory / "category_metrics.csv")
+    assert "健康美容" in set(categories["品类名称"])
+    assert "health_beauty" not in set(categories["品类名称"])
+
+    rfm = pd.read_csv(data_directory / "rfm_segments.csv")
+    assert set(rfm["RFM客群"]) == {
+        "一般客户",
+        "冠军客户",
+        "忠诚客户",
+        "新近活跃客户",
+        "流失风险客户",
+        "高价值客户",
+    }
+
+    delivery = pd.read_csv(data_directory / "delivery_review.csv")
+    assert set(delivery["配送状态"]) == {"准时", "延迟"}
 
     theme = json.loads(
         (root / "powerbi" / "olist_theme.json").read_text(encoding="utf-8")
@@ -300,3 +330,8 @@ def test_versioned_powerbi_assets_are_complete() -> None:
     assert theme["name"] == "Olist 运营分析"
     guide = (root / "powerbi" / "build_guide.md").read_text(encoding="utf-8")
     assert all(f"页面{number}" in guide for number in "一二三四五六")
+    assert "字段窗格中不出现 snake_case 字段" in guide
+
+    measures = (root / "powerbi" / "measures.dax").read_text(encoding="utf-8")
+    assert "'月度经营指标'[已完成订单]" in measures
+    assert "'monthly_metrics'" not in measures
