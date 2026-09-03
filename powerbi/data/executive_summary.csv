@@ -1,0 +1,4 @@
+priority_rank,priority_area,signal_name,signal_value,signal_unit,scope_count,scope_unit,commercial_value,evidence_scope,recommended_action
+1,retention_growth,repeat_buyer_rate,0.03000278497825575,rate,74153,qualified_target_customers,10369095.959999999,41 qualified cohort-RFM groups,run_segmented_retention_holdout_tests
+2,delivery_service,late_delivery_rate,0.08111693857667032,rate,7826,late_orders,1158920.51,1886 qualified seller-state lanes,execute_lane_and_dispatch_reviews
+3,category_experience,priority_category_review_score,4.009979431526444,score_out_of_5,6,top_gmv_below_average_categories,4984859.380000001,top 10 GMV categories versus platform review average,review_quality_and_freight_before_growth

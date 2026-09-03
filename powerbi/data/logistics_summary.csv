@@ -1,0 +1,11 @@
+metric,value
+completed_orders,96478.0
+active_buyers,93358.0
+repeat_buyers,2801.0
+repeat_buyer_rate,0.03000278497825575
+late_orders,7826.0
+delayed_merchandise_gmv,1158920.51
+average_dispatch_days,2.799076084556805
+average_delivery_days,12.129873116081137
+late_delivery_rate,0.08111693857667032
+average_review_score,4.156186520855942

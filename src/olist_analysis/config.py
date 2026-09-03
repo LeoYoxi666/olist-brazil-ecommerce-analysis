@@ -20,6 +20,8 @@ class ProjectPaths:
     processed: Path  # 可复现的清洗表、数据集市和 SQLite 数据库目录。
     outputs: Path  # 生成的报告、仪表盘和质量摘要目录。
     analysis: Path  # 生成的指标表和 SVG 图表目录。
+    powerbi: Path  # Power BI 搭建说明、主题和刷新入口目录。
+    powerbi_data: Path  # 供 Power BI Import 模式读取的轻量聚合 CSV 目录。
 
     @classmethod
     def from_root(cls, root: Path) -> "ProjectPaths":
@@ -30,6 +32,8 @@ class ProjectPaths:
             processed=root / "data" / "processed",
             outputs=root / "outputs",
             analysis=root / "outputs" / "analysis",
+            powerbi=root / "powerbi",
+            powerbi_data=root / "powerbi" / "data",
         )
 
 

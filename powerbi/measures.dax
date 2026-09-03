@@ -1,0 +1,67 @@
+// 将这些度量值添加到同名 Power BI 表；名称可保留中文用于页面展示。
+
+已完成订单 =
+SUM('monthly_metrics'[completed_orders])
+
+商品 GMV =
+SUM('monthly_metrics'[merchandise_gmv])
+
+平均订单价值 =
+DIVIDE([商品 GMV], [已完成订单])
+
+活跃买家 =
+SUM('rfm_segments'[buyers])
+
+复购买家 =
+SUM('rfm_segments'[repeat_buyers])
+
+复购买家率 =
+DIVIDE([复购买家], [活跃买家])
+
+延迟订单 =
+CALCULATE(
+    SUM('delivery_review'[orders]),
+    'delivery_review'[is_late_delivery] = TRUE()
+)
+
+延迟交付率 =
+DIVIDE(
+    [延迟订单],
+    SUM('delivery_review'[orders])
+)
+
+平均评价得分 =
+DIVIDE(
+    SUMX(
+        'delivery_review',
+        'delivery_review'[orders] * 'delivery_review'[average_review_score]
+    ),
+    SUM('delivery_review'[orders])
+)
+
+加权 cohort 留存率 =
+DIVIDE(
+    SUM('cohort_retention'[active_buyers]),
+    SUM('cohort_retention'[cohort_size])
+)
+
+合格目标客户 =
+CALCULATE(
+    SUM('cohort_rfm_targets'[target_customers]),
+    'cohort_rfm_targets'[targeting_eligible] = TRUE()
+)
+
+合格目标客户 GMV =
+CALCULATE(
+    SUM('cohort_rfm_targets'[target_customer_gmv]),
+    'cohort_rfm_targets'[targeting_eligible] = TRUE()
+)
+
+合格风险卖家 =
+CALCULATE(
+    DISTINCTCOUNT('seller_metrics'[seller_id]),
+    'seller_metrics'[risk_ranking_eligible] = TRUE()
+)
+
+行动线路数 =
+COUNTROWS('seller_state_delivery_actions')

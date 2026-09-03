@@ -12,6 +12,10 @@ data/processed/*
 outputs/analysis/*.csv
 outputs/*.json
 outputs/*.sqlite
+powerbi/*.pbix
+powerbi/*.pbit
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
 
 # 仅供本地 AI 协作与会话交接，不发布到 GitHub。
 AGENTS.md

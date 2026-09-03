@@ -368,6 +368,7 @@ def test_public_markdown_heading_numbering_is_consistent() -> None:
         / "docs"
         / "reference"
         / "coding_standards_project_requirements.md",
+        *sorted((project_root / "powerbi").rglob("*.md")),
         project_root / "outputs" / "analysis_report.md",
     ]
 

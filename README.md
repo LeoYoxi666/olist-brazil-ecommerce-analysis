@@ -2,11 +2,11 @@
 
 本项目将 9 张 Olist 巴西电商原始数据表转化为可复现的运营诊断、用户分析与
 增长行动方案。分析覆盖数据质量、主题数据集市、用户 RFM、品类与卖家表现、
-配送风险、用户评价和独立 HTML 运营仪表盘。
+配送风险、用户评价、独立 HTML 运营仪表盘和 Power BI 交互展示数据层。
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-16%20passed-2E8B57)
+![Tests](https://img.shields.io/badge/tests-18%20passed-2E8B57)
 [![Python CI](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoYoxi666/olist-brazil-ecommerce-analysis/actions/workflows/ci.yml)
 ![Release](https://img.shields.io/badge/release-v1.0.0-7158E2)
 ![License](https://img.shields.io/badge/code%20license-MIT-green)
@@ -22,6 +22,10 @@
 本地生成版本位于
 [`outputs/dashboard.html`](outputs/dashboard.html)。克隆或下载项目后，可直接使用
 浏览器打开该文件。
+
+Power BI 版本采用与淘宝用户分析项目一致的聚合数据导入流程，当前已提供
+[11 张可刷新数据表与使用说明](powerbi/README.md)、
+[6 页中文仪表盘搭建指南](powerbi/build_guide.md)、DAX 度量值和统一主题。
 
 ## 2. 管理摘要
 
@@ -78,6 +82,7 @@ flowchart LR
     E --> F[CSV 指标表与 SVG 图表]
     F --> G[业务分析报告]
     F --> H[HTML 运营仪表盘]
+    F --> I[Power BI 聚合数据与交互看板]
 ```
 
 ### 4.1 克隆项目并创建环境
@@ -129,6 +134,7 @@ product_category_name_translation.csv
 python scripts/run_pipeline.py
 python scripts/run_analysis.py
 python scripts/run_dashboard.py
+python scripts/export_powerbi.py
 python -m pytest -q
 ```
 
@@ -138,7 +144,7 @@ python -m pytest -q
 Built 13 tables
 Quality checks: 12
 Generated 11 analysis tables
-9 passed
+18 passed
 ```
 
 在 Windows 中打开本地仪表盘：
@@ -168,6 +174,7 @@ olist-brazil-ecommerce-analysis/
 |   |-- analysis/               # 指标表与 SVG 图表
 |   |-- analysis_report.md      # 业务诊断报告
 |   `-- dashboard.html          # 独立运营仪表盘
+|-- powerbi/                    # 聚合数据、DAX、主题、刷新脚本与搭建指南
 |-- scripts/                    # 分析流程入口
 |-- src/olist_analysis/         # 可复用处理与分析包
 |-- tests/                      # 自动化测试
@@ -191,6 +198,8 @@ olist-brazil-ecommerce-analysis/
 | `cohort_rfm_targets.csv` | 合格 cohort-RFM 留存行动队列 |
 | `executive_summary.csv` | 包含历史影响范围的三项管理决策摘要 |
 | `seller_state_delivery_actions.csv` | 满足样本门槛的卖家—州配送复核队列 |
+| `powerbi/data/*.csv` | 供 Power BI Import 模式读取的 11 张轻量聚合表 |
+| `powerbi/build_guide.md` | 6 页中文 Power BI 仪表盘的完整搭建与验收说明 |
 
 ## 7. 指标与质量控制
 
@@ -222,6 +231,7 @@ olist-brazil-ecommerce-analysis/
 - pandas 与 NumPy
 - SQLite
 - HTML、CSS 与 SVG
+- Power BI、DAX 与 Power Query Import 模式
 - pytest、Black、isort、Flake8 与 mypy
 - Git 与 GitHub Actions
 

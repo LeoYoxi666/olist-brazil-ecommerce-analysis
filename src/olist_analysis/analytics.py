@@ -924,7 +924,18 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
 3. 提出选品或促销调整前，先复核高 GMV 但评分偏低或运费占比较高的重点品类。
 4. 每个干预窗口结束后重新计算行动队列，同时比较延迟订单量和用户评价变化。
 
-## 6. 生成产物
+## 6. Power BI 可视化方案
+
+Power BI 使用 `../powerbi/data/` 中的 11 张轻量聚合表，不直接加载原始明细。看板规划为
+经营总览、月度趋势、用户价值与留存、品类销售与体验、区域配送与评价、卖家与配送行动
+六个页面。指标计算、RFM 分群、cohort 资格判断和风险排序继续由 Python 分析层负责，
+Power BI 只承担筛选、聚合与交互展示，避免在不同工具中形成两套业务口径。
+
+刷新入口为 `../powerbi/refresh_exports.ps1`，字段布局、DAX 度量值、统一主题和验收规则见
+`../powerbi/build_guide.md`。当前 Markdown 报告是正式项目报告；Power BI 页面截图将在
+`.pbix` 完成并验收后补入本报告。
+
+## 7. 生成产物
 
 - [月度 GMV 图](analysis/monthly_gmv.svg)
 - [月度订单图](analysis/monthly_orders.svg)
@@ -939,6 +950,15 @@ def _write_report(paths: ProjectPaths, metrics: dict[str, pd.DataFrame]) -> None
 排名逻辑和解释边界见 `../docs/executive_summary_methodology.md`、
 `../docs/cohort_rfm_targeting_methodology.md` 和
 `../docs/delivery_risk_methodology.md`。
+
+## 8. 数据来源与许可
+
+原始数据来自 Olist 在 Kaggle 发布的
+[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)，
+Kaggle 元数据标注许可为
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。原始 CSV 不纳入
+Git，使用者需自行下载并遵守署名、非商业和相同方式共享要求。本项目原创代码采用
+[MIT License](../LICENSE)，该许可不扩展到 Olist 数据或其他第三方内容。
 """
     (paths.outputs / "analysis_report.md").write_text(report, encoding="utf-8")
 

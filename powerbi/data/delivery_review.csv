@@ -1,0 +1,3 @@
+is_late_delivery,orders,average_review_score,negative_review_rate,delivery_status
+0,88652,4.294310676601906,0.0926041442197548,on_time
+1,7826,2.566505678109907,0.54118261323587,late

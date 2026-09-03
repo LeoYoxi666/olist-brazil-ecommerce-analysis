@@ -23,6 +23,7 @@ from olist_analysis.pipeline import (
     build_analysis_tables,
     persist_tables,
 )
+from olist_analysis.powerbi import POWERBI_EXPORTS, export_powerbi_data
 
 
 def _sample_sources() -> dict[str, pd.DataFrame]:
@@ -172,15 +173,18 @@ def test_small_dataset_runs_complete_workflow(tmp_path: Path) -> None:
     tables = build_analysis_tables(paths)
     quality = persist_tables(paths, tables)
     metrics = generate_analysis(paths)
+    powerbi_tables = export_powerbi_data(paths)
     dashboard = build_dashboard(paths)
 
     assert len(tables) == 13
     assert len(metrics) == 11
+    assert len(powerbi_tables) == 11
     assert quality["checks"]["orders_duplicate_key_rows"] == 0
     assert quality["database"] == "data/processed/olist_analysis.sqlite"
     assert dashboard.is_file()
     assert (paths.outputs / "analysis_report.md").is_file()
     assert len(list(paths.analysis.glob("*.svg"))) == 6
+    assert len(list(paths.powerbi_data.glob("*.csv"))) == 11
 
     with sqlite3.connect(paths.processed / "olist_analysis.sqlite") as connection:
         table_count = connection.execute(
@@ -231,11 +235,32 @@ def test_missing_required_analysis_columns_fail_clearly() -> None:
         _build_cohort_rfm_targets(incomplete_users)
 
 
+def test_powerbi_export_rejects_missing_required_columns(tmp_path: Path) -> None:
+    """Power BI 来源字段缺失时必须中止，避免发布结构错误的数据。"""
+    paths = ProjectPaths.from_root(tmp_path)
+    paths.analysis.mkdir(parents=True)
+
+    for filename, columns in POWERBI_EXPORTS.items():
+        pd.DataFrame([{column: 1 for column in columns}]).to_csv(
+            paths.analysis / filename, index=False
+        )
+
+    broken_name = "monthly_metrics.csv"
+    pd.DataFrame({"order_month": ["2018-01"]}).to_csv(
+        paths.analysis / broken_name, index=False
+    )
+
+    with pytest.raises(ValueError, match="Missing Power BI columns"):
+        export_powerbi_data(paths)
+    assert not paths.powerbi_data.exists()
+
+
 def test_versioned_local_links_and_dashboard_assets_exist() -> None:
     """README、报告和仪表盘引用的本地版本化资源必须真实存在。"""
     root = Path(__file__).resolve().parents[1]
     markdown_files = [root / "README.md", root / "outputs" / "analysis_report.md"]
     markdown_files.extend(sorted((root / "docs").glob("*.md")))
+    markdown_files.extend(sorted((root / "powerbi").rglob("*.md")))
     link_pattern = re.compile(r"!?\[[^]]*]\(([^)]+)\)")
 
     for document in markdown_files:
@@ -256,3 +281,22 @@ def test_versioned_local_links_and_dashboard_assets_exist() -> None:
         assert (
             dashboard.parent / unquote(parsed.path)
         ).exists(), f"仪表盘资源不存在：{target}"
+
+
+def test_versioned_powerbi_assets_are_complete() -> None:
+    """版本化 Power BI 数据、主题和搭建说明必须保持完整可读。"""
+    root = Path(__file__).resolve().parents[1]
+    data_directory = root / "powerbi" / "data"
+
+    actual_exports = {path.name for path in data_directory.glob("*.csv")}
+    assert actual_exports == set(POWERBI_EXPORTS)
+    for filename, required_columns in POWERBI_EXPORTS.items():
+        columns = set(pd.read_csv(data_directory / filename, nrows=0).columns)
+        assert set(required_columns).issubset(columns)
+
+    theme = json.loads(
+        (root / "powerbi" / "olist_theme.json").read_text(encoding="utf-8")
+    )
+    assert theme["name"] == "Olist 运营分析"
+    guide = (root / "powerbi" / "build_guide.md").read_text(encoding="utf-8")
+    assert all(f"页面{number}" in guide for number in "一二三四五六")
