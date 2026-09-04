@@ -157,7 +157,6 @@ Start-Process .\outputs\dashboard.html
 
 ```text
 olist-brazil-ecommerce-analysis/
-|-- configs/                    # 预留项目配置
 |-- data/
 |   |-- raw/                    # 9 张原始 CSV，不纳入版本控制
 |   `-- processed/              # 清洗表、数据集市与 SQLite，不纳入版本控制
