@@ -10,7 +10,7 @@
 - `measures.dax` 提供总订单、GMV、复购、配送和评价等中文统一度量值。
 - `olist_theme.json` 提供与现有 HTML 仪表盘一致的蓝色主视觉和风险强调色。
 - `build_guide.md` 定义 6 个中文页面的字段、筛选器、视觉对象和验收规则。
-- 本机已安装 Power BI Desktop；`.pbix` 需要按照搭建指南完成交互式页面布局后保存。
+- 本机已完成 8 页 Power BI 交互报告；`.pbix` 保持本地使用，最终页面截图已保存到 `docs/assets/`。
 
 ## 2. 目录结构
 

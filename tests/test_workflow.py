@@ -329,7 +329,7 @@ def test_versioned_powerbi_assets_are_complete() -> None:
     )
     assert theme["name"] == "Olist 运营分析"
     guide = (root / "powerbi" / "build_guide.md").read_text(encoding="utf-8")
-    assert all(f"页面{number}" in guide for number in "一二三四五六")
+    assert all(f"页面{number}" in guide for number in "一二三四五六七八")
     assert "字段窗格中不出现 snake_case 字段" in guide
 
     measures = (root / "powerbi" / "measures.dax").read_text(encoding="utf-8")

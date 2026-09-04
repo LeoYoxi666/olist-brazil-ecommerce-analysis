@@ -25,7 +25,16 @@
 
 Power BI 版本采用与淘宝用户分析项目一致的聚合数据导入流程，当前已提供
 [11 张可刷新全中文数据表与使用说明](powerbi/README.md)、
-[6 页全中文仪表盘搭建指南](powerbi/build_guide.md)、中文 DAX 度量值和统一主题。
+[8 页全中文仪表盘搭建指南](powerbi/build_guide.md)、中文 DAX 度量值和统一主题。
+
+### 1.1 Power BI 交互报告
+
+| 页面 | 页面 |
+|---|---|
+| **01｜经营总览**<br>![经营总览](docs/assets/powerbi_01_overview.png)<br>复购买家率仅 3.00%，低于订单与 GMV 规模表现；留存增长是首要经营行动。 | **02｜月度经营趋势**<br>![月度经营趋势](docs/assets/powerbi_02_monthly_trends.png)<br>业务在 2017 年快速增长，2017 年 11 月达到完整月份高点，之后进入相对稳定区间。 |
+| **03｜用户价值与留存**<br>![用户价值与留存](docs/assets/powerbi_03_customer_retention.png)<br>一般客户规模最大，首购后的精确月留存快速回落，需要按 cohort 与 RFM 客群开展实验。 | **04｜留存目标与客户行动**<br>![留存目标与客户行动](docs/assets/powerbi_04_retention_actions.png)<br>行动队列把目标客群规模、历史商品 GMV 和建议旅程集中到可执行的优先级清单。 |
+| **05｜品类销售与体验**<br>![品类销售与体验](docs/assets/powerbi_05_category_experience.png)<br>健康美容、手表礼品等品类贡献较高 GMV；扩张前还需识别高 GMV、低评分的体验风险。 | **06｜区域配送与评价**<br>![区域配送与评价](docs/assets/powerbi_06_delivery_reviews.png)<br>州际延迟率差异明显；延迟订单平均评分 2.57，显著低于准时订单的 4.29。 |
+| **07｜卖家配送风险**<br>![卖家配送风险](docs/assets/powerbi_07_seller_risk.png)<br>散点图同时呈现延迟率、GMV 与订单规模，便于优先识别影响范围大的高延迟卖家。 | **08｜卖家—州配送行动队列**<br>![卖家—州配送行动队列](docs/assets/powerbi_08_seller_lane_actions.png)<br>线路级清单按延迟订单影响排序，并区分卖家发货 SLA 与承运线路复核方向。 |
 
 ## 2. 管理摘要
 
@@ -198,7 +207,7 @@ olist-brazil-ecommerce-analysis/
 | `executive_summary.csv` | 包含历史影响范围的三项管理决策摘要 |
 | `seller_state_delivery_actions.csv` | 满足样本门槛的卖家—州配送复核队列 |
 | `powerbi/data/*.csv` | 供 Power BI Import 模式读取的 11 张全中文轻量聚合表 |
-| `powerbi/build_guide.md` | 6 页全中文 Power BI 仪表盘的完整搭建与验收说明 |
+| `powerbi/build_guide.md` | 8 页全中文 Power BI 仪表盘的完整搭建与验收说明 |
 
 ## 7. 指标与质量控制
 

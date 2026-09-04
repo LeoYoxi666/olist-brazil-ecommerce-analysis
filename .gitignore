@@ -12,7 +12,7 @@ data/processed/*
 outputs/analysis/*.csv
 outputs/*.json
 outputs/*.sqlite
-powerbi/*.pbix
+*.pbix
 powerbi/*.pbit
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
