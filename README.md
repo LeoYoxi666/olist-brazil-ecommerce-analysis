@@ -199,7 +199,7 @@ olist-brazil-ecommerce-analysis/
 | `user_mart.csv` | 用户最近购买、购买频次、消费金额和 RFM 分群 |
 | `seller_mart.csv` | 卖家订单量、GMV、运费、配送和满意度表现 |
 | `olist_analysis.sqlite` | 用于 SQL 探索的 13 张清洗及分析表 |
-| `data_quality_report.json` | 行数、键、缺失值和验证结果 |
+| [数据质量报告](outputs/data_quality_report.json) | 行数、键、缺失值和验证结果（已纳入版本控制） |
 | `analysis/*.csv` | 月度、cohort、品类、州、卖家、RFM 和物流指标 |
 | `analysis/*.svg` | 仪表盘使用的版本化图表 |
 | `cohort_retention.csv` | 月度 cohort 规模、活跃买家与留存率 |
@@ -210,6 +210,13 @@ olist-brazil-ecommerce-analysis/
 | `powerbi/build_guide.md` | 8 页全中文 Power BI 仪表盘的完整搭建与验收说明 |
 
 ## 7. 指标与质量控制
+
+可直接查看[数据质量报告](outputs/data_quality_report.json)。报告仅包含汇总检查结果，
+不包含订单明细、客户信息或本机绝对路径；原始 CSV、清洗明细和 SQLite 数据库仍保留在本地。
+依次运行 `python scripts/run_pipeline.py` 和 `python scripts/run_analysis.py` 可更新完整报告，
+数据或指标规则变化后，应一并提交更新后的质量报告。
+报告中的评价标识重复计数不等于无效评价：源数据的 `review_id` 并非唯一业务键，
+处理口径见[数据清洗规则](docs/data_cleaning_rules.md)。
 
 - `data/raw/` 中的原始 CSV 始终保持不变。
 - 订单级核心指标以已交付订单作为完成交易。

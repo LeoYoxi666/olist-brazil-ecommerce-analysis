@@ -11,6 +11,8 @@ data/processed/*
 !data/processed/.gitkeep
 outputs/analysis/*.csv
 outputs/*.json
+# 公开轻量质量检查摘要，其他生成的 JSON 仍保持忽略。
+!outputs/data_quality_report.json
 outputs/*.sqlite
 *.pbix
 powerbi/*.pbit

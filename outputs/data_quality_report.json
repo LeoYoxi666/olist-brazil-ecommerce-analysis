@@ -1,0 +1,170 @@
+{
+  "tables": {
+    "customers": {
+      "rows": 99441,
+      "columns": 5,
+      "null_counts": {}
+    },
+    "geolocation_clean": {
+      "rows": 19015,
+      "columns": 6,
+      "null_counts": {}
+    },
+    "orders": {
+      "rows": 99441,
+      "columns": 10,
+      "null_counts": {
+        "order_approved_at": 160,
+        "order_delivered_carrier_date": 1783,
+        "order_delivered_customer_date": 2965
+      }
+    },
+    "items": {
+      "rows": 112650,
+      "columns": 7,
+      "null_counts": {}
+    },
+    "payments": {
+      "rows": 103886,
+      "columns": 5,
+      "null_counts": {}
+    },
+    "reviews": {
+      "rows": 99224,
+      "columns": 8,
+      "null_counts": {
+        "review_comment_title": 87656,
+        "review_comment_message": 58247
+      }
+    },
+    "products": {
+      "rows": 32951,
+      "columns": 12,
+      "null_counts": {
+        "product_category_name": 610,
+        "product_name_lenght": 610,
+        "product_description_lenght": 610,
+        "product_photos_qty": 610,
+        "product_weight_g": 2,
+        "product_length_cm": 2,
+        "product_height_cm": 2,
+        "product_width_cm": 2,
+        "product_category_name_english": 623
+      }
+    },
+    "sellers": {
+      "rows": 3095,
+      "columns": 4,
+      "null_counts": {}
+    },
+    "translations": {
+      "rows": 71,
+      "columns": 2,
+      "null_counts": {}
+    },
+    "order_mart": {
+      "rows": 99441,
+      "columns": 41,
+      "null_counts": {
+        "order_approved_at": 160,
+        "order_delivered_carrier_date": 1783,
+        "order_delivered_customer_date": 2965,
+        "item_count": 775,
+        "distinct_product_count": 775,
+        "distinct_seller_count": 775,
+        "merchandise_gmv": 775,
+        "freight_amount": 775,
+        "total_order_value": 775,
+        "payment_count": 1,
+        "paid_amount": 1,
+        "max_installments": 1,
+        "primary_payment_type": 1,
+        "review_count": 768,
+        "average_review_score": 768,
+        "minimum_review_score": 768,
+        "has_negative_review": 768,
+        "has_review_comment": 768,
+        "latest_review_date": 768,
+        "customer_geo_zip_code_prefix": 278,
+        "customer_lat": 278,
+        "customer_lng": 278,
+        "customer_geo_city": 278,
+        "customer_geo_state": 278,
+        "customer_geo_point_count": 278,
+        "approval_hours": 160,
+        "dispatch_days": 1797,
+        "delivery_days": 2979
+      }
+    },
+    "item_mart": {
+      "rows": 112650,
+      "columns": 31,
+      "null_counts": {
+        "average_review_score": 942,
+        "delivery_days": 2469,
+        "product_category_name": 1603,
+        "product_name_lenght": 1603,
+        "product_description_lenght": 1603,
+        "product_photos_qty": 1603,
+        "product_weight_g": 18,
+        "product_length_cm": 18,
+        "product_height_cm": 18,
+        "product_width_cm": 18,
+        "product_category_name_english": 1627
+      }
+    },
+    "user_mart": {
+      "rows": 93358,
+      "columns": 19,
+      "null_counts": {
+        "average_review_score": 603,
+        "average_delivery_days": 21
+      }
+    },
+    "seller_mart": {
+      "rows": 2970,
+      "columns": 10,
+      "null_counts": {
+        "average_review_score": 5
+      }
+    }
+  },
+  "checks": {
+    "customers_duplicate_key_rows": 0,
+    "orders_duplicate_key_rows": 0,
+    "items_duplicate_key_rows": 0,
+    "payments_duplicate_key_rows": 0,
+    "reviews_duplicate_key_rows": 814,
+    "products_duplicate_key_rows": 0,
+    "sellers_duplicate_key_rows": 0,
+    "translations_duplicate_key_rows": 0,
+    "orders_without_customers": 0,
+    "items_without_orders": 0,
+    "items_without_products": 0,
+    "items_without_sellers": 0
+  },
+  "database": "data/processed/olist_analysis.sqlite",
+  "analysis_checks": {
+    "rfm_population": {
+      "buyers": 93358,
+      "repeat_buyers": 2801,
+      "one_time_buyers": 90557,
+      "segments": {
+        "high_value": 21352,
+        "at_risk": 14634,
+        "standard": 33787,
+        "new_active": 21772,
+        "champions": 937,
+        "loyal": 876
+      },
+      "one_time_buyers_in_loyal_or_champions": 0
+    },
+    "cohort_rfm_targeting": {
+      "groups": 88,
+      "volume_eligible_groups": 47,
+      "followup_eligible_groups": 76,
+      "ranked_groups": 41,
+      "duplicate_priority_ranks": 0
+    }
+  }
+}
